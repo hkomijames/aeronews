@@ -1,0 +1,38 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ─── GOOGLE NEWS COMPLIANT AUTHOR TABLE ───
+model User {
+  id          String    @id @default(uuid())
+  email       String    @unique
+  name        String
+  password    String
+  title       String?   // e.g., "Senior Political Correspondent"
+  bio         String?   // Proof of expertise/experience
+  avatarUrl   String?   // Clear headshot of the journalist
+  sameAsLinks String[]  // Array of links (LinkedIn, MuckRack, personal site) to establish E-E-A-T
+  role        String    @default("AUTHOR") 
+  articles    Article[]
+  createdAt   DateTime  @default(now())
+}
+
+// ─── GOOGLE NEWS COMPLIANT ARTICLE TABLE ───
+model Article {
+  id           String   @id @default(uuid())
+  title        String
+  slug         String   @unique
+  excerpt      String?  // Short summary for Google News snippet card
+  content      String   // Raw article body text
+  imageUrl     String?  // Required featured image link for news carousel
+  category     String   @default("General") // e.g., Tech, Local News, Sports
+  isPublished  Boolean  @default(false)
+  createdAt    DateTime @default(now())   // datePublished for Google Bot
+  updatedAt    DateTime @updatedAt        // dateModified for Google Bot
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id])
+}
