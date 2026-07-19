@@ -82,7 +82,7 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
     }
   };
 
-  return (
+   return (
     <div className="max-w-2xl bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl mx-auto my-8 font-sans text-slate-100">
       <h2 className="text-xl font-bold tracking-tight text-white mb-1">Journalist Profile Blueprint</h2>
       <p className="text-xs text-slate-400 mb-6">Configure metadata structures to pass Google News E-E-A-T evaluation checks.</p>
@@ -131,13 +131,45 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
             <label className="block text-xs font-semibold text-slate-400">Authority Verification Links (sameAs Schema)</label>
             <button type="button" onClick={addLinkField} className="text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors">+ Add Link</button>
           </div>
-          <div className="space-y-2">
-            {sameAsLinks.map((link, idx) => (
-              <div key={idx} className="flex items-center space-x-2">
-                <input type="url" placeholder="https://linkedin.com" value={link} onChange={(e) => handleLinkChange(idx, e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-slate-700" />
-                <button type="button" onClick={() => removeLinkField(idx)} className="text-xs px-2.5 py-2 bg-red-950 text-red-400 hover:bg-red-900 border border-red-900 rounded-xl transition-colors">✕</button>
-              </div>
-            ))}
+          <div className="space-y-3">
+            {sameAsLinks.map((link, idx) => {
+              // ─── OPTIMIZED: DETECT DYNAMIC DOMAIN NAMES FOR DESCRIPTIVE LABELS ───
+              let domainLabel = `Verification Link ${idx + 1}`;
+              try {
+                if (link && link.trim().startsWith('http')) {
+                  const urlObj = new URL(link.trim());
+                  const host = urlObj.hostname.replace('www.', '');
+                  const brand = host.split('.')[0];
+                  domainLabel = brand.charAt(0).toUpperCase() + brand.slice(1) + ' Profile';
+                }
+              } catch (e) {
+                // Graceful fallback while typing incomplete URLs
+              }
+
+              return (
+                <div key={idx} className="space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500 block pl-1">
+                    {domainLabel}
+                  </span>
+                  <div className="flex items-center space-x-2">
+                    <input 
+                      type="url" 
+                      placeholder="https://linkedin.com" 
+                      value={link} 
+                      onChange={(e) => handleLinkChange(idx, e.target.value)} 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-slate-700" 
+                    />
+                    <button 
+                      type="button" 
+                      onClick={() => removeLinkField(idx)} 
+                      className="text-xs px-2.5 py-2 bg-red-950 text-red-400 hover:bg-red-900 border border-red-900 rounded-xl transition-colors shrink-0"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
             {sameAsLinks.length === 0 && <p className="text-xs text-slate-500 italic py-1">No reference footprints added yet.</p>}
           </div>
         </div>
@@ -152,3 +184,4 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
     </div>
   );
 }
+ 
