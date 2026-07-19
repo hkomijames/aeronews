@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import Link from 'next/link';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -66,7 +67,7 @@ export default async function ArticlePage({ params }: Props) {
     },
     'publisher': {
       '@type': 'Organization',
-      'name': 'AV Newsroom',
+      'name': 'Aero Saga',
       'logo': {
         '@type': 'ImageObject',
         'url': `${siteUrl}/logo.png`,
@@ -86,10 +87,11 @@ export default async function ArticlePage({ params }: Props) {
         
         {/* LEFT & CENTER CLUSTERS: MAIN EDITORIAL CONTENT ENGINE */}
         <main className="lg:col-span-2">
+          <Link href={`/category/${article.category.toLowerCase()}`}>
           <span className="text-xs font-black uppercase text-blue-600 tracking-widest bg-blue-50 px-2.5 py-1 rounded">
             {article.category}
           </span>
-          
+          </Link>
           <h1 className="article-title font-black text-slate-900 mt-4 mb-6 leading-tight tracking-tight">
             {article.title}
           </h1>
@@ -124,7 +126,7 @@ export default async function ArticlePage({ params }: Props) {
               <img 
                 src={article.imageUrl} 
                 alt={article.title}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain object-center rounded-2xl"
               />
             </div>
           )}
