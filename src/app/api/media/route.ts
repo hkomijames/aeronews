@@ -1,24 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { promises as fs } from 'fs';
-import path from 'path';
+import { put } from '@vercel/blob';
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
-    if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
-
-    // Stream directly using arrayBuffer and write cleanly into public/media
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
     
-    const mediaDir = path.join(process.cwd(), 'public', 'media');
-    await fs.mkdir(mediaDir, { recursive: true });
+    if (!file) {
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    }
 
-    await fs.writeFile(path.join(mediaDir, fileName), buffer);
-    return NextResponse.json({ success: true, url: `/media/${fileName}` });
+    // Clean up spaces in filenames to maintain valid URLs
+    const sanitizedFileName = file.name.replace(/\s+/g, '-');
+    const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
+
+    // Upload directly to Vercel Blob Cloud Storage
+    const blob = await put(uniqueFileName, file, {
+      access: 'public', // Makes the file readable across the web
+    });
+
+    // Returns the live, globally accessible CDN URL (e.g., https://vercel-storage.com)
+    return NextResponse.json({ success: true, url: blob.url });
 
   } catch (error) {
+    console.error("Cloud upload error:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

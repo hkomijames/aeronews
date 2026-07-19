@@ -35,13 +35,12 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
       onChange(editor.getHTML()); // Bubble HTML content up to the parent form state
     },
     editorProps: {
-  attributes: {
-    // ─── OPTIMIZED: Combined into a clean single string spacing token line to prevent DOM crashes ───
-    class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-video:w-full prose-video:aspect-video prose-video:rounded-xl prose-video:my-6 prose-video:shadow-md prose-video:bg-black prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
-    spellcheck: 'true',
-  },
-},
-
+      attributes: {
+        // ─── OPTIMIZED: Combined into a clean single string spacing token line to prevent DOM crashes ───
+        class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-video:w-full prose-video:aspect-video prose-video:rounded-xl prose-video:my-6 prose-video:shadow-md prose-video:bg-black prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
+        spellcheck: 'true',
+      },
+    },
   });
 
   if (!editor) return null;
@@ -52,17 +51,12 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
     if (url) editor.chain().focus().setLink({ href: url }).run();
   };
 
-  // ─── UPDATED: CHOOSE IMAGE WITH DYNAMIC ALT TEXT & CAPTION BLOCKS ───
+  // ─── OPTIMIZED: FILE PICKER OPENS FIRST, THEN PROMPTS AFTER UPLOAD ───
   const addImageLocally = () => {
-    // 1. Prompt the writer for accessibility validation parameters up front
-    const altText = window.prompt('Enter Image Alt Text (Crucial for Google Bots SEO):');
-    if (altText === null) return; // Exit loop if author cancels prompt box
-
-    const caption = window.prompt('Enter Image Caption Text (Optional - Displays underneath image):');
-
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
+
     input.onchange = async () => {
       const file = input.files?.[0];
       if (!file) return;
@@ -73,7 +67,13 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
       try {
         const res = await fetch('/api/media', { method: 'POST', body: formData });
         const data = await res.json();
+
         if (data.success) {
+          // Only prompt the writer for accessibility validation parameters AFTER confirmation of upload success
+          const altText = window.prompt('Enter Image Alt Text (Crucial for Google Bots SEO):');
+          if (altText === null) return; // Exit loop if author cancels prompt box
+
+          const caption = window.prompt('Enter Image Caption Text (Optional - Displays underneath image):');
           const validatedAlt = altText.trim() || 'News illustration graphic';
           
           if (caption && caption.trim()) {
@@ -97,6 +97,8 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
         alert('Network error uploading image.');
       }
     };
+
+    // Programmatically fire the file picker window open immediately
     input.click();
   };
 
