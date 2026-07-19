@@ -11,8 +11,8 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Airplane News', href: '/news/airplane-news' }, // Maps directly to [category]
-    { name: 'Airport News', href: '/news/airport-news' },   // Maps directly to [category]
+    { name: 'Airplane News', href: '/category/airplane-news' }, // Maps directly to [category]
+    { name: 'Airport News', href: '/category/airport-news' },   // Maps directly to [category]
   ];
 
   return (

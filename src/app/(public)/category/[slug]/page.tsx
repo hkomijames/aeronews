@@ -2,20 +2,19 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
 
-// Define the precise type blueprint required by the Next.js compilation engine
 interface CategoryPageProps {
   params: Promise<{
-    category: string;
+    slug: string;
   }>;
 }
 
-export default async function CategoryNewsPage({ params }: CategoryPageProps) {
-  // 1. Await route parameters to remain compliant with the Next.js compilation engine
-  const { category } = await params;
+export default async function DynamicCategoryPage({ params }: CategoryPageProps) {
+  // 1. Await parameters to comply with Next.js asynchronous compilation rules
+  const { slug } = await params;
 
-  // 2. Normalize and format slugs to match your database naming constraints
-  // e.g., converts "airplane-news" into a readable headline like "Airplane News"
-  const formattedCategoryTitle = category
+  // 2. Normalize and format the slug to look for a matching database category
+  // e.g., converts "airplane-news" into a clean string match "Airplane News"
+  const formattedCategoryTitle = slug
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
@@ -25,7 +24,7 @@ export default async function CategoryNewsPage({ params }: CategoryPageProps) {
     where: {
       category: {
         equals: formattedCategoryTitle,
-        mode: 'insensitive', // Prevents minor case-mismatch issues from throwing 404s
+        mode: 'insensitive', // Prevents case-mismatches from causing accidental 404s
       },
       isPublished: true,
     },
@@ -37,7 +36,7 @@ export default async function CategoryNewsPage({ params }: CategoryPageProps) {
     },
   });
 
-  // 4. Return an editorial 404 layout screen if the category parameter doesn't exist
+  // 4. Return an editorial 404 screen if the category parameter contains no articles
   if (articles.length === 0) {
     notFound();
   }
@@ -46,7 +45,7 @@ export default async function CategoryNewsPage({ params }: CategoryPageProps) {
     <main className="min-h-screen bg-slate-950 text-slate-100 p-8 font-sans">
       <div className="max-w-[80%] mx-auto">
         
-        {/* Category Header */}
+        {/* Category Header Banner */}
         <header className="mb-12 border-b border-slate-800 pb-6">
           <span className="text-xs font-bold uppercase tracking-widest text-orange-500">Aviation Index Feed</span>
           <h1 className="text-4xl font-black tracking-tight text-white mt-1">{formattedCategoryTitle} Desk</h1>
@@ -55,14 +54,14 @@ export default async function CategoryNewsPage({ params }: CategoryPageProps) {
           </p>
         </header>
 
-        {/* Responsive Article Grid Layout */}
+        {/* Responsive Article Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {articles.map((article) => (
             <article 
               key={article.id} 
               className="bg-slate-900 border border-slate-800/80 hover:border-slate-700/60 rounded-2xl overflow-hidden shadow-xl transition-all duration-300 flex flex-col group"
             >
-              {/* Thumbnail Container */}
+              {/* Thumbnail Media Box */}
               {article.imageUrl && (
                 <div className="w-full aspect-video overflow-hidden bg-slate-950 border-b border-slate-800/40 relative">
                   <img 
@@ -73,18 +72,21 @@ export default async function CategoryNewsPage({ params }: CategoryPageProps) {
                 </div>
               )}
 
-              {/* Text Context Area */}
+              {/* Text Layout Context Space */}
               <div className="p-5 flex-1 flex flex-col justify-between">
                 <div>
                   <h2 className="text-base font-bold text-slate-100 group-hover:text-white leading-snug line-clamp-2">
-                    {article.title}
+                    {/* Points cleanly back into your individual article layout file directory */}
+                    <Link href={`/news/${article.slug}`} className="hover:underline">
+                      {article.title}
+                    </Link>
                   </h2>
                   <p className="text-xs text-slate-400 line-clamp-3 mt-2 leading-relaxed">
                     {article.excerpt}
                   </p>
                 </div>
 
-                {/* Author Metadata Footer */}
+                {/* Author Metadata Row */}
                 <div className="mt-6 pt-4 border-t border-slate-800/40 flex items-center gap-3">
                   {article.author.avatarUrl ? (
                     <img 

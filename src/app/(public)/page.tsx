@@ -75,7 +75,7 @@ export default async function PublicHomePage() {
         <div className="lg:col-span-2">
           <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
             <h2 className="text-xl font-black tracking-tight text-slate-900">Airplane Saga</h2>
-            <Link href="/news/airplane-news" className="text-xs text-blue-600 font-bold hover:underline">
+            <Link href="/category/airplane-news" className="text-xs text-blue-600 font-bold hover:underline">
               View All Airplane News →
             </Link>
           </div>
@@ -176,7 +176,7 @@ export default async function PublicHomePage() {
           <div className="lg:col-span-2">
             <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
               <h2 className="text-xl font-black tracking-tight text-slate-900">Airport Saga</h2>
-              <Link href="/news/airport-news" className="text-xs text-blue-600 font-bold hover:underline">
+              <Link href="/category/airport-news" className="text-xs text-blue-600 font-bold hover:underline">
                 View All Airport News →
               </Link>
             </div>
