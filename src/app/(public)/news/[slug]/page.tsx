@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
+import SocialShare from '../../components/SocialShare';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -190,6 +191,8 @@ export default async function ArticlePage({ params }: Props) {
                        prose-figcaption:tracking-wide"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
+
+           <SocialShare title={article.title} slug={article.slug} />
 
           {article.author.bio && (
             <footer className="mt-16 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col gap-3 font-sans">
