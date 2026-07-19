@@ -1,26 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db'; // Correct absolute alias mapping
 
-// ─── OPTIMIZED: FORCE STATIC COMPILER TO BYPASS THIS ENTIRE ROUTE ───
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-// ─── OPTIMIZED: PREVENT DATABASE CONNECTION FLOODING DURING CLOUD BUILDS ───
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
-const prisma = globalForPrisma.prisma || new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
-// Helper to authenticate the incoming cookie stream
 async function getSessionUser() {
   try {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('auth_session');
-
     if (!sessionCookie) return null;
-
-    // Parse the JSON data matching your HQPortalPage structure
-    return JSON.parse(sessionCookie.value); // Returns { email, role, id, ... } depending on your login payload
+    return JSON.parse(sessionCookie.value);
   } catch (err) {
     return null;
   }
@@ -29,12 +19,14 @@ async function getSessionUser() {
 export async function GET() {
   try {
     const session = await getSessionUser();
+    
+    // Safeguard to skip compilation-checks gracefully
     if (!session || !session.email) {
       return NextResponse.json({ error: "Unauthorized session token" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: session.email }, // Look up by the dynamic cookie email value
+      where: { email: session.email },
       select: {
         id: true,
         name: true,
@@ -73,7 +65,7 @@ export async function PUT(request: NextRequest) {
       : [];
 
     const updatedUser = await prisma.user.update({
-      where: { email: session.email }, // Safely scopes mutations to the logged-in writer
+      where: { email: session.email },
       data: {
         name: name.trim(),
         title: title?.trim() || null,

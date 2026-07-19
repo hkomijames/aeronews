@@ -9,10 +9,19 @@ let prismaInstance: PrismaClient;
 if (globalForPrisma.prisma) {
   prismaInstance = globalForPrisma.prisma;
 } else {
-  // Ensure DATABASE_URL is only read inside node environment steps
-  const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-  const adapter = new PrismaPg(pool);
-  prismaInstance = new PrismaClient({ adapter });
+  // ─── OPTIMIZED: LAZY INITIALIZATION SHIELDS COMPILER FROM SOCKET TIMEOUTS ───
+  // We use a proxy handler to intercept calls to Prisma. It will only open the connection 
+  // pool when your code actually executes a query (like findUnique) at runtime.
+  prismaInstance = new Proxy({} as PrismaClient, {
+    get(target, prop, receiver) {
+      if (!globalForPrisma.prisma) {
+        const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+        const adapter = new PrismaPg(pool);
+        globalForPrisma.prisma = new PrismaClient({ adapter });
+      }
+      return Reflect.get(globalForPrisma.prisma, prop, receiver);
+    }
+  });
 }
 
 export const prisma = prismaInstance;
