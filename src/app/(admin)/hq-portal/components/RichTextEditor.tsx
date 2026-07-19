@@ -77,13 +77,15 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
           const validatedAlt = altText.trim() || 'News illustration graphic';
           
           if (caption && caption.trim()) {
-            // Embeds standard clean semantic figure nodes with a beautifully styled caption block
+            // OPTIMIZED: Removed excess empty trailing paragraph structures to fix spacing.
+            // The caption text is explicitly wrapped inside the "italic" tag for isolation.
             const figureHtml = `
               <figure class="my-6 text-center">
                 <img src="${data.url}" alt="${validatedAlt}" class="rounded-xl max-h-[400px] object-cover mx-auto shadow-md" />
-                <figcaption class="text-xs text-slate-400 mt-2 italic font-sans">${caption.trim()}</figcaption>
+                <figcaption class="text-xs text-slate-400 mt-2 font-sans">
+                  <i>${caption.trim()}</i>
+                </figcaption>
               </figure>
-              <p></p>
             `;
             editor.chain().focus().insertContent(figureHtml).run();
           } else {

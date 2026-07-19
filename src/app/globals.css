@@ -53,17 +53,12 @@ body {
   z-index: 10;
 }
 
-nav ul {
-  display: flex;
-  list-style: none;         
-}
-
-nav ul li {
-  margin: 0 1rem;
-}
-
 nav {
   margin: 0 auto;
+}
+
+.font-serif {
+  font-family: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
 
