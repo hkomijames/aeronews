@@ -2,21 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { PrismaClient } from '@prisma/client';
 
+// ─── OPTIMIZED: FORCE STATIC COMPILER TO BYPASS THIS ENTIRE ROUTE ───
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-const prisma = new PrismaClient();
+// ─── OPTIMIZED: PREVENT DATABASE CONNECTION FLOODING DURING CLOUD BUILDS ───
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+const prisma = globalForPrisma.prisma || new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Helper to authenticate the incoming cookie stream
 async function getSessionUser() {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('auth_session');
-
-  if (!sessionCookie) return null;
-
   try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('auth_session');
+
+    if (!sessionCookie) return null;
+
     // Parse the JSON data matching your HQPortalPage structure
-    const session = JSON.parse(sessionCookie.value);
-    return session; // Returns { email, role, id, ... } depending on your login payload
+    return JSON.parse(sessionCookie.value); // Returns { email, role, id, ... } depending on your login payload
   } catch (err) {
     return null;
   }
