@@ -15,7 +15,7 @@ export async function generateStaticParams() {
   const articles = await prisma.article.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: 'desc' },
-    take: 100, // Pre-compiles the 100 latest articles. Older ones build on-demand and cache forever.
+    take: 500, // Pre-compiles the 500 latest articles. Older ones build on-demand and cache forever.
     select: { slug: true },
   });
 
@@ -62,6 +62,18 @@ export default async function ArticlePage({ params }: Props) {
   if (!article || !article.isPublished) {
     notFound();
   }
+
+  // ─── COST-OPTIMIZED RELATED POSTS PIPELINE (Computed once at build time) ───
+  const relatedArticles = await prisma.article.findMany({
+    where: {
+      category: article.category,
+      isPublished: true,
+      NOT: { id: article.id }, // Never show the current article as related to itself
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 3, // Pull exactly 3 items to fit a clean responsive desktop layout row
+    include: { author: true },
+  });
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
 
@@ -151,7 +163,6 @@ export default async function ArticlePage({ params }: Props) {
               />
             </div>
           )}
-
           {/* ─── CAREFULLY UPDATED: News-Worthy Premium Editorial Font Canvas ─── */}
           <div 
             className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
@@ -179,6 +190,7 @@ export default async function ArticlePage({ params }: Props) {
                        prose-figcaption:tracking-wide"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
+
           {article.author.bio && (
             <footer className="mt-16 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col gap-3 font-sans">
               <h3 className="font-black text-xs uppercase tracking-widest text-blue-600">About the Author</h3>
@@ -262,6 +274,51 @@ export default async function ArticlePage({ params }: Props) {
         </aside>
 
       </div>
+
+      {/* ─── NEW SHIELD SECTION: FREE CDN-CACHED RELATED ARTICLES MODULE ─── */}
+      {relatedArticles.length > 0 && (
+        <section className="border-t border-slate-100 bg-slate-50/50 py-16 mt-16 font-sans">
+          <div className="max-w-7xl mx-auto px-4 md:px-8">
+            <div className="mb-8">
+              <span className="text-xs uppercase font-bold tracking-widest text-blue-600">Editorial Stream</span>
+              <h3 className="text-xl font-black text-slate-900 mt-0.5 tracking-tight">Related Coverage</h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedArticles.map((item) => (
+                <div key={item.id} className="group bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-xs flex flex-col justify-between p-4">
+                  <div>
+                    {item.imageUrl && (
+                      <div className="w-full aspect-video rounded-xl overflow-hidden bg-slate-50 border border-slate-100/60 mb-4">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          loading="lazy"   // Cost-Saver: Only fetches pixels if users scroll to bottom
+                          decoding="async" // High Speeds: Non-blocking image decode
+                          className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                        />
+                      </div>
+                    )}
+                    <h4 className="font-extrabold text-slate-900 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
+                      <Link href={`/news/${item.slug}`}>
+                        {item.title}
+                      </Link>
+                    </h4>
+                    <p className="text-xs text-slate-500 line-clamp-2 mt-2 leading-relaxed">
+                      {item.excerpt}
+                    </p>
+                  </div>
+                  
+                  <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-400">
+                    <span className="font-bold text-slate-700">{item.author.name}</span>
+                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
 
-export const revalidate = 300;
+export const revalidate = 900;
 
 export default async function PublicHomePage() {
   // 1. Fetch live articles from PostgreSQL via Prisma for instant SSR speeds
