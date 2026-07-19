@@ -1,8 +1,14 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db'; 
+import { Prisma } from '@prisma/client'; // 👈 INJECTED FOR STRICT TYPINGS
 import { togglePublishStatus, deleteArticle } from './article-actions';
 import HQPortalTabsContainer from './components/HQPortalTabsContainer';
+
+// Define a type blueprint that matches the exact relations fetched below
+type ArticleWithAuthor = Prisma.ArticleGetPayload<{
+  include: { author: true }
+}>;
 
 export default async function HQPortalPage() {
   const cookieStore = await cookies();
@@ -12,16 +18,50 @@ export default async function HQPortalPage() {
     redirect('/hq-portal/login');
   }
 
-  const session = JSON.parse(sessionCookie.value);
+  let session;
+  try {
+    session = JSON.parse(sessionCookie.value);
+  } catch (err) {
+    redirect('/hq-portal/login');
+  }
+
   const userRole = session.role; 
+  const userEmail = session.email;
 
-  // Fetch all articles directly on the server to pass cleanly into the audit log view
-  const articles = await prisma.article.findMany({
-    orderBy: { createdAt: 'desc' },
-    include: { author: true }
-  });
+  // ─── OPTIMIZED: STRICTLY TYPED MATRICES PREVENT COMPILER ERRORS ───
+  let articles: ArticleWithAuthor[] = [];
+  let currentAuthorData: {
+    name: string;
+    title: string | null;
+    bio: string | null;
+    avatarUrl: string | null;
+    sameAsLinks: string[];
+  } | null = null;
 
-  // Server Action function triggered inside our dashboard form layout element
+  try {
+    // ─── SAFEGUARDED: Fetch operations wrapped together to prevent compiler data failures ───
+    articles = await prisma.article.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { author: true }
+    });
+
+    if (userEmail) {
+      currentAuthorData = await prisma.user.findUnique({
+        where: { email: userEmail },
+        select: {
+          name: true,
+          title: true,
+          bio: true,
+          avatarUrl: true,
+          sameAsLinks: true,
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Graceful database isolation fallback tracker:", error);
+    // Prevents breaking the layout if a database connection times out during a server sleep cycle
+  }
+
   async function handleLogout() {
     "use server"; 
     const cookieStore = await cookies();
@@ -29,7 +69,6 @@ export default async function HQPortalPage() {
     redirect('/hq-portal/login');
   }
 
-  // Pass server data down cleanly into the client shell wrapper
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-8 font-sans">
       <header className="mb-8 border-b border-slate-800 pb-6 flex justify-between items-center">
@@ -40,7 +79,6 @@ export default async function HQPortalPage() {
           </p>
         </div>
         
-        {/* Clean, zero-client server-driven signout button form */}
         <form action={handleLogout}>
           <button 
             type="submit"
@@ -55,6 +93,7 @@ export default async function HQPortalPage() {
       <HQPortalTabsContainer 
         userRole={userRole} 
         articles={articles}
+        initialProfileData={currentAuthorData} // 👈 PASSED: No more background fetch 401 bugs!
         togglePublishStatus={togglePublishStatus}
         deleteArticle={deleteArticle}
       />

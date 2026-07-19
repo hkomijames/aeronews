@@ -23,6 +23,7 @@ interface Article {
 interface TabsContainerProps {
   userRole: string;
   articles: Article[];
+  initialProfileData: any;
   // ─── OPTIMIZED: Changed from Promise<void> to Promise<any> to match your action payloads ───
   togglePublishStatus: (id: string, isPublished: boolean) => Promise<any>;
   deleteArticle: (id: string) => Promise<any>;
@@ -31,6 +32,7 @@ interface TabsContainerProps {
 export default function HQPortalTabsContainer({
   userRole,
   articles,
+  initialProfileData,
   togglePublishStatus,
   deleteArticle
 }: TabsContainerProps) {
@@ -166,7 +168,7 @@ export default function HQPortalTabsContainer({
       {/* 2. PROFILE EDIT SUB-FORM PANEL */}
       {activeTab === 'profile' && (
         <div className="animate-fadeIn">
-          <EditProfileForm />
+           <EditProfileForm initialData={initialProfileData} />
         </div>
       )}
 

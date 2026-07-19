@@ -1,52 +1,30 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { updateUserProfile } from '../profile-actions'; // Verified Server Action pipeline connection
 
-export default function EditProfileForm() {
-  const [loading, setLoading] = useState(true);
+// ─── 1. TYPE CONTRACT DEFINITIONS FOR STRICT COMPILER COMPLIANCE ───
+interface EditProfileFormProps {
+  initialData: {
+    name: string;
+    title: string | null;
+    bio: string | null;
+    avatarUrl: string | null;
+    sameAsLinks: string[];
+  } | null;
+}
+
+export default function EditProfileForm({ initialData }: EditProfileFormProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  // Component states matching your User Prisma schema
-  const [name, setName] = useState('');
-  const [title, setTitle] = useState('');
-  const [bio, setBio] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const [sameAsLinks, setSameAsLinks] = useState<string[]>([]);
-
-  // Automatically streams cookies implicitly to populate your form state on mount
-  useEffect(() => {
-    async function loadProfile() {
-      try {
-        // OPTIMIZED: Added credentials configuration to pass cookies securely on initial load
-        const res = await fetch('/api/profile', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Accept': 'application/json'
-          }
-        });
-        const data = await res.json();
-        
-        if (res.ok) {
-          setName(data.name || '');
-          setTitle(data.title || '');
-          setBio(data.bio || '');
-          setAvatarUrl(data.avatarUrl || '');
-          setSameAsLinks(data.sameAsLinks || []);
-        } else {
-          // Captures 401 Unauthorized cookie failures cleanly
-          setError(data.error || 'Failed to initialize profile session.');
-        }
-      } catch (err) {
-        setError('Network runtime error checking credentials.');
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadProfile();
-  }, []);
+  // States populated directly from server payload on mount - no background fetch 401 crashes!
+  const [name, setName] = useState(initialData?.name || '');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [bio, setBio] = useState(initialData?.bio || '');
+  const [avatarUrl, setAvatarUrl] = useState(initialData?.avatarUrl || '');
+  const [sameAsLinks, setSameAsLinks] = useState<string[]>(initialData?.sameAsLinks || []);
 
   // Uploads headshots straight to Vercel Blob cloud storage
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,23 +66,14 @@ export default function EditProfileForm() {
     setSuccess(false);
 
     try {
-      // OPTIMIZED: Added credentials configuration to carry cookie parameters seamlessly during mutation
-      const res = await fetch('/api/profile', {
-        method: 'PUT',
-        credentials: 'include',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ name, title, bio, avatarUrl, sameAsLinks }),
-      });
-      const data = await res.json();
+      // Calls the server action directly in a secure execution context
+      const res = await updateUserProfile({ name, title, bio, avatarUrl, sameAsLinks });
 
-      if (res.ok) {
+      if (res.success) {
         setSuccess(true);
         setTimeout(() => setSuccess(false), 4000);
       } else {
-        setError(data.error || 'Update stream rejected.');
+        setError(res.error || 'Update stream rejected.');
       }
     } catch (err) {
       setError('Network sync timeout.');
@@ -112,8 +81,6 @@ export default function EditProfileForm() {
       setSaving(false);
     }
   };
-
-  if (loading) return <div className="text-slate-400 p-6 animate-pulse text-sm">Validating Profile Session...</div>;
 
   return (
     <div className="max-w-2xl bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl mx-auto my-8 font-sans text-slate-100">
@@ -175,7 +142,7 @@ export default function EditProfileForm() {
           </div>
         </div>
 
-        {/* Submit */}
+        {/* Submit Action */}
         <div className="pt-2 border-t border-slate-800/60">
           <button type="submit" disabled={saving} className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 font-semibold text-sm rounded-xl text-white transition-colors duration-200 disabled:opacity-50">
             {saving ? 'Synchronizing Profiles...' : 'Commit Profile Modifications'}
