@@ -22,10 +22,10 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
 
   // 3. FIXED: Proper network intent routes using template literal variables
   const shareLinks = {
-    twitter: `https://twitter.com{encodedUrl}&text=${encodedTitle}`,
-    facebook: `https://facebook.com{encodedUrl}`,
-    linkedin: `https://linkedin.com{encodedUrl}`,
-    whatsapp: `https://whatsapp.com{encodedTitle}%20${encodedUrl}`
+    twitter: `https://twitter.com${encodedUrl}&text=${encodedTitle}`,
+    facebook: `https://facebook.com${encodedUrl}`,
+    linkedin: `https://linkedin.com${encodedUrl}`,
+    whatsapp: `https://whatsapp.com${encodedTitle}%20${encodedUrl}`
   };
 
   const handleCopyLink = async () => {
