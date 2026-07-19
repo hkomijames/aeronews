@@ -17,7 +17,9 @@ export async function updateUserProfile(formData: {
     if (!sessionCookie) return { success: false, error: "Unauthorized session token" };
 
     const session = JSON.parse(sessionCookie.value);
-    if (!session.email) return { success: false, error: "Invalid session metadata" };
+    
+    // ─── OPTIMIZED: READS UNIQUE ID DIRECTLY FROM YOUR COOKIE METADATA ───
+    if (!session.id) return { success: false, error: "Invalid session metadata" };
 
     if (!formData.name || !formData.name.trim()) {
       return { success: false, error: "Display Name is required" };
@@ -27,8 +29,9 @@ export async function updateUserProfile(formData: {
       ? formData.sameAsLinks.map((l) => l.trim()).filter((l) => l.length > 0)
       : [];
 
+    // Updates database profile row matched explicitly to your session account ID
     await prisma.user.update({
-      where: { email: session.email },
+      where: { id: session.id }, // 👈 MATCHED VIA ID FIELD
       data: {
         name: formData.name.trim(),
         title: formData.title?.trim() || null,

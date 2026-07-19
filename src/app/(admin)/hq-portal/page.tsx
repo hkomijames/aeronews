@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/db'; 
-import { Prisma } from '@prisma/client'; // 👈 INJECTED FOR STRICT TYPINGS
+import { Prisma } from '@prisma/client'; // INJECTED FOR STRICT TYPINGS
 import { togglePublishStatus, deleteArticle } from './article-actions';
 import HQPortalTabsContainer from './components/HQPortalTabsContainer';
 
@@ -26,9 +26,9 @@ export default async function HQPortalPage() {
   }
 
   const userRole = session.role; 
-  const userEmail = session.email;
+  const userId = session.id; // ─── OPTIMIZED: READS UNIQUE USER ID INSTEAD OF EMAIL FROM YOUR COOKIE METADATA ───
 
-  // ─── OPTIMIZED: STRICTLY TYPED MATRICES PREVENT COMPILER ERRORS ───
+  // STRICTLY TYPED MATRICES PREVENT COMPILER ERRORS
   let articles: ArticleWithAuthor[] = [];
   let currentAuthorData: {
     name: string;
@@ -39,15 +39,16 @@ export default async function HQPortalPage() {
   } | null = null;
 
   try {
-    // ─── SAFEGUARDED: Fetch operations wrapped together to prevent compiler data failures ───
+    // SAFEGUARDED: Fetch operations wrapped together to prevent compiler data failures
     articles = await prisma.article.findMany({
       orderBy: { createdAt: 'desc' },
       include: { author: true }
     });
 
-    if (userEmail) {
+    // ─── OPTIMIZED: LOOKS UP THE LOGGED-IN JOURNALIST BY UNIQUE USER ID ───
+    if (userId) {
       currentAuthorData = await prisma.user.findUnique({
-        where: { email: userEmail },
+        where: { id: userId }, // TARGETS THE SPECIFIC DATABASE RECORD ID STRING
         select: {
           name: true,
           title: true,
@@ -93,7 +94,7 @@ export default async function HQPortalPage() {
       <HQPortalTabsContainer 
         userRole={userRole} 
         articles={articles}
-        initialProfileData={currentAuthorData} // 👈 PASSED: No more background fetch 401 bugs!
+        initialProfileData={currentAuthorData} // PASSED: Initial server data prevents fetch 401 bugs!
         togglePublishStatus={togglePublishStatus}
         deleteArticle={deleteArticle}
       />
