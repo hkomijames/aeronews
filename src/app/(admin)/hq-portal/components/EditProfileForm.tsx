@@ -19,7 +19,14 @@ export default function EditProfileForm() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const res = await fetch('/api/profile');
+        // OPTIMIZED: Added credentials configuration to pass cookies securely on initial load
+        const res = await fetch('/api/profile', {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json'
+          }
+        });
         const data = await res.json();
         
         if (res.ok) {
@@ -81,10 +88,14 @@ export default function EditProfileForm() {
     setSuccess(false);
 
     try {
-      // NOTE: No ID or Email payload is passed here. The server infers who you are from your cookie.
+      // OPTIMIZED: Added credentials configuration to carry cookie parameters seamlessly during mutation
       const res = await fetch('/api/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify({ name, title, bio, avatarUrl, sameAsLinks }),
       });
       const data = await res.json();
@@ -170,7 +181,6 @@ export default function EditProfileForm() {
             {saving ? 'Synchronizing Profiles...' : 'Commit Profile Modifications'}
           </button>
         </div>
-
       </form>
     </div>
   );
