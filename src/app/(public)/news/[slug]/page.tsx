@@ -163,12 +163,38 @@ export default async function ArticlePage({ params }: Props) {
               <p className="text-sm text-slate-600 leading-relaxed">{article.author.bio}</p>
               {article.author.sameAsLinks.length > 0 && (
                 <div className="flex flex-wrap gap-3 mt-1">
-                  {article.author.sameAsLinks.map((link, index) => (
-                    <a key={index} href={link} target="_blank" rel="noreferrer" className="text-xs text-blue-600 hover:underline font-bold">
-                      Verification Credentials {index + 1}
-                    </a>
-                  ))}
-                </div>
+  {article.author.sameAsLinks.map((link, index) => {
+    // ─── OPTIMIZED: EXTRACT REAL-TIME BRAND TITLES FOR PUBLIC ARCHIVES ───
+    let dynamicLabel = `Verification Link ${index + 1}`;
+    try {
+      if (link && link.trim().startsWith('http')) {
+        const urlObj = new URL(link.trim());
+        // Clean up subdomains (like www.) to extract the primary host name
+        const host = urlObj.hostname.replace('www.', '');
+        const brandParts = host.split('.');
+        
+        // Grab the brand name (e.g. "linkedin" or "muckrack") and capitalize the first letter
+        const rawBrand = brandParts[0];
+        dynamicLabel = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1);
+      }
+    } catch (e) {
+      // Graceful fallback if the string model saved in Prisma is somehow broken
+    }
+
+    return (
+      <a 
+        key={index} 
+        href={link} 
+        target="_blank" 
+        rel="noreferrer" 
+        className="text-xs text-blue-600 hover:underline font-bold transition-colors duration-150"
+      >
+        {dynamicLabel}
+      </a>
+    );
+  })}
+</div>
+
               )}
             </footer>
           )}
