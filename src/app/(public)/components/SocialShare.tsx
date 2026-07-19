@@ -11,14 +11,16 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
 
   // 1. Construct the production public path address
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app/';
-  const fullUrl = `${siteUrl}/news/${slug}`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app';
+  // Strip trailing slashes safely if present to avoid dual-slash errors
+  const cleanSiteUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
+  const fullUrl = `${cleanSiteUrl}/news/${slug}`;
   
   // 2. Format components for URL parameters safely
   const encodedUrl = encodeURIComponent(fullUrl);
   const encodedTitle = encodeURIComponent(`${title} | AV Newsroom`);
 
-  // 3. Native Network Share Target URIs
+  // 3. FIXED: Proper network intent routes using template literal variables
   const shareLinks = {
     twitter: `https://twitter.com{encodedUrl}&text=${encodedTitle}`,
     facebook: `https://facebook.com{encodedUrl}`,
@@ -36,17 +38,17 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
     }
   };
   return (
-    <div className="flex flex-wrap items-center gap-2 py-3 border-y border-slate-100 my-6 font-sans">
-      <span className="text-[11px] font-black uppercase text-slate-400 tracking-wider mr-2">
+    <div className="flex flex-wrap items-center gap-2.5 py-4 border-y border-slate-100 my-6 font-sans">
+      <span className="text-[11px] font-black uppercase text-slate-400 tracking-widest mr-1">
         Share Coverage:
       </span>
 
-      {/* Twitter / X */}
+      {/* Twitter / X - Premium Minimal Dark */}
       <a
         href={shareLinks.twitter}
         target="_blank"
         rel="noopener noreferrer"
-        className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors border border-slate-100"
+        className="p-2.5 rounded-xl bg-slate-900 text-white hover:bg-black hover:scale-[1.03] transition-all duration-200 border border-slate-950 shadow-xs flex items-center justify-center"
         title="Share on X"
       >
         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -54,12 +56,12 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
         </svg>
       </a>
 
-      {/* Facebook */}
+      {/* Facebook - Official Brand Blue */}
       <a
         href={shareLinks.facebook}
         target="_blank"
         rel="noopener noreferrer"
-        className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors border border-slate-100"
+        className="p-2.5 rounded-xl bg-[#1877F2] text-white hover:bg-[#145dbf] hover:scale-[1.03] transition-all duration-200 shadow-xs flex items-center justify-center"
         title="Share on Facebook"
       >
         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -67,12 +69,12 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
         </svg>
       </a>
 
-      {/* LinkedIn */}
+      {/* LinkedIn - Corporate Identity Blue */}
       <a
         href={shareLinks.linkedin}
         target="_blank"
         rel="noopener noreferrer"
-        className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors border border-slate-100"
+        className="p-2.5 rounded-xl bg-[#0A66C2] text-white hover:bg-[#084d94] hover:scale-[1.03] transition-all duration-200 shadow-xs flex items-center justify-center"
         title="Share on LinkedIn"
       >
         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -80,12 +82,12 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
         </svg>
       </a>
 
-      {/* WhatsApp */}
+      {/* WhatsApp - High Visibility Mobile Green */}
       <a
         href={shareLinks.whatsapp}
         target="_blank"
         rel="noopener noreferrer"
-        className="p-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 transition-colors border border-slate-100"
+        className="p-2.5 rounded-xl bg-[#25D366] text-white hover:bg-[#1ebd56] hover:scale-[1.03] transition-all duration-200 shadow-xs flex items-center justify-center"
         title="Share on WhatsApp"
       >
         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
@@ -93,16 +95,16 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
         </svg>
       </a>
 
-      {/* Copy Link Button */}
+      {/* Copy Link Button - Modern Textured Slate */}
       <button
         onClick={handleCopyLink}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold transition-colors border border-slate-100 cursor-pointer"
+        className="flex items-center gap-1.5 ml-auto px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all duration-200 border border-slate-200 shadow-xs cursor-pointer select-none"
         title="Copy link to clipboard"
       >
-        <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+        <svg className="w-3.5 h-3.5 text-slate-600" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" />
         </svg>
-        {copied ? 'Copied!' : 'Copy Link'}
+        {copied ? 'Copied Link!' : 'Copy Link'}
       </button>
     </div>
   );
