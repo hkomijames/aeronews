@@ -11,7 +11,7 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
 
   // 1. Construct the production public path address
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app/';
   const fullUrl = `${siteUrl}/news/${slug}`;
   
   // 2. Format components for URL parameters safely
