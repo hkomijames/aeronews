@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
 
 export default async function PublicHomePage() {
   // 1. Fetch live articles from PostgreSQL via Prisma for instant SSR speeds
@@ -46,6 +46,7 @@ export default async function PublicHomePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {topLatestArticles.map((article) => (
                 <div key={article.id} className="relative h-95 bg-slate-900 rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl group cursor-pointer">
+                  {/* Note: CSS Background Images cannot be native lazy loaded, but the layout is preserved here */}
                   <div 
                     className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
                     style={{ backgroundImage: `linear-gradient(to top, rgba(2, 6, 23, 0.98) 25%, rgba(2, 6, 23, 0.2)), url(${article.imageUrl || '/placeholder.jpg'})` }}
@@ -53,11 +54,10 @@ export default async function PublicHomePage() {
                   <div className="absolute inset-0 p-6 flex flex-col justify-end">
                     <span className="text-[9px] font-black tracking-widest text-orange-400 uppercase mb-1">{article.category}</span>
                     <Link href={`/news/${article.slug}`}>
-                    <h3 className="font-extrabold text-base leading-snug text-white group-hover:text-orange-400 transition-colors">
-                      {article.title}
-                    </h3>
+                      <h3 className="font-extrabold text-base leading-snug text-white group-hover:text-orange-400 transition-colors">
+                        {article.title}
+                      </h3>
                     </Link>
-                    {/* FIXED: Path successfully mapped to /news/ */}
                     <Link href={`/news/${article.slug}`} className="text-[10px] font-bold text-slate-400 hover:text-white transition-colors mt-3 block underline underline-offset-4">
                       Read it →
                     </Link>
@@ -68,6 +68,7 @@ export default async function PublicHomePage() {
           )}
         </div>
       </section>
+
       {/* ─── 2. AIRPLANE NEWS SECTION (2 Grid Cards + 6 List Rows + Sidebar Right) ─── */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
         
@@ -87,13 +88,14 @@ export default async function PublicHomePage() {
                 <Link href={`/news/${article.slug}`}>
                   <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
                     <img 
-                      src={article.imageUrl || '/placeholder.jpg'} 
+                      src={article.imageUrl || ''} 
                       alt={article.title} 
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                     />
                   </div>
                   <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
-                  {/* Title text wrapping completely intact with zero truncation layout clips */}
                   <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
                     {article.title}
                   </h3>
@@ -104,13 +106,18 @@ export default async function PublicHomePage() {
               </article>
             ))}
           </div>
-
           {/* 6 Secondary Sub-Row Lists */}
           <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
             {airplaneSubList.map((article) => (
               <Link href={`/news/${article.slug}`} key={article.id} className="flex gap-4 items-center group cursor-pointer">
                 <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
-                  <img src={article.imageUrl || '/placeholder.jpg'} alt={article.title} className="w-full h-full object-contain" />
+                  <img 
+                    src={article.imageUrl || ''} 
+                    alt={article.title} 
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-contain" 
+                  />
                 </div>
                 <div>
                   <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>
@@ -190,6 +197,8 @@ export default async function PublicHomePage() {
                       <img 
                         src={article.imageUrl || '/placeholder.jpg'} 
                         alt={article.title} 
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
                       />
                     </div>
@@ -210,7 +219,13 @@ export default async function PublicHomePage() {
               {airportSubList.map((article) => (
                 <Link href={`/news/${article.slug}`} key={article.id} className="flex gap-4 items-center group cursor-pointer">
                   <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
-                    <img src={article.imageUrl || '/placeholder.jpg'} alt={article.title} className="w-full h-full object-contain" />
+                    <img 
+                      src={article.imageUrl || '/placeholder.jpg'} 
+                      alt={article.title} 
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-contain" 
+                    />
                   </div>
                   <div>
                     <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>

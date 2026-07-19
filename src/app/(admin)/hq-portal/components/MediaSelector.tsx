@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from 'react';
+import imageCompression from 'browser-image-compression';
 
 interface MediaSelectorProps {
   label: string;
@@ -18,11 +19,36 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
     if (!files || files.length === 0) return;
 
     setUploading(true);
+    const originalFile = files[0];
     const formData = new FormData();
-    formData.append('file', files[0]); // Pack your file selection
 
     try {
-      // Send the file directly to your simplified API route
+      // Only run optimization if the file is an image
+      if (originalFile.type.startsWith('image/')) {
+        const options = {
+          maxSizeMB: 0.2,          // Forces target file size under 200KB
+          maxWidthOrHeight: 1200,  // Automatically resizes massive width bounds
+          useWebWorker: true,
+          fileType: 'image/webp'   // Changes format container type to optimized WebP
+        };
+
+        // 1. Run local client device compression engine
+        const compressedBlob = await imageCompression(originalFile, options);
+
+        // 2. Wrap blob container into a virtual File structure with .webp suffix extension
+        const cleanName = originalFile.name.replace(/\.[^/.]+$/, "");
+        const optimizedFile = new File([compressedBlob], `${cleanName}.webp`, {
+          type: 'image/webp',
+        });
+
+        // 3. Mount the light WebP file payload onto the standard browser transmission form
+        formData.append('file', optimizedFile);
+      } else {
+        // Fallback safety route for non-image objects like video paths
+        formData.append('file', originalFile);
+      }
+
+      // Send the optimized file payload directly to your existing API route
       const response = await fetch('/api/media', {
         method: 'POST',
         body: formData,
@@ -35,7 +61,8 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
         alert(result.error || 'Media file upload failed.');
       }
     } catch (err) {
-      alert('Network error communicating with file server storage.');
+      console.error(err);
+      alert('Network error or compression crash communicating with file server storage.');
     } finally {
       setUploading(false);
     }
@@ -61,7 +88,7 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
           onClick={() => fileInputRef.current?.click()}
           className="bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs px-4 py-2.5 rounded-lg border border-slate-700 transition-colors disabled:opacity-50"
         >
-          {uploading ? 'Uploading Asset...' : '📁 Select Local File'}
+          {uploading ? 'Processing & Uploading...' : '📁 Select Local File'}
         </button>
         
         {currentUrl ? (

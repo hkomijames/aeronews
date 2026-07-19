@@ -9,29 +9,48 @@ interface CategoryPageProps {
   }>;
 }
 
-// ─── 1. CORRECTED DYNAMIC METADATA GENERATOR (WITH ABSOLUTE PRODUCTION CANONICALS) ───
+// ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
+export const revalidate = false;
+
+// ─── PRE-BUILD CATEGORY PAGES AT BUILD TIME TO SHIELD NEON DB ───
+export async function generateStaticParams() {
+  // Fetch all unique categories currently used in your published database matrix
+  const articles = await prisma.article.findMany({
+    where: { isPublished: true },
+    select: { category: true },
+    distinct: ['category'],
+  });
+
+  return articles.map((article) => ({
+    slug: article.category.toLowerCase().replace(/\s+/g, '-'),
+  }));
+}
+
+// ─── 1. OPTIMIZED DYNAMIC METADATA GENERATOR (WITH PRODUCTION CANONICALS) ───
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
   const title = slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
+
   return {
     title: `${title} Desk | AV Newsroom`,
     description: `Stay updated with the latest breaking ${title.toLowerCase()} developments, expert editorial analysis, and aviation industry reports.`,
     alternates: { 
-      // Fixed: Now points to your live absolute category address to clear index pollution blocks
-      canonical: `https://vercel.app{slug}` 
+      // Fixed: Converted literal brackets to standard template interpolation paths
+      canonical: `${siteUrl}/category/${slug}` 
     },
     openGraph: {
       title: `${title} Desk | AV Newsroom`,
       description: `Breaking reports and dynamic insights from the ${title.toLowerCase()} desk.`,
-      url: `https://vercel.app{slug}`,
+      url: `${siteUrl}/category/${slug}`,
       siteName: 'Aero Saga',
       type: 'website',
     }
   };
 }
-
 export default async function DynamicCategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
 
   const formattedCategoryTitle = slug
     .split('-')
@@ -60,20 +79,20 @@ export default async function DynamicCategoryPage({ params }: CategoryPageProps)
     notFound();
   }
 
-  // ─── 2. CORRECTED DYNAMIC JSON-LD STRUCTURAL SCHEMA DATA (REAL DOMAIN MATCHING) ───
+  // ─── 2. CORRECTED DYNAMIC JSON-LD STRUCTURAL SCHEMA DATA ───
   const jsonLdSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": `${formattedCategoryTitle} News Desk`,
     "description": `Aggregated coverage index of breaking reports concerning ${formattedCategoryTitle.toLowerCase()}.`,
-    "url": `https://vercel.app{slug}`, // Fixed to direct domain route mapping
+    "url": `${siteUrl}/category/${slug}`,
     "publisher": {
       "@type": "NewsMediaOrganization",
       "name": "Aero Saga",
-      "url": "https://aeronews.vercel.app",
+      "url": siteUrl,
       "logo": {
         "@type": "ImageObject",
-        "url": "https://vercel.app"
+        "url": `${siteUrl}/logo.png`
       }
     }
   };

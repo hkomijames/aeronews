@@ -7,6 +7,23 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+// ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
+export const revalidate = false;
+
+// ─── PRE-BUILD TOP HIGH-TRAFFIC ARTICLES TO SHIELD NEON DB AT LAUNCH ───
+export async function generateStaticParams() {
+  const articles = await prisma.article.findMany({
+    where: { isPublished: true },
+    orderBy: { createdAt: 'desc' },
+    take: 100, // Pre-compiles the 100 latest articles. Older ones build on-demand and cache forever.
+    select: { slug: true },
+  });
+
+  return articles.map((article) => ({
+    slug: article.slug,
+  }));
+}
+
 // ─── DYNAMIC SEO METADATA FOR BROWSER & SOCIAL SHARE CARDS ───
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
@@ -88,10 +105,10 @@ export default async function ArticlePage({ params }: Props) {
         {/* LEFT & CENTER CLUSTERS: MAIN EDITORIAL CONTENT ENGINE */}
         <main className="lg:col-span-2">
           <Link href={`/category/${article.category.toLowerCase().replace(/\s+/g, '-')}`}>
-  <span className="text-xs font-black uppercase text-blue-600 tracking-widest bg-blue-50 px-2.5 py-1 rounded">
-    {article.category}
-  </span>
-</Link>
+            <span className="text-xs font-black uppercase text-blue-600 tracking-widest bg-blue-50 px-2.5 py-1 rounded">
+              {article.category}
+            </span>
+          </Link>
           <h1 className="article-title font-black text-slate-900 mt-4 mb-6 leading-tight tracking-tight">
             {article.title}
           </h1>
@@ -102,6 +119,8 @@ export default async function ArticlePage({ params }: Props) {
               <img 
                 src={article.author.avatarUrl} 
                 alt={article.author.name}
+                loading="lazy"
+                decoding="async"
                 className="w-12 h-12 rounded-full object-cover border border-slate-200"
               />
             )}
@@ -126,6 +145,8 @@ export default async function ArticlePage({ params }: Props) {
               <img 
                 src={article.imageUrl} 
                 alt={article.title}
+                loading="eager" // Main feature cover image should load immediately for performance
+                decoding="async"
                 className="w-full h-full object-contain object-center rounded-2xl"
               />
             </div>
@@ -158,45 +179,37 @@ export default async function ArticlePage({ params }: Props) {
                        prose-figcaption:tracking-wide"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
-
           {article.author.bio && (
             <footer className="mt-16 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col gap-3 font-sans">
               <h3 className="font-black text-xs uppercase tracking-widest text-blue-600">About the Author</h3>
               <p className="text-sm text-slate-600 leading-relaxed">{article.author.bio}</p>
               {article.author.sameAsLinks.length > 0 && (
                 <div className="flex flex-wrap gap-3 mt-1">
-  {article.author.sameAsLinks.map((link, index) => {
-    // ─── OPTIMIZED: EXTRACT REAL-TIME BRAND TITLES FOR PUBLIC ARCHIVES ───
-    let dynamicLabel = `Verification Link ${index + 1}`;
-    try {
-      if (link && link.trim().startsWith('http')) {
-        const urlObj = new URL(link.trim());
-        // Clean up subdomains (like www.) to extract the primary host name
-        const host = urlObj.hostname.replace('www.', '');
-        const brandParts = host.split('.');
-        
-        // Grab the brand name (e.g. "linkedin" or "muckrack") and capitalize the first letter
-        const rawBrand = brandParts[0];
-        dynamicLabel = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1);
-      }
-    } catch (e) {
-      // Graceful fallback if the string model saved in Prisma is somehow broken
-    }
+                  {article.author.sameAsLinks.map((link, index) => {
+                    let dynamicLabel = `Verification Link ${index + 1}`;
+                    try {
+                      if (link && link.trim().startsWith('http')) {
+                        const urlObj = new URL(link.trim());
+                        const host = urlObj.hostname.replace('www.', '');
+                        const brandParts = host.split('.');
+                        const rawBrand = brandParts[0];
+                        dynamicLabel = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1);
+                      }
+                    } catch (e) {}
 
-    return (
-      <a 
-        key={index} 
-        href={link} 
-        target="_blank" 
-        rel="noreferrer" 
-        className="text-xs text-blue-600 hover:underline font-bold transition-colors duration-150"
-      >
-        {dynamicLabel}
-      </a>
-    );
-  })}
-</div>
-
+                    return (
+                      <a 
+                        key={index} 
+                        href={link} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        className="text-xs text-blue-600 hover:underline font-bold transition-colors duration-150"
+                      >
+                        {dynamicLabel}
+                      </a>
+                    );
+                  })}
+                </div>
               )}
             </footer>
           )}

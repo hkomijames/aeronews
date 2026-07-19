@@ -62,11 +62,12 @@ export default function PaginatedArticlesGrid({ initialArticles, categoryName }:
                 <img 
                   src={article.imageUrl} 
                   alt={article.title} 
+                  loading="lazy"      //  FIX: Native lazy loading saves massive Vercel Blob egress cost
+                  decoding="async"    //  FIX: Non-blocking async rendering keeps the browser layout fast
                   className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                 />
               </div>
             )}
-
             <div className="p-5 flex-1 flex flex-col justify-between">
               <div>
                 <h2 className="text-base font-bold text-slate-100 group-hover:text-white leading-snug line-clamp-2">
@@ -84,6 +85,8 @@ export default function PaginatedArticlesGrid({ initialArticles, categoryName }:
                   <img 
                     src={article.author.avatarUrl} 
                     alt={article.author.name} 
+                    loading="lazy"      //  FIX: Apply to avatars too
+                    decoding="async"
                     className="w-8 h-8 rounded-full bg-slate-800 object-cover border border-slate-700"
                   />
                 ) : (

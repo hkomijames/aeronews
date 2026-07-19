@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/db';
 import { cookies } from 'next/headers';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 interface CreateArticleInput {
   title: string;
@@ -34,7 +34,7 @@ export async function createArticle(data: CreateArticleInput) {
     }
     
     const session = JSON.parse(sessionCookie.value);
-    const authorId = session.id; // Lawson James' user ID
+    const authorId = session.id;
 
     // 2. Form guard validation
     if (!data.title || !data.content) {
@@ -54,7 +54,7 @@ export async function createArticle(data: CreateArticleInput) {
         title: data.title,
         slug,
         excerpt: data.excerpt || null,
-        content: data.content, // HTML markup saved directly
+        content: data.content,
         imageUrl: data.imageUrl || null,
         category: data.category || "General",
         isPublished: data.isPublished,
@@ -62,9 +62,17 @@ export async function createArticle(data: CreateArticleInput) {
       },
     });
 
-    // 5. Instantly clear Next.js ISR caches so public site updates immediately
-    revalidatePath('/(public)/news/[slug]', 'page');
-    revalidatePath('/');
+    // 5. CRITICAL FIX: Precise On-Demand Caching & Feed Evacuation Strategy
+    if (newArticle.isPublished) {
+      revalidatePath('/');
+      revalidatePath(`/news/${newArticle.slug}`);
+      
+      const cleanCategorySlug = newArticle.category.toLowerCase().replace(/\s+/g, '-');
+      revalidatePath(`/category/${cleanCategorySlug}`);
+
+      // ─── FIXED FOR NEXT.JS 16: Added 'max' as the required second profile argument ───
+      revalidateTag(`category-${cleanCategorySlug}`, 'max');
+    }
 
     return { success: true, slug: newArticle.slug };
 
@@ -73,8 +81,7 @@ export async function createArticle(data: CreateArticleInput) {
     return { success: false, error: error.message || "Database execution failed." };
   }
 }
-
-// ─── ADDED: AUDIT ACTION TO TOGGLE PUBLISH BOOLEAN STATUS ───
+// ─── AUDIT ACTION TO TOGGLE PUBLISH BOOLEAN STATUS ───
 export async function togglePublishStatus(id: string, currentStatus: boolean) {
   try {
     const cookieStore = await cookies();
@@ -87,10 +94,15 @@ export async function togglePublishStatus(id: string, currentStatus: boolean) {
       data: { isPublished: !currentStatus }
     });
 
-    // Clear caches so changes appear instantly on public layouts
-    revalidatePath('/(public)/news/[slug]', 'page');
-    revalidatePath('/hq-portal');
     revalidatePath('/');
+    revalidatePath(`/news/${updated.slug}`);
+    
+    const cleanCategorySlug = updated.category.toLowerCase().replace(/\s+/g, '-');
+    revalidatePath(`/category/${cleanCategorySlug}`);
+    revalidatePath('/hq-portal');
+
+    // ─── FIXED FOR NEXT.JS 16: Added required 'max' profile parameter ───
+    revalidateTag(`category-${cleanCategorySlug}`, 'max');
     
     return { success: true, isPublished: updated.isPublished };
   } catch (error) {
@@ -99,7 +111,7 @@ export async function togglePublishStatus(id: string, currentStatus: boolean) {
   }
 }
 
-// ─── ADDED: AUDIT ACTION TO DELETE AN ARTICLE ENTIRELY ───
+// ─── AUDIT ACTION TO DELETE AN ARTICLE ENTIRELY ───
 export async function deleteArticle(id: string) {
   try {
     const cookieStore = await cookies();
@@ -107,14 +119,25 @@ export async function deleteArticle(id: string) {
       return { success: false, error: 'Unauthorized operation.' };
     }
 
+    const targets = await prisma.article.findUnique({
+      where: { id },
+      select: { slug: true, category: true }
+    });
+
     await prisma.article.delete({
       where: { id }
     });
 
-    // Sync path caches across platform layers
-    revalidatePath('/(public)/news/[slug]', 'page');
+    if (targets) {
+      revalidatePath('/');
+      revalidatePath(`/news/${targets.slug}`);
+      const cleanCategorySlug = targets.category.toLowerCase().replace(/\s+/g, '-');
+      revalidatePath(`/category/${cleanCategorySlug}`);
+
+      // ─── FIXED FOR NEXT.JS 16: Added required 'max' profile parameter ───
+      revalidateTag(`category-${cleanCategorySlug}`, 'max');
+    }
     revalidatePath('/hq-portal');
-    revalidatePath('/');
     
     return { success: true };
   } catch (error) {
@@ -123,6 +146,7 @@ export async function deleteArticle(id: string) {
   }
 }
 
+// ─── AUDIT ACTION TO UPDATE AN ARTICLE ───
 export async function updateArticle(id: string, data: { title: string; category: string; excerpt: string }) {
   try {
     const cookieStore = await cookies();
@@ -130,7 +154,12 @@ export async function updateArticle(id: string, data: { title: string; category:
 
     if (!data.title.trim()) return { success: false, error: 'Headline title is required.' };
 
-    await prisma.article.update({
+    const oldArticle = await prisma.article.findUnique({
+      where: { id },
+      select: { category: true, slug: true }
+    });
+
+    const updated = await prisma.article.update({
       where: { id },
       data: {
         title: data.title,
@@ -139,12 +168,23 @@ export async function updateArticle(id: string, data: { title: string; category:
       }
     });
 
-    revalidatePath('/hq-portal');
-    revalidatePath('/(public)/news/[slug]', 'page');
     revalidatePath('/');
+    revalidatePath(`/news/${updated.slug}`);
+    
+    if (oldArticle) {
+      const oldCatSlug = oldArticle.category.toLowerCase().replace(/\s+/g, '-');
+      revalidatePath(`/category/${oldCatSlug}`);
+      // ─── FIXED FOR NEXT.JS 16: Added required 'max' profile parameter ───
+      revalidateTag(`category-${oldCatSlug}`, 'max');
+    }
+    const newCatSlug = updated.category.toLowerCase().replace(/\s+/g, '-');
+    revalidatePath(`/category/${newCatSlug}`);
+    // ─── FIXED FOR NEXT.JS 16: Added required 'max' profile parameter ───
+    revalidateTag(`category-${newCatSlug}`, 'max');
+    
+    revalidatePath('/hq-portal');
     return { success: true };
   } catch (error) {
     return { success: false, error: 'Database update failed.' };
   }
 }
-
