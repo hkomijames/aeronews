@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { prisma } from '@/lib/db'; // Correct absolute alias mapping
+import { prisma } from '@/lib/db'; 
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -19,8 +19,6 @@ async function getSessionUser() {
 export async function GET() {
   try {
     const session = await getSessionUser();
-    
-    // Safeguard to skip compilation-checks gracefully
     if (!session || !session.email) {
       return NextResponse.json({ error: "Unauthorized session token" }, { status: 401 });
     }
@@ -46,13 +44,16 @@ export async function GET() {
   }
 }
 
+// ─── RE-OPTIMIZED FOR NEXT 16 RUNTIME STABILITY ───
 export async function PUT(request: NextRequest) {
   try {
+    // 1. DYNAMIC STEP FIRST: Read cookie clearance parameters immediately
     const session = await getSessionUser();
     if (!session || !session.email) {
       return NextResponse.json({ error: "Unauthorized session token" }, { status: 401 });
     }
 
+    // 2. PARSE BODY SECOND: Stream configuration objects into the file context
     const body = await request.json();
     const { name, title, bio, avatarUrl, sameAsLinks } = body;
 
@@ -64,6 +65,7 @@ export async function PUT(request: NextRequest) {
       ? sameAsLinks.map((l: string) => l.trim()).filter((l: string) => l.length > 0)
       : [];
 
+    // 3. MUTATION STEP: Synchronize your specific admin email profile
     const updatedUser = await prisma.user.update({
       where: { email: session.email },
       data: {
