@@ -29,7 +29,7 @@ export default function AeroSagaLogo() {
           dx="6"
           style={{
             fontFamily: "'Playfair Display', 'Georgia', serif",
-            fontWeight: 500,
+            fontWeight: 700,
             fontStyle: 'italic',
           }}
         >

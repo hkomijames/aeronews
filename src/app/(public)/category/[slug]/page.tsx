@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { Metadata } from 'next';
 import PaginatedArticlesGrid from './components/PaginatedArticlesGrid';
+import logo from './app/logo.png'
 
 interface CategoryPageProps {
   params: Promise<{
