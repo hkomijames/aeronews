@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-// Force Next.js to run this endpoint dynamically on every request to fetch fresh news instantly
-export const dynamic = 'force-dynamic';
+// ─── AGGRESSIVE COST REDUCTION: CACHE FEED FOR 10 MINUTES AT THE CDN EDGE ───
+// This removes 'force-dynamic' so Next.js doesn't query your database on every single request.
+export const revalidate = 600; 
 
 export async function GET() {
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
+    // Ensure standard production fallback URL ends cleanly without an accidental double slash later
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app').replace(/\/$/, '');
 
     // 1. Fetch the 30 most recently published articles from PostgreSQL
     const articles = await prisma.article.findMany({
@@ -16,24 +18,27 @@ export async function GET() {
       include: { author: true },
     });
 
-    // 2. Build the structural XML header template compliant with Google News standards
+    // Determine the latest build date based on the newest article, fallback to current time if empty
+    const latestArticleDate = articles.length > 0 ? new Date(articles[0].createdAt) : new Date();
+
+    // 2. Build structural XML template with valid Google News & W3C validation namespaces
     let xml = `<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0" xmlns:atom="http://w3.org" xmlns:content="http://purl.org">
   <channel>
-    <title>AV Newsroom</title>
+    <title>Aero Saga</title>
     <link>${siteUrl}</link>
     <description>Breaking tech news, deep-dives, and serverless infrastructure insights.</description>
     <language>en-us</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <lastBuildDate>${latestArticleDate.toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/api/feed" rel="self" type="application/rss+xml" />
 `;
 
     // 3. Loop through individual articles and map them to structural RSS item tags
     for (const article of articles) {
       const articleUrl = `${siteUrl}/news/${article.slug}`;
-      const pubDate = new Date(article.createdAt).toUTCString(); // Must use RFC 822 format
+      const pubDate = new Date(article.createdAt).toUTCString(); // Standard RFC 822 format
 
-      // Clean up special xml string text escape constraints to prevent parsing feed drops
+      // Clean up special XML text characters to prevent syntax validation drops
       const escapeXml = (str: string) => 
         str.replace(/&/g, '&amp;')
            .replace(/</g, '&lt;')
@@ -57,11 +62,12 @@ export async function GET() {
     xml += `  </channel>
 </rss>`;
 
-    // 5. Send raw text/xml header responses back to Google's crawling index bot
+    // 5. Send optimized text/xml response back to Google's crawling index bot
     return new NextResponse(xml, {
       headers: {
         'Content-Type': 'text/xml; charset=utf-8',
-        'Cache-Control': 's-maxage=600, stale-while-revalidate', // Server caches data stream for 10 min
+        // Complements the ISR revalidate configuration for multi-layer proxy caching
+        'Cache-Control': 's-maxage=600, stale-while-revalidate=300', 
       },
     });
 
@@ -69,7 +75,7 @@ export async function GET() {
     console.error("RSS syndication loop dropped:", error);
     return new NextResponse('<?xml version="1.0" encoding="UTF-8"?><rss><channel><title>Error</title></channel></rss>', {
       status: 500,
-      headers: { 'Content-Type': 'text/xml' },
+      headers: { 'Content-Type': 'text/xml; charset=utf-8' },
     });
   }
 }

@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 1. Look for the exact session cookie name we set in auth-actions
+  // 1. Look for the exact session cookie name set in auth-actions
   const token = request.cookies.get('auth_session');
   
   const isDashboardRoute = pathname.startsWith('/hq-portal');
@@ -27,7 +27,10 @@ export function proxy(request: NextRequest) {
   return NextResponse.next();
 }
 
-// Config tells Next.js to intercept requests under the hq-portal route group
+// ─── OPTIMIZED CONFIGURATION MATCHER TREE ───
 export const config = {
-  matcher: ['/hq-portal/:path*'],
+  matcher: [
+    '/hq-portal',          // ✨ Explicitly catches the base root administration URL
+    '/hq-portal/:path*',   // Catches all internal deep-links inside the portal layout tree
+  ],
 };
