@@ -45,22 +45,21 @@ export default async function PublicHomePage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {topLatestArticles.map((article) => (
-                <div key={article.id} className="relative h-95 bg-slate-900 rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl group cursor-pointer">
-                  {/* Note: CSS Background Images cannot be native lazy loaded, but the layout is preserved here */}
+                <div key={article.id} className="relative h-95 bg-slate-900 rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl group">
                   <div 
                     className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
                     style={{ backgroundImage: `linear-gradient(to top, rgba(2, 6, 23, 0.98) 25%, rgba(2, 6, 23, 0.2)), url(${article.imageUrl || '/placeholder.jpg'})` }}
                   />
                   <div className="absolute inset-0 p-6 flex flex-col justify-end">
                     <span className="text-[9px] font-black tracking-widest text-orange-400 uppercase mb-1">{article.category}</span>
-                    <Link href={`/news/${article.slug}`}>
-                      <h3 className="font-extrabold text-base leading-snug text-white group-hover:text-orange-400 transition-colors">
+                    <h3 className="font-extrabold text-base leading-snug text-white group-hover:text-orange-400 transition-colors">
+                      <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
                         {article.title}
-                      </h3>
-                    </Link>
-                    <Link href={`/news/${article.slug}`} className="text-[10px] font-bold text-slate-400 hover:text-white transition-colors mt-3 block underline underline-offset-4">
+                      </Link>
+                    </h3>
+                    <div className="text-[10px] font-bold text-slate-400 group-hover:text-white transition-colors mt-3 block underline underline-offset-4 pointer-events-none">
                       Read it →
-                    </Link>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -84,35 +83,36 @@ export default async function PublicHomePage() {
           {/* 2 Primary Grid Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             {airplaneGrid.map((article) => (
-              <article key={article.id} className="group cursor-pointer">
-                <Link href={`/news/${article.slug}`}>
-                  <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
-                    <img 
-                      src={article.imageUrl || ''} 
-                      alt={article.title} 
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
-                  <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
+              <article key={article.id} className="group relative">
+                <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
+                  <img 
+                    src={article.imageUrl || '/placeholder.jpg'} 
+                    alt={article.title} 
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                  />
+                </div>
+                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
+                <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
+                  <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
                     {article.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
-                    {article.excerpt}
-                  </p>
-                </Link>
+                  </Link>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
+                  {article.excerpt}
+                </p>
               </article>
             ))}
           </div>
+
           {/* 6 Secondary Sub-Row Lists */}
           <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
             {airplaneSubList.map((article) => (
-              <Link href={`/news/${article.slug}`} key={article.id} className="flex gap-4 items-center group cursor-pointer">
+              <article key={article.id} className="flex gap-4 items-center group relative">
                 <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
                   <img 
-                    src={article.imageUrl || ''} 
+                    src={article.imageUrl || '/placeholder.jpg'} 
                     alt={article.title} 
                     loading="lazy"
                     decoding="async"
@@ -122,15 +122,16 @@ export default async function PublicHomePage() {
                 <div>
                   <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>
                   <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
-                    {article.title}
+                    <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
+                      {article.title}
+                    </Link>
                   </h4>
                   <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{article.excerpt}</p>
                 </div>
-              </Link>
+              </article>
             ))}
           </div>
         </div>
-
         {/* RIGHT COLUMN: SIDEBAR UTILITY INFRASTRUCTURE */}
         <div className="space-y-8">
           {/* Top Ranked Sidebar Component */}
@@ -140,20 +141,24 @@ export default async function PublicHomePage() {
               <li className="flex gap-3 items-start">
                 <span className="font-black text-slate-300 text-lg leading-none mt-0.5">01</span>
                 <div>
-                  <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">Global Airport Infrastructure Spending Surges to Match Next-Gen Architectural Layouts</h4>
+                  <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
+                    Global Airport Infrastructure Spending Surges to Match Next-Gen Architectural Layouts
+                  </h4>
                 </div>
               </li>
               <li className="flex gap-3 items-start border-t border-slate-200/30 pt-3">
                 <span className="font-black text-slate-300 text-lg leading-none mt-0.5">02</span>
                 <div>
-                  <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">Autonomous Flight Controls Clear Major Validation Milestones Over Open Water Trials</h4>
+                  <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
+                    Autonomous Flight Controls Clear Major Validation Milestones Over Open Water Trials
+                  </h4>
                 </div>
               </li>
             </ol>
           </div>
 
           {/* Flight Briefing Box Element */}
-          <div className="bg-linear-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
             <span className="text-xl">✉️</span>
             <h3 className="font-extrabold text-base mt-2">Flight Briefing</h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed mb-4">
@@ -177,9 +182,9 @@ export default async function PublicHomePage() {
         </div>
       </main>
 
-      {/* ─── 3. AIRPORT NEWS SECTION (2 Grid Cards + 6 List Rows Running Full Width) ─── */}
+      {/* ─── 3. AIRPORT NEWS SECTION (Changed outer tag to a semantic div wrapper) ─── */}
       <section className="bg-slate-50/30 border-t border-slate-100 py-12">
-        <main className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2">
             <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
               <h2 className="text-xl font-black tracking-tight text-slate-900">Airport Saga</h2>
@@ -191,25 +196,25 @@ export default async function PublicHomePage() {
             {/* 2 Primary Grid Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               {airportGrid.map((article) => (
-                <article key={article.id} className="group cursor-pointer">
-                  <Link href={`/news/${article.slug}`}>
-                    <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
-                      <img 
-                        src={article.imageUrl || '/placeholder.jpg'} 
-                        alt={article.title} 
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                      />
-                    </div>
-                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
-                    <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
+                <article key={article.id} className="group relative">
+                  <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
+                    <img 
+                      src={article.imageUrl || '/placeholder.jpg'} 
+                      alt={article.title} 
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
+                  <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
+                    <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
                       {article.title}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
-                      {article.excerpt}
-                    </p>
-                  </Link>
+                    </Link>
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
+                    {article.excerpt}
+                  </p>
                 </article>
               ))}
             </div>
@@ -217,7 +222,7 @@ export default async function PublicHomePage() {
             {/* 6 Secondary Sub-Row Lists */}
             <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
               {airportSubList.map((article) => (
-                <Link href={`/news/${article.slug}`} key={article.id} className="flex gap-4 items-center group cursor-pointer">
+                <article key={article.id} className="flex gap-4 items-center group relative">
                   <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
                     <img 
                       src={article.imageUrl || '/placeholder.jpg'} 
@@ -230,18 +235,20 @@ export default async function PublicHomePage() {
                   <div>
                     <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>
                     <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
-                      {article.title}
+                      <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
+                        {article.title}
+                      </Link>
                     </h4>
                     <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{article.excerpt}</p>
                   </div>
-                </Link>
+                </article>
               ))}
             </div>
           </div>
           
           {/* Empty column placeholder to maintain structural alignment with top sidebar layout blocks */}
           <div className="hidden lg:block"></div>
-        </main>
+        </div>
       </section>
     </div>
   );

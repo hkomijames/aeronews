@@ -21,7 +21,7 @@ export default function Footer() {
           <Link href="/sitemap.xml" className="hover:text-white transition-colors duration-200">
             Sitemap
           </Link>
-          <Link href="/rss.xml" className="hover:text-white transition-colors duration-200">
+          <Link href="/feed" className="hover:text-white transition-colors duration-200">
             RSS
           </Link>
         </div>
