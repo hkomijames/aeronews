@@ -18,6 +18,7 @@ interface Article {
   excerpt: string | null;
   isPublished: boolean;
   author: Author;
+  content: string;
 }
 
 interface TabsContainerProps {
