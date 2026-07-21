@@ -30,6 +30,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
   const article = await prisma.article.findUnique({
     where: { slug: resolvedParams.slug },
+    include: { author: true } // ✨ Included relation hook to feed writer profiles directly into tags
   });
 
   if (!article || !article.isPublished) return {};
@@ -37,17 +38,41 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com';
 
   return {
-    // ─── FIXED: Injected metadataBase fallback pointer to resolve image relative strings safely ───
     metadataBase: new URL(siteUrl),
     title: `${article.title} | Aero Saga`,
-    description: article.excerpt,
+    description: article.excerpt || `Read the full aviation dispatch: ${article.title}`,
+    
+    // ✨ Google News Bot explicit crawling configuration signals
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+        'max-video-preview': -1,
+      },
+    },
+
     openGraph: {
       title: article.title,
       description: article.excerpt || undefined,
       type: 'article',
       url: `/news/${article.slug}`,
-      images: article.imageUrl ? [{ url: article.imageUrl }] : [],
+      siteName: 'Aero Saga',
+      publishedTime: article.createdAt.toISOString(), // ✨ Mandatory Google Discover structured dates
+      modifiedTime: article.updatedAt.toISOString(),
+      section: article.category,
+      authors: [article.author?.name || 'Aero Saga Staff'],
+      images: article.imageUrl ? [{ url: article.imageUrl, width: 1200, height: 630, alt: article.title }] : [],
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt || undefined,
+      images: article.imageUrl ? [article.imageUrl] : [],
+    }
   };
 }
 
@@ -76,31 +101,35 @@ export default async function ArticlePage({ params }: Props) {
     include: { author: true },
   });
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com';
 
   // ─── OPTIMIZED GOOGLE NEWS JSON-LD STRUCTURED DATA SCHEMA ───
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+    '@type': 'NewsArticle', // ✨ Kept strict schema tracking context intact
     'headline': article.title,
     'description': article.excerpt || article.title,
-    'image': article.imageUrl ? [article.imageUrl] : [],
+    'image': article.imageUrl ? [article.imageUrl] : [`${siteUrl}/placeholder.jpg`],
     'datePublished': article.createdAt.toISOString(),
     'dateModified': article.updatedAt.toISOString(),
+    'mainEntityOfPage': {
+      '@type': 'WebPage',
+      '@id': `${siteUrl}/news/${article.slug}`,
+    },
     'author': {
       '@type': 'Person',
       'name': article.author.name,
       'jobTitle': article.author.title || 'Journalist',
       'description': article.author.bio || undefined,
       'image': article.author.avatarUrl || undefined,
-      'sameAs': article.author.sameAsLinks,
+      'sameAs': article.author.sameAsLinks || [], // ✨ Maps authority back footprints seamlessly
     },
     'publisher': {
       '@type': 'Organization',
       'name': 'Aero Saga',
       'logo': {
         '@type': 'ImageObject',
-        'url': `${siteUrl}/logo.png`,
+        'url': `${siteUrl}/logo.png`, // Adjusted placeholder lookup variables cleanly
       },
     },
   };
@@ -122,7 +151,7 @@ export default async function ArticlePage({ params }: Props) {
               {article.category}
             </span>
           </Link>
-          <h1 className="article-title font-black text-slate-900 mt-4 mb-6 leading-tight tracking-tight">
+          <h1 className="article-title font-black text-slate-900 mt-4 mb-6 leading-tight tracking-tight text-3xl md:text-5xl">
             {article.title}
           </h1>
 
@@ -164,41 +193,23 @@ export default async function ArticlePage({ params }: Props) {
               />
             </div>
           )}
-          {/* ─── CAREFULLY UPDATED: News-Worthy Premium Editorial Font Canvas ─── */}
+          
           <div 
             className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
                        prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
-                       prose-video:w-full 
-                       prose-video:aspect-video 
-                       prose-video:rounded-2xl 
-                       prose-video:shadow-md 
-                       prose-video:bg-slate-950 
-                       prose-video:my-8 
-                       prose-video:border 
-                       prose-video:border-slate-100
-                       prose-figure:my-8 
-                       prose-figure:mx-auto 
-                       prose-figure:text-center
-                       prose-img:rounded-2xl 
-                       prose-img:shadow-sm 
-                       prose-img:mx-auto 
-                       prose-img:my-0
-                       prose-figcaption:text-xs 
-                       prose-figcaption:text-slate-400 
-                       prose-figcaption:mt-3 
-                       prose-figcaption:italic 
-                       prose-figcaption:font-sans 
-                       prose-figcaption:tracking-wide"
+                       prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
+                       prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center
+                       prose-img:rounded-2xl prose-img:shadow-sm prose-img:mx-auto prose-img:my-0
+                       prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
 
-           <SocialShare title={article.title} slug={article.slug} />
-
+          <SocialShare title={article.title} slug={article.slug} />
           {article.author.bio && (
             <footer className="mt-16 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col gap-3 font-sans">
               <h3 className="font-black text-xs uppercase tracking-widest text-blue-600">About the Author</h3>
               <p className="text-sm text-slate-600 leading-relaxed">{article.author.bio}</p>
-              {article.author.sameAsLinks.length > 0 && (
+              {article.author.sameAsLinks && article.author.sameAsLinks.length > 0 && (
                 <div className="flex flex-wrap gap-3 mt-1">
                   {article.author.sameAsLinks.map((link, index) => {
                     let dynamicLabel = `Verification Link ${index + 1}`;
@@ -230,7 +241,7 @@ export default async function ArticlePage({ params }: Props) {
           )}
         </main>
 
-        {/* ─── ADDED: THE PERSISTENT VISUAL SIDEBAR COMPARTMENT ROW ─── */}
+        {/* ─── THE PERSISTENT VISUAL SIDEBAR COMPARTMENT ROW ─── */}
         <aside className="space-y-8 lg:col-span-1 lg:sticky lg:top-8 h-fit">
           
           {/* Most Read Component */}
@@ -253,7 +264,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           {/* Flight Briefing Box */}
-          <div className="bg-linear-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
+          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
             <span className="text-xl">✉️</span>
             <h3 className="font-extrabold text-base mt-2">Flight Briefing</h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed mb-4">
@@ -280,7 +291,7 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* ─── NEW SHIELD SECTION: FREE CDN-CACHED RELATED ARTICLES MODULE ─── */}
       {relatedArticles.length > 0 && (
-        <section className="border-t border-slate-100 bg-slate-50/50 py-4 mt-4 font-sans">
+        <section className="border-t border-slate-100 bg-slate-50/50 py-12 mt-4 font-sans">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="mb-8">
               <span className="text-xs uppercase font-bold tracking-widest text-blue-600">Editorial Stream</span>
@@ -296,8 +307,8 @@ export default async function ArticlePage({ params }: Props) {
                         <img
                           src={item.imageUrl}
                           alt={item.title}
-                          loading="lazy"   // Cost-Saver: Only fetches pixels if users scroll to bottom
-                          decoding="async" // High Speeds: Non-blocking image decode
+                          loading="lazy"   
+                          decoding="async" 
                           className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-300"
                         />
                       </div>
