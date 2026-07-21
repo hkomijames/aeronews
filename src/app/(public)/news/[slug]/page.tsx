@@ -75,7 +75,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   };
 }
-
 // ─── MAIN SERVER-RENDERED PAGE COMPONENT ───
 export default async function ArticlePage({ params }: Props) {
   const resolvedParams = await params;
@@ -194,8 +193,10 @@ export default async function ArticlePage({ params }: Props) {
             </div>
           )}
           
+          {/* ─── OPTIMIZED RENDERING CONTAINER: FORCES INJECTED PARAGRAPHS TO RENDER SPACING ─── */}
           <div 
             className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
+                       [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
                        prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
                        prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
                        prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center
@@ -219,7 +220,9 @@ export default async function ArticlePage({ params }: Props) {
                         const host = urlObj.hostname.replace('www.', '');
                         const brandParts = host.split('.');
                         const rawBrand = brandParts[0];
-                        dynamicLabel = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1);
+                        if (rawBrand) {
+                          dynamicLabel = rawBrand.charAt(0).toUpperCase() + rawBrand.slice(1);
+                        }
                       }
                     } catch (e) {}
 
