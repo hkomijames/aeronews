@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app').replace(/\/$/, '');
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com').replace(/\/$/, '');
 
   return {
     rules: {
@@ -10,8 +10,6 @@ export default function robots(): MetadataRoute.Robots {
       disallow: [
         '/_next/',    
         '/api/',      
-        '/hq-portal',   // 🛡️ Completely blocks crawlers from indexing your portal dashboard
-        '/hq-portal/',  // Catches any internal route paths down that directory tree
       ],
     },
     sitemap: `${siteUrl}/sitemap.xml`,

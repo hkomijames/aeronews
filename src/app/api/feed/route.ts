@@ -8,7 +8,7 @@ export const revalidate = 600;
 export async function GET() {
   try {
     // Ensure standard production fallback URL ends cleanly without an accidental double slash later
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app').replace(/\/$/, '');
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com').replace(/\/$/, '');
 
     // 1. Fetch the 30 most recently published articles from PostgreSQL
     const articles = await prisma.article.findMany({

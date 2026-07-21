@@ -34,12 +34,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!article || !article.isPublished) return {};
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com';
 
   return {
     // ─── FIXED: Injected metadataBase fallback pointer to resolve image relative strings safely ───
     metadataBase: new URL(siteUrl),
-    title: `${article.title} | AV Newsroom`,
+    title: `${article.title} | Aero Saga`,
     description: article.excerpt,
     openGraph: {
       title: article.title,
@@ -280,11 +280,11 @@ export default async function ArticlePage({ params }: Props) {
 
       {/* ─── NEW SHIELD SECTION: FREE CDN-CACHED RELATED ARTICLES MODULE ─── */}
       {relatedArticles.length > 0 && (
-        <section className="border-t border-slate-100 bg-slate-50/50 py-16 mt-16 font-sans">
+        <section className="border-t border-slate-100 bg-slate-50/50 py-4 mt-4 font-sans">
           <div className="max-w-7xl mx-auto px-4 md:px-8">
             <div className="mb-8">
               <span className="text-xs uppercase font-bold tracking-widest text-blue-600">Editorial Stream</span>
-              <h3 className="text-xl font-black text-slate-900 mt-0.5 tracking-tight">Related Coverage</h3>
+              <h3 className="text-xl font-black text-slate-900 mt-0.5 tracking-tight">Related News</h3>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

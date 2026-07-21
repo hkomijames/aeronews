@@ -7,7 +7,7 @@ export const revalidate = 3600;
 
 export async function GET() {
   try {
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app').replace(/\/$/, '');
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com').replace(/\/$/, '');
 
     // 1. Fetch only the core required fields for articles to minimize database payload size
     const articles = await prisma.article.findMany({

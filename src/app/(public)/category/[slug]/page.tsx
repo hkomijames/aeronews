@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { Metadata } from 'next';
 import PaginatedArticlesGrid from './components/PaginatedArticlesGrid';
-import logo from './app/logo.png'
 
 interface CategoryPageProps {
   params: Promise<{
@@ -31,17 +30,17 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params;
   const title = slug.split('-').map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com';
 
   return {
-    title: `${title} Desk | AV Newsroom`,
-    description: `Stay updated with the latest breaking ${title.toLowerCase()} developments, expert editorial analysis, and aviation industry reports.`,
+    title: `${title} Desk | Aero Saga`,
+    description: `Stay updated with the latest breaking ${title.toLowerCase()} developments, expert editorial analysis, and aviation reports.`,
     alternates: { 
       // Fixed: Converted literal brackets to standard template interpolation paths
       canonical: `${siteUrl}/category/${slug}` 
     },
     openGraph: {
-      title: `${title} Desk | AV Newsroom`,
+      title: `${title} Desk | Aero Saga`,
       description: `Breaking reports and dynamic insights from the ${title.toLowerCase()} desk.`,
       url: `${siteUrl}/category/${slug}`,
       siteName: 'Aero Saga',

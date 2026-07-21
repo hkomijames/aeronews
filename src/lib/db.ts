@@ -4,21 +4,22 @@ import pg from 'pg';
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
 
-// Lazy initializer utility function
 function createPrismaClient(): PrismaClient {
   if (globalForPrisma.prisma) {
     return globalForPrisma.prisma;
   }
 
-  // Create the pooling connection client channel
+  // ⚡ Cost-Optimized Serverless Pool Engine Configuration
   const pool = new pg.Pool({ 
-    connectionString: process.env.DATABASE_URL,
-    // Forces the underlying pg driver to close idle connections quickly to protect Neon costs
-    idleTimeoutMillis: 10000, 
-    max: 1 // Pairs beautifully with Vercel serverless architectures
+    // Passes your transaction pooler URL explicitly into the node-pg driver adapter
+    connectionString: process.env.DATABASE_URL, 
+    idleTimeoutMillis: 10000, // Drops idle cloud connections quickly to keep Neon billing low
+    max: 1 // Restricts each serverless container thread to one dedicated socket channel
   });
   
   const adapter = new PrismaPg(pool);
+  
+  // Clean initialization fully compliant with Prisma 7 strict TypeScript signatures
   const client = new PrismaClient({ adapter });
   
   if (process.env.NODE_ENV !== 'production') {
@@ -29,8 +30,6 @@ function createPrismaClient(): PrismaClient {
 }
 
 // ─── SHIELDED LAZY INTERFACE EXPORT ───
-// This pattern exposes the schema client cleanly, executing the query setup 
-// exclusively at the moment your backend calls a table execution rule.
 export const prisma = {
   get user() { return createPrismaClient().user; },
   get article() { return createPrismaClient().article; },

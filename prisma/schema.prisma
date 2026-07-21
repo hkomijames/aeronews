@@ -1,7 +1,5 @@
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")   // ⚡ Connects to Neon Pooler for fast serverless traffic
-  directUrl = env("DIRECT_URL")     // 🛠️ Connects directly to Neon for Vercel build-time migrations
+  provider = "postgresql"
 }
 
 generator client {
@@ -14,10 +12,10 @@ model User {
   email       String    @unique
   name        String
   password    String
-  title       String?   // e.g., "Senior Political Correspondent"
-  bio         String?   // Proof of expertise/experience
-  avatarUrl   String?   // Clear headshot of the journalist
-  sameAsLinks String[]  // Array of links (LinkedIn, MuckRack, personal site) to establish E-E-A-T
+  title       String?   
+  bio         String?   
+  avatarUrl   String?   
+  sameAsLinks String[]  
   role        String    @default("AUTHOR") 
   articles    Article[]
   createdAt   DateTime  @default(now())
@@ -28,13 +26,13 @@ model Article {
   id           String   @id @default(uuid())
   title        String
   slug         String   @unique
-  excerpt      String?  // Short summary for Google News snippet card
-  content      String   // Raw article body text
-  imageUrl     String?  // Required featured image link for news carousel
-  category     String   @default("General") // e.g., Tech, Local News, Sports
+  excerpt      String?  
+  content      String   
+  imageUrl     String?  
+  category     String   @default("General") 
   isPublished  Boolean  @default(false)
-  createdAt    DateTime @default(now())   // datePublished for Google Bot
-  updatedAt    DateTime @updatedAt        // dateModified for Google Bot
+  createdAt    DateTime @default(now())   
+  updatedAt    DateTime @updatedAt        
   authorId     String
   author       User     @relation(fields: [authorId], references: [id])
 }

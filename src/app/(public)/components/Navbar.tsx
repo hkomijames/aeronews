@@ -18,7 +18,7 @@ export default function Navbar() {
   return (
     <nav className="w-full sticky top-0 z-50 bg-white border-b border-slate-100 shadow-sm transition-all duration-300">
       {/* Container matching your page constraints */}
-      <div className="max-w-[80%] mx-auto flex items-center justify-between py-4 px-2">
+      <div className="max-w-[80%] mx-auto flex items-center justify-between py-2 px-2">
         
         {/* Brand Logo Wrapper */}
         <Link href="/" className="flex items-center" aria-label="Aero Saga Home">

@@ -15,7 +15,7 @@ export default function AeroSagaLogo() {
 
       <text
         x="10"
-        y="40"
+        y="30"
         fill="url(#aeroSagaGradient)"
         style={{
           fontFamily: "'Playfair Display', 'Georgia', serif",
@@ -24,7 +24,7 @@ export default function AeroSagaLogo() {
           letterSpacing: '-0.5px',
         }}
       >
-        Aero
+        Aero 
         <tspan
           dx="6"
           style={{

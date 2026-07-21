@@ -33,9 +33,9 @@ export default async function PublicHomePage() {
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="border-b border-slate-800 pb-3 mb-8">
             <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
-              Featured Coverage <span className="text-base">✨</span>
+              Featured Coverage <span className="text-base">.</span>
             </h2>
-            <p className="text-xs text-slate-400 mt-0.5 font-medium">The absolute latest breaking dispatches curated straight from our news desks.</p>
+            <p className="text-xs text-slate-400 mt-0.5 font-medium">Latest breaking dispatches curated straight from our news desks.</p>
           </div>
 
           {topLatestArticles.length === 0 ? (
