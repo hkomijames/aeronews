@@ -48,7 +48,13 @@ export async function updateUserProfile(formData: {
       },
     });
 
+    // ─── CACHE FLUSH FIXES ───
+    // 1. Clears cache for your dashboard view
     revalidatePath('/hq-portal');
+    
+    // 2. FORCES ALL NEWS ARTICLES USING THE 'revalidate = false' TAG TO PURGE OLD BIODATA
+    revalidatePath('/news/[slug]', 'layout');
+
     return { success: true };
   } catch (err) {
     console.error("Profile mutate crash logic:", err);
