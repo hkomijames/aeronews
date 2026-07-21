@@ -55,7 +55,6 @@ export default async function HQPortalPage() {
           bio: true,
           avatarUrl: true,
           sameAsLinks: true,
-          content: true,
         }
       });
     }
