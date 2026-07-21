@@ -9,7 +9,7 @@ interface ModalProps {
     title: string;
     category: string;
     excerpt: string | null;
-    content: string; // ✨ Added required main content block to the data contract
+    content: string | null; // ✨ Added required main content block to the data contract
   };
 }
 
