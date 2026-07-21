@@ -21,10 +21,6 @@ export default function ContactPage() {
               <span className="text-slate-400 block mb-0.5">Editorial Inquiries</span>
               <p className="text-slate-800 font-bold">press@aerosaga.com</p>
             </div>
-            <div className="border-t border-slate-200/50 pt-3">
-              <span className="text-slate-400 block mb-0.5">Corporate Headquarters</span>
-              <p className="text-slate-800 font-bold">Lagos, Nigeria</p>
-            </div>
           </div>
         </div>
 

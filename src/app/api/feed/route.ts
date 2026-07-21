@@ -27,7 +27,7 @@ export async function GET() {
   <channel>
     <title>Aero Saga</title>
     <link>${siteUrl}</link>
-    <description>Breaking tech news, deep-dives, and serverless infrastructure insights.</description>
+    <description>Breaking aero news, aiport and airplane news.</description>
     <language>en-us</language>
     <lastBuildDate>${latestArticleDate.toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/api/feed" rel="self" type="application/rss+xml" />
