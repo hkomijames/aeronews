@@ -175,8 +175,11 @@ export default async function ArticlePage({ params }: Props) {
                   </>
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5" suppressHydrationWarning>
                 Published: {new Date(article.createdAt).toLocaleString()}
+                {new Date(article.updatedAt).getTime() - new Date(article.createdAt).getTime() > 60000 && (
+                  ` | Updated: ${new Date(article.updatedAt).toLocaleString()}`
+                )}
               </p>
             </div>
           </div>
