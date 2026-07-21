@@ -147,12 +147,16 @@ export async function deleteArticle(id: string) {
 }
 
 // ─── AUDIT ACTION TO UPDATE AN ARTICLE ───
-export async function updateArticle(id: string, data: { title: string; category: string; excerpt: string }) {
+export async function updateArticle(
+  id: string, 
+  data: { title: string; category: string; excerpt: string; content: string } // ✨ Added content payload requirement here
+) {
   try {
     const cookieStore = await cookies();
     if (!cookieStore.get('auth_session')) return { success: false, error: 'Unauthorized.' };
 
     if (!data.title.trim()) return { success: false, error: 'Headline title is required.' };
+    if (!data.content.trim()) return { success: false, error: 'Article narrative body copy is required.' }; // ✨ Form safety guard check
 
     const oldArticle = await prisma.article.findUnique({
       where: { id },
@@ -162,9 +166,10 @@ export async function updateArticle(id: string, data: { title: string; category:
     const updated = await prisma.article.update({
       where: { id },
       data: {
-        title: data.title,
+        title: data.title.trim(),
         category: data.category,
         excerpt: data.excerpt || null,
+        content: data.content.trim(), // ✨ Saves incoming main story layout modifications to database
       }
     });
 
@@ -185,6 +190,7 @@ export async function updateArticle(id: string, data: { title: string; category:
     revalidatePath('/hq-portal');
     return { success: true };
   } catch (error) {
+    console.error("Failed to compile article mutations:", error);
     return { success: false, error: 'Database update failed.' };
   }
 }

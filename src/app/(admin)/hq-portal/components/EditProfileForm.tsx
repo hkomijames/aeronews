@@ -7,6 +7,7 @@ import { updateUserProfile } from '../profile-actions'; // Verified Server Actio
 interface EditProfileFormProps {
   initialData: {
     name: string;
+    email: string; // ✨ Added required email constraint to interface payload contract
     title: string | null;
     bio: string | null;
     avatarUrl: string | null;
@@ -21,6 +22,7 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
 
   // States populated directly from server payload on mount - no background fetch 401 crashes!
   const [name, setName] = useState(initialData?.name || '');
+  const [email, setEmail] = useState(initialData?.email || ''); // ✨ Initialized state for corporate email pipeline tracking
   const [title, setTitle] = useState(initialData?.title || '');
   const [bio, setBio] = useState(initialData?.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(initialData?.avatarUrl || '');
@@ -59,15 +61,15 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
   const addLinkField = () => setSameAsLinks([...sameAsLinks, '']);
   const removeLinkField = (index: number) => setSameAsLinks(sameAsLinks.filter((_, i) => i !== index));
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSaving(true);
     setError('');
     setSuccess(false);
 
     try {
-      // Calls the server action directly in a secure execution context
-      const res = await updateUserProfile({ name, title, bio, avatarUrl, sameAsLinks });
+      // Calls the server action directly in a secure execution context, passing the new email value
+      const res = await updateUserProfile({ name, email, title, bio, avatarUrl, sameAsLinks });
 
       if (res.success) {
         setSuccess(true);
@@ -106,15 +108,19 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
             <input type="file" accept="image/*" onChange={handleAvatarUpload} className="text-xs text-slate-400 file:mr-3 file:py-1 file:px-2.5 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-500 file:cursor-pointer" />
           </div>
         </div>
-
         {/* Form Inputs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-semibold text-slate-400 mb-1">Display Name *</label>
             <input type="text" required value={name} onChange={(e) => setName(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-slate-200 focus:outline-none focus:border-slate-700" />
           </div>
+          {/* ✨ Added corporate email address input field block with full semantic layout alignment */}
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-1">Press Title / Role Descriptor</label>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Corporate Email *</label>
+            <input type="email" required placeholder="name@aerosaga.com" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-slate-200 focus:outline-none focus:border-slate-700" />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 mb-1">Press Title / Role</label>
             <input type="text" placeholder="e.g. Senior Aviation Correspondent" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-sm text-slate-200 focus:outline-none focus:border-slate-700" />
           </div>
         </div>
@@ -184,4 +190,3 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
     </div>
   );
 }
- 
