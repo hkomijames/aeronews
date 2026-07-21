@@ -18,12 +18,15 @@ export default function Footer() {
           <Link href="/privacy" className="hover:text-white transition-colors duration-200">
             Privacy
           </Link>
-          <Link href="/sitemap.xml" className="hover:text-white transition-colors duration-200">
+          
+          {/* ✅ FIXED: Switched to raw <a> tags to bypass Next.js Single Page App background pre-fetching */}
+          <a href="/sitemap.xml" className="hover:text-white transition-colors duration-200">
             Sitemap
-          </Link>
-          <Link href="/feed" className="hover:text-white transition-colors duration-200">
+          </a>
+          {/* ✅ FIXED: Changed endpoint path from /feed to match your dynamic /rss.xml route file */}
+          <a href="/feed" className="hover:text-white transition-colors duration-200">
             RSS
-          </Link>
+          </a>
         </div>
 
         {/* Separator Line */}

@@ -48,7 +48,7 @@ export default async function PublicHomePage() {
                 <div key={article.id} className="relative h-95 bg-slate-900 rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl group">
                   <div 
                     className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                    style={{ backgroundImage: `linear-gradient(to top, rgba(2, 6, 23, 0.98) 25%, rgba(2, 6, 23, 0.2)), url(${article.imageUrl || '/placeholder.jpg'})` }}
+                    style={{ backgroundImage: `linear-gradient(to top, rgba(2, 6, 23, 0.98) 25%, rgba(2, 6, 23, 0.2)), url(${article.imageUrl || '/logo.png'})` }}
                   />
                   <div className="absolute inset-0 p-6 flex flex-col justify-end">
                     <span className="text-[9px] font-black tracking-widest text-orange-400 uppercase mb-1">{article.category}</span>
@@ -86,7 +86,7 @@ export default async function PublicHomePage() {
               <article key={article.id} className="group relative">
                 <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
                   <img 
-                    src={article.imageUrl || '/placeholder.jpg'} 
+                    src={article.imageUrl || '/logo.png'} 
                     alt={article.title} 
                     loading="lazy"
                     decoding="async"
@@ -112,7 +112,7 @@ export default async function PublicHomePage() {
               <article key={article.id} className="flex gap-4 items-center group relative">
                 <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
                   <img 
-                    src={article.imageUrl || '/placeholder.jpg'} 
+                    src={article.imageUrl || '/logo.png'} 
                     alt={article.title} 
                     loading="lazy"
                     decoding="async"
@@ -199,7 +199,7 @@ export default async function PublicHomePage() {
                 <article key={article.id} className="group relative">
                   <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
                     <img 
-                      src={article.imageUrl || '/placeholder.jpg'} 
+                      src={article.imageUrl || '/logo.png'} 
                       alt={article.title} 
                       loading="lazy"
                       decoding="async"
@@ -225,7 +225,7 @@ export default async function PublicHomePage() {
                 <article key={article.id} className="flex gap-4 items-center group relative">
                   <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
                     <img 
-                      src={article.imageUrl || '/placeholder.jpg'} 
+                      src={article.imageUrl || '/logo.png'} 
                       alt={article.title} 
                       loading="lazy"
                       decoding="async"

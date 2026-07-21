@@ -109,7 +109,7 @@ export default async function ArticlePage({ params }: Props) {
     '@type': 'NewsArticle', // ✨ Kept strict schema tracking context intact
     'headline': article.title,
     'description': article.excerpt || article.title,
-    'image': article.imageUrl ? [article.imageUrl] : [`${siteUrl}/placeholder.jpg`],
+    'image': article.imageUrl ? [article.imageUrl] : [`${siteUrl}/logo.png`],
     'datePublished': article.createdAt.toISOString(),
     'dateModified': article.updatedAt.toISOString(),
     'mainEntityOfPage': {
