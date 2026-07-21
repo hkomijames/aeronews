@@ -172,7 +172,7 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
           “ Quote
         </button>
         
-        <div className="w-[1px] bg-slate-800 mx-1" />
+        <div className="w-px bg-slate-800 mx-1" />
 
         <button
           type="button"

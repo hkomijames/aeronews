@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { updateArticle } from '../article-actions';
+import RichTextEditor from './RichTextEditor'; // ✨ Import your TipTap rich editor workspace component here
 
 interface ModalProps {
   article: {
@@ -9,7 +10,7 @@ interface ModalProps {
     title: string;
     category: string;
     excerpt: string | null;
-    content: string | null; // ✨ Added required main content block to the data contract
+    content: string | null; 
   };
 }
 
@@ -19,7 +20,7 @@ export default function EditArticleModal({ article }: ModalProps) {
   const [title, setTitle] = useState(article.title);
   const [category, setCategory] = useState(article.category);
   const [excerpt, setExcerpt] = useState(article.excerpt || '');
-  const [content, setContent] = useState(article.content || ''); // ✨ Initialized state for editing main copy
+  const [content, setContent] = useState(article.content || ''); 
 
   // Fixed form typing using modern event parameters to block warnings
   async function handleSave(e: React.SubmitEvent<HTMLFormElement>) {
@@ -85,13 +86,14 @@ export default function EditArticleModal({ article }: ModalProps) {
             />
           </div>
 
-          {/* ✨ New Main Content Textarea Interface element block */}
+          {/* ✨ Premium TipTap Functional Engine Layer Component */}
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1">Main Article Content Body Copy</label>
-            <textarea 
-              rows={12} value={content} onChange={(e) => setContent(e.target.value)} required
-              placeholder="Draft your main body narrative blocks here..."
-              className="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-sans leading-relaxed"
+            <label className="block text-[10px] font-bold uppercase text-slate-400 mb-1.5">
+              Main Article Content Body Copy
+            </label>
+            <RichTextEditor 
+              content={content} 
+              onChange={(htmlOutputString) => setContent(htmlOutputString)} 
             />
           </div>
 
