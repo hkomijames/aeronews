@@ -15,8 +15,10 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        blockquote: {}, // WordPress style blockquotes
-        link: false, // Disabling built-in link logic to silence duplicate warnings completely
+        blockquote: {}, 
+        link: false, // Disabling built-in link logic to silence duplicate warnings
+        // Ensure hardBreak handles Shift+Enter newlines correctly
+        hardBreak: {},
       }),
       Link.configure({
         openOnClick: false,
@@ -30,14 +32,14 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
       }),
     ],
     content: content,
-    immediatelyRender: false, // Prevents server/client hydration warning pops
+    immediatelyRender: false, 
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML()); // Bubble HTML content up to the parent form state
+      onChange(editor.getHTML()); 
     },
     editorProps: {
       attributes: {
-        // ─── OPTIMIZED: Combined into a clean single string spacing token line to prevent DOM crashes ───
-        class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-video:w-full prose-video:aspect-video prose-video:rounded-xl prose-video:my-6 prose-video:shadow-md prose-video:bg-black prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
+        // ─── FIX: Added prose-p:my-4, prose-p:min-h-[1.5rem], and prose-br:before:content-none ───
+        class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-video:w-full prose-video:aspect-video prose-video:rounded-xl prose-video:my-6 prose-video:shadow-md prose-video:bg-black prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
         spellcheck: 'true',
       },
     },
@@ -51,7 +53,6 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
     if (url) editor.chain().focus().setLink({ href: url }).run();
   };
 
-  // ─── OPTIMIZED: FILE PICKER OPENS FIRST, THEN PROMPTS AFTER UPLOAD ───
   const addImageLocally = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -69,16 +70,13 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
         const data = await res.json();
 
         if (data.success) {
-          // Only prompt the writer for accessibility validation parameters AFTER confirmation of upload success
           const altText = window.prompt('Enter Image Alt Text (Crucial for Google Bots SEO):');
-          if (altText === null) return; // Exit loop if author cancels prompt box
+          if (altText === null) return; 
 
           const caption = window.prompt('Enter Image Caption Text (Optional - Displays underneath image):');
           const validatedAlt = altText.trim() || 'News illustration graphic';
           
           if (caption && caption.trim()) {
-            // OPTIMIZED: Removed excess empty trailing paragraph structures to fix spacing.
-            // The caption text is explicitly wrapped inside the "italic" tag for isolation.
             const figureHtml = `
               <figure class="my-6 text-center">
                 <img src="${data.url}" alt="${validatedAlt}" class="rounded-xl max-h-[400px] object-cover mx-auto shadow-md" />
@@ -89,7 +87,6 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
             `;
             editor.chain().focus().insertContent(figureHtml).run();
           } else {
-            // Fall back to clean image element node if no caption is entered
             editor.chain().focus().setImage({ src: data.url, alt: validatedAlt }).run();
           }
         } else {
@@ -99,12 +96,9 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
         alert('Network error uploading image.');
       }
     };
-
-    // Programmatically fire the file picker window open immediately
     input.click();
   };
 
-  // ─── UPDATED: CHOOSE VIDEO DIRECTLY FROM COMPUTER ───
   const addVideoLocally = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -120,7 +114,6 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
         const res = await fetch('/api/media', { method: 'POST', body: formData });
         const data = await res.json();
         if (data.success) {
-          // Embeds a clean HTML5 video element block with system play controllers
           editor.chain().focus().insertContent(`<video src="${data.url}" controls class="w-full rounded-xl my-6 shadow-md bg-black"></video><p></p>`).run();
         } else {
           alert('Failed to upload video.');
