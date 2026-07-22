@@ -35,7 +35,22 @@ const VideoExtension = Node.create({
       ['video', mergeAttributes(HTMLAttributes, { preload: 'metadata', controls: 'true' })]
     ];
   },
-  // Custom addCommands block removed to prevent ChainedCommands TypeScript errors completely
+});
+
+// Custom Image Extension supporting Blogger-style Sizing Parameters
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      dataSize: {
+        default: 'large',
+        parseHTML: element => element.getAttribute('data-size'),
+        renderHTML: attributes => ({
+          'data-size': attributes.dataSize,
+        }),
+      },
+    };
+  },
 });
 
 interface EditorProps {
@@ -90,7 +105,8 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     extensions: [
       StarterKit.configure({ blockquote: {}, link: false, hardBreak: {} }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-blue-400 underline cursor-pointer' } }),
-      Image.configure({ HTMLAttributes: { class: 'rounded-xl max-h-[400px] object-cover mt-6 mx-auto shadow-md' } }),
+      // Swapped out the default Image module for our sizing mutation extension
+      CustomImage.configure({ HTMLAttributes: { class: 'rounded-xl max-h-[400px] object-cover mt-6 mx-auto shadow-md transitions-all' } }),
       Youtube.configure({ HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } }),
       VideoExtension,
     ],
@@ -99,64 +115,59 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
+        // FIXED: Added whitespace-pre-wrap to make multiple spacebars and double enters work natively
+        class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto whitespace-pre-wrap prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
         spellcheck: 'true',
       },
       handleKeyDown(view, event) {
-  if (event.key === 'Backspace' || event.key === 'Delete') {
-    const { state } = view;
-    const { selection } = state;
-    let targetUrl = '';
+        if (event.key === 'Backspace' || event.key === 'Delete') {
+          const { state } = view;
+          const { selection } = state;
+          let targetUrl = '';
 
-    // Scenario 1: The user has actively clicked/selected the block node
-    if (selection instanceof Object && 'node' in selection && selection.node) {
-      const selectedNode = (selection as any).node;
-      const nodeType = selectedNode.type?.name;
+          if (selection instanceof Object && 'node' in selection && selection.node) {
+            const selectedNode = (selection as any).node;
+            const nodeType = selectedNode.type?.name;
 
-      if (nodeType === 'image' && selectedNode.attrs) {
-        targetUrl = selectedNode.attrs.src;
-      } else if (nodeType === 'video' && selectedNode.attrs) {
-        targetUrl = selectedNode.attrs.src;
-      }
-    } 
-    // Scenario 2: Inline cursor backspace (the cursor is right next to the video block)
-    else {
-      const pos = event.key === 'Backspace' ? selection.$from.before() : selection.$from.after();
-      try {
-        const nodeAdjacent = state.doc.nodeAt(pos);
-        if (nodeAdjacent) {
-          const type = nodeAdjacent.type.name;
-          
-          if (type === 'image' && nodeAdjacent.attrs?.src) {
-            targetUrl = nodeAdjacent.attrs.src;
+            if (nodeType === 'image' && selectedNode.attrs) {
+              targetUrl = selectedNode.attrs.src;
+            } else if (nodeType === 'video' && selectedNode.attrs) {
+              targetUrl = selectedNode.attrs.src;
+            }
           } 
-          // FALLBACK FOR RAW HTML: Inspect the raw DOM node structure directly if Tiptap attributes are missing
-          else if (type === 'video') {
-            if (nodeAdjacent.attrs?.src) {
-              targetUrl = nodeAdjacent.attrs.src;
-            } else {
-              // Extract the source directly from the underlying DOM element properties
-              const domNode = view.nodeDOM(pos) as HTMLElement;
-              const videoEl = domNode?.querySelector('video');
-              if (videoEl?.src) {
-                targetUrl = videoEl.src;
+          else {
+            const pos = event.key === 'Backspace' ? selection.$from.before() : selection.$from.after();
+            try {
+              const nodeAdjacent = state.doc.nodeAt(pos);
+              if (nodeAdjacent) {
+                const type = nodeAdjacent.type.name;
+                
+                if (type === 'image' && nodeAdjacent.attrs?.src) {
+                  targetUrl = nodeAdjacent.attrs.src;
+                } 
+                else if (type === 'video') {
+                  if (nodeAdjacent.attrs?.src) {
+                    targetUrl = nodeAdjacent.attrs.src;
+                  } else {
+                    const domNode = view.nodeDOM(pos) as HTMLElement;
+                    const videoEl = domNode?.querySelector('video');
+                    if (videoEl?.src) {
+                      targetUrl = videoEl.src;
+                    }
+                  }
+                }
               }
+            } catch (e) {
+              // Ignore out-of-bounds selection blocks quietly
             }
           }
+
+          if (targetUrl) {
+            deleteBlobFromCloud(targetUrl);
+          }
         }
-      } catch (e) {
-        // Ignore out-of-bounds selection blocks quietly
+        return false;
       }
-    }
-
-    // Trigger the cloud deletion endpoint if a valid asset URL was identified
-    if (targetUrl) {
-      deleteBlobFromCloud(targetUrl);
-    }
-  }
-  return false; // Let Tiptap finish handling the actual text/node removal from the UI
-}
-
     },
   });
 
@@ -199,7 +210,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           if (caption && caption.trim()) {
             const figureHtml = `
               <figure class="my-6 text-center">
-                <img src="${newBlob.url}" alt="${validatedAlt}" class="rounded-xl max-h-[400px] object-cover mx-auto shadow-md" />
+                <img src="${newBlob.url}" alt="${validatedAlt}" data-size="large" class="rounded-xl max-h-100 object-cover mx-auto shadow-md" />
                 <figcaption class="text-xs text-slate-400 mt-2 font-sans">
                   <i>${caption.trim()}</i>
                 </figcaption>
@@ -207,7 +218,8 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
             `;
             editor.chain().focus().insertContent(figureHtml).run();
           } else {
-            editor.chain().focus().setImage({ src: newBlob.url, alt: validatedAlt }).run();
+            // Defaulting custom schema parameter to large dynamically on fallback insertion loop
+            editor.chain().focus().setImage({ src: newBlob.url, alt: validatedAlt }).updateAttributes('image', { dataSize: 'large' }).run();
           }
         }
       } catch (err) {
@@ -249,7 +261,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           uploadedUrlsRef.current.push(newBlob.url);
           setUploadProgress(100);
           
-          // ESCAPE HATCH: Direct string insertion bypasses Tiptap's strict command types completely
           const videoHtml = `
             <div class="w-full block clear-both" contenteditable="false">
               <video src="${newBlob.url}" controls="true" preload="metadata" class="w-full aspect-video rounded-xl my-6 shadow-md bg-black"></video>
@@ -276,11 +287,16 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     input.click();
   };
 
+  // Helper command to mutate Blogger-style sizing metrics on the selected image element node
+  const resizeSelectedImage = (size: 'small' | 'medium' | 'large') => {
+    editor.chain().focus().updateAttributes('image', { dataSize: size }).run();
+  };
+
   const isAnyUploading = imageLoading || videoLoading;
 
   return (
     <div className="w-full flex flex-col relative">
-      <div className="flex flex-wrap gap-1.5 bg-slate-900 border border-slate-800 p-2 rounded-t-xl border-b-0 relative">
+      <div className="flex flex-wrap items-center gap-1.5 bg-slate-900 border border-slate-800 p-2 rounded-t-xl border-b-0 relative">
         <button
           type="button"
           disabled={isAnyUploading}
@@ -322,7 +338,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           “ Quote
         </button>
         
-        <div className="w-px bg-slate-800 mx-1" />
+        <div className="w-px bg-slate-800 mx-1 self-stretch" />
 
         <button
           type="button"
@@ -348,6 +364,33 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         >
           {videoLoading ? '⌛ Uploading...' : '📺 Video'}
         </button>
+
+        {/* DYNAMIC CONTEXTUAL TOOLBAR ELEMENT: Displays resizing choices if an image node is highlighted */}
+        {editor.isActive('image') && (
+          <div className="flex gap-1 bg-slate-950 p-0.5 rounded border border-slate-800 ml-auto animate-fade-in">
+            <button 
+              type="button" 
+              onClick={() => resizeSelectedImage('small')} 
+              className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${editor.getAttributes('image').dataSize === 'small' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Small
+            </button>
+            <button 
+              type="button" 
+              onClick={() => resizeSelectedImage('medium')} 
+              className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${editor.getAttributes('image').dataSize === 'medium' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Medium
+            </button>
+            <button 
+              type="button" 
+              onClick={() => resizeSelectedImage('large')} 
+              className={`px-2 py-0.5 text-[10px] font-medium rounded transition-colors ${editor.getAttributes('image').dataSize === 'large' || !editor.getAttributes('image').dataSize ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'}`}
+            >
+              Original
+            </button>
+          </div>
+        )}
 
         {isAnyUploading && (
           <div className="absolute bottom-0 left-0 h-0.5 bg-blue-500 transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }} />

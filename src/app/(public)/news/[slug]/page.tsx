@@ -199,15 +199,15 @@ export default async function ArticlePage({ params }: Props) {
           {/* ─── OPTIMIZED RENDERING CONTAINER: FORCES INJECTED PARAGRAPHS TO RENDER SPACING ─── */}
           <div 
   className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
+             whitespace-pre-wrap
              [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
              prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
              prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
              prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center
-             prose-img:rounded-2xl prose-img:shadow-sm prose-img:mx-auto prose-img:my-0 prose-img:w-full prose-img:max-w-3xl prose-img:aspect-video prose-img:object-cover
+             prose-img:rounded-2xl prose-img:shadow-sm prose-img:mx-auto prose-img:my-0 prose-img:aspect-video prose-img:object-cover
              prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide"
   dangerouslySetInnerHTML={{ __html: article.content }}
 />
-
 
           <SocialShare title={article.title} slug={article.slug} />
           {article.author.bio && (
@@ -271,7 +271,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           {/* Flight Briefing Box */}
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
+          <div className="bg-linear-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
             <span className="text-xl">✉️</span>
             <h3 className="font-extrabold text-base mt-2">Flight Briefing</h3>
             <p className="text-xs text-slate-400 mt-1 leading-relaxed mb-4">
