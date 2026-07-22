@@ -200,15 +200,15 @@ export default async function ArticlePage({ params }: Props) {
     <div 
   className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
              whitespace-pre-wrap
-             [&_p]:mb-6 [&_p]:mt-0 [&_p]:block
-             [&_p:empty]:min-h-6 [&_p:empty]:block
+             [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
              prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
              prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
-             prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center
-             prose-img:rounded-2xl prose-img:shadow-sm prose-img:mx-auto prose-img:my-0
-             prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide"
+             prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
+             prose-img:rounded-2xl prose-img:shadow-sm
+             prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
   dangerouslySetInnerHTML={{ __html: article.content }}
 />
+
 
 
           <SocialShare title={article.title} slug={article.slug} />

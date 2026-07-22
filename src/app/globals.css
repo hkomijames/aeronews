@@ -61,40 +61,50 @@ nav {
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-/* Update your global.css targets to protect heights proportionally */
+/* Core Styling Rules for News Article Body */
 
+/* --- 1. CLEAN NEW LINE SPACING FIX --- */
+/* Removes the wide artificial whitespace gaps and establishes natural editorial paragraph flows */
+.article-content p:empty {
+  min-height: 1.5rem !important;
+  display: block !important;
+  margin-bottom: 1.5rem !important;
+}
+.article-content p:empty::before {
+  content: "" !important; /* Cleans up the previous wide spacing hack completely */
+}
+
+/* --- 2. RESIZABLE IMAGE NEWS CONTAINER FIXES --- */
+/* Ensures images scale perfectly horizontally across device types without cutting, pinching, or shrinking the original aspect heights */
+.article-content img {
+  height: auto !important; /* Preserves natural file dimension proportions without stretching */
+  display: block !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Small Sizing Mode */
 .article-content img[data-size="small"] {
-  width: 280px !important;
-  max-width: 100% !important;
-  height: auto !important; /* Forces natural proportional scale */
-  object-fit: contain !important; /* Prevents cropping or stretching */
-  margin-left: auto !important;
-  margin-right: auto !important;
-  display: block !important;
+  width: 100% !important;
+  max-width: 320px !important;
 }
 
+/* Medium Sizing Mode */
 .article-content img[data-size="medium"] {
-  width: 540px !important;
-  max-width: 100% !important;
-  height: auto !important;
-  object-fit: contain !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  display: block !important;
+  width: 100% !important;
+  max-width: 640px !important;
 }
 
+/* Large / Original News Frame Mode (Fills the column up to 3xl) */
 .article-content img[data-size="large"],
 .article-content img:not([data-size]) {
   width: 100% !important;
-  max-width: 48rem !important; /* 3xl spacing */
-  height: auto !important;
-  object-fit: contain !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
-  display: block !important;
+  max-width: 48rem !important; /* Exactly matches max-w-3xl */
 }
 
-/* Force empty paragraph nodes to maintain physical height */
-.article-content p:empty::before {
-  content: "\00a0"; /* Injects an invisible non-breaking space */
+/* --- 3. EXPLICIT FIGCAPTION CENTERING --- */
+.article-content figcaption {
+  text-align: center !important;
+  width: 100% !important;
+  display: block !important;
 }
