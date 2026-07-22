@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent, Node } from '@tiptap/react';
+import type { CommandProps } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
@@ -15,6 +16,7 @@ const VideoExtension = Node.create({
   selectable: true,
   draggable: true,
   atom: true,
+
   addAttributes() {
     return {
       src: { default: null },
@@ -22,8 +24,26 @@ const VideoExtension = Node.create({
       class: { default: 'w-full rounded-xl my-6 shadow-md bg-black' },
     };
   },
-  parseHTML() { return [{ tag: 'video[src]' }]; },
-  renderHTML({ HTMLAttributes }) { return ['video', HTMLAttributes]; },
+
+  parseHTML() {
+    return [{ tag: 'video[src]' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['video', HTMLAttributes];
+  },
+
+  // FIXED: Registers the insertion commands explicitly so Tiptap accepts the element
+  addCommands() {
+    return {
+      setVideo: (options: { src: string }) => ({ commands }: CommandProps) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: options,
+        });
+      },
+    } as any;
+  },
 });
 
 interface EditorProps {
@@ -44,6 +64,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     isSavedRef.current = isSaved;
   }, [isSaved]);
 
+  // Unmount session fallback cleanup handler
   useEffect(() => {
     return () => {
       if (isSavedRef.current) return;
@@ -141,7 +162,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     input.onchange = async () => {
       const files = input.files;
       if (!files || files.length === 0) return;
-      const file = files[0]; // Safely get the first selected file item
+      const file = files[0];
 
       try {
         const altText = window.prompt('Enter Image Alt Text (SEO):');
@@ -197,7 +218,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     input.onchange = async () => {
       const files = input.files;
       if (!files || files.length === 0) return;
-      const file = files[0]; // Safely get the first selected file item
+      const file = files[0];
 
       try {
         setVideoLoading(true);
@@ -212,14 +233,13 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           }
         });
 
+        // FIXED: Invokes custom command setVideo targeting schema pipeline safely
         if (newBlob?.url) {
           uploadedUrlsRef.current.push(newBlob.url);
           
-          editor
-            .chain()
-            .focus()
-            .insertContent({ type: 'video', attrs: { src: newBlob.url } })
-            .insertContent({ type: 'paragraph' })
+          (editor.chain().focus() as any)
+            .setVideo({ src: newBlob.url })
+            .insertContent('<p></p>')
             .run();
         }
       } catch (err) {
@@ -309,7 +329,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         </button>
 
         {isAnyUploading && (
-          <div className="absolute bottom-0 left-0 h-[2px] bg-blue-500 transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }} />
+          <div className="absolute bottom-0 left-0 h-0.5 bg-blue-500 transition-all duration-300 ease-out" style={{ width: `${uploadProgress}%` }} />
         )}
       </div>
 

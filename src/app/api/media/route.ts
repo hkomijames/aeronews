@@ -1,3 +1,4 @@
+// app/api/media/route.ts
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { del } from '@vercel/blob';
 import { NextResponse } from 'next/server';
@@ -24,14 +25,13 @@ export async function POST(request: Request): Promise<NextResponse> {
             'video/quicktime', 
             'video/webm'
           ],
-          maximumSizeInBytes: 150 * 1024 * 1024, // Set file size ceiling (e.g., 150MB)
+          maximumSizeInBytes: 150 * 1024 * 1024, // 150MB file limit
           addRandomSuffix: true,
-          // FIX: Swapped metadata for clientPayload to support multipart/chunked video tracks safely
+          // FIX: clientPayload keeps chunk authorization stable for videos
           clientPayload: JSON.stringify({ uniqueFileName }), 
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Run hooks once the asset lands successfully in Vercel Blob storage
         console.log('File successfully written to cloud:', blob.url);
       },
     });
@@ -55,7 +55,7 @@ export async function DELETE(request: Request): Promise<NextResponse> {
       return NextResponse.json({ error: "Missing blob URL asset parameter" }, { status: 400 });
     }
     
-    // Explicitly delete the specified file from your Vercel Blob cloud bucket
+    // Deletes tracking target directly out of Vercel storage
     await del(url);
     return NextResponse.json({ success: true });
   } catch (error) {
