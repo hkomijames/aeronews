@@ -66,9 +66,7 @@ nav {
 /* --- 1. CLEAN NEW LINE SPACING FIX --- */
 /* Removes the wide artificial whitespace gaps and establishes natural editorial paragraph flows */
 .article-content p:empty {
-  min-height: 1.5rem !important;
   display: block !important;
-  margin-bottom: 1.5rem !important;
 }
 .article-content p:empty::before {
   content: "" !important; /* Cleans up the previous wide spacing hack completely */
