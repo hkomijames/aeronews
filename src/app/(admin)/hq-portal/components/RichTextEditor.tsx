@@ -2,23 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent, Node, mergeAttributes } from '@tiptap/react';
-import type { CommandProps } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
 
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    video: {
-      setVideo: (options: { src: string }) => ReturnType;
-    };
-  }
-}
-
-
-// Define an Updated Custom Tiptap Node Extension for Native HTML5 Videos
+// Streamlined video node extension to handle HTML5 Video parsing safely
 const VideoExtension = Node.create({
   name: 'video',
   group: 'block',
@@ -38,31 +28,14 @@ const VideoExtension = Node.create({
     return [{ tag: 'video[src]' }];
   },
 
-  // FIXED: Wrapped in an un-editable container block to prevent the editor from collapsing its height to 0px
   renderHTML({ HTMLAttributes }) {
     return [
       'div', 
       { class: 'w-full block clear-both', contenteditable: 'false' }, 
-      [
-        'video', 
-        mergeAttributes(HTMLAttributes, { 
-          preload: 'metadata', 
-          controls: 'true' 
-        })
-      ]
+      ['video', mergeAttributes(HTMLAttributes, { preload: 'metadata', controls: 'true' })]
     ];
   },
-
-  addCommands() {
-    return {
-      setVideo: (options: { src: string }) => ({ commands }: CommandProps) => {
-        return commands.insertContent({
-          type: this.name,
-          attrs: options,
-        });
-      },
-    };
-  },
+  // Custom addCommands block removed to prevent ChainedCommands TypeScript errors completely
 });
 
 interface EditorProps {
@@ -83,7 +56,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     isSavedRef.current = isSaved;
   }, [isSaved]);
 
-  // Unmount session fallback cleanup handler
   useEffect(() => {
     return () => {
       if (isSavedRef.current) return;
@@ -166,6 +138,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       }
     },
   });
+
   if (!editor) return null;
 
   const addLink = () => {
@@ -253,12 +226,19 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
 
         if (newBlob?.url) {
           uploadedUrlsRef.current.push(newBlob.url);
+          setUploadProgress(100);
           
-          // FIXED: Now safely executes your custom setVideo command with default configuration rules
+          // ESCAPE HATCH: Direct string insertion bypasses Tiptap's strict command types completely
+          const videoHtml = `
+            <div class="w-full block clear-both" contenteditable="false">
+              <video src="${newBlob.url}" controls="true" preload="metadata" class="w-full aspect-video rounded-xl my-6 shadow-md bg-black"></video>
+            </div>
+          `;
+
           editor
             .chain()
             .focus()
-            .setVideo({ src: newBlob.url })
+            .insertContent(videoHtml)
             .insertContent({ type: 'paragraph' })
             .run();
         }
