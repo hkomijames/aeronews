@@ -72,37 +72,31 @@ nav {
   content: "" !important; /* Cleans up the previous wide spacing hack completely */
 }
 
-/* --- 2. RESIZABLE IMAGE NEWS CONTAINER FIXES --- */
-/* Ensures images scale perfectly horizontally across device types without cutting, pinching, or shrinking the original aspect heights */
 .article-content img {
-  height: auto !important; /* Preserves natural file dimension proportions without stretching */
+  width: 100% !important;
+  height: auto !important;              /* Overrides baked-in height ceilings */
+  aspect-ratio: auto !important;        /* Breaks the forced video box constraint */
+  object-fit: initial !important;       /* Disables object-cover cropping completely */
+  max-height: none !important;          /* Strips max-height limits */
   display: block !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
 
-/* Small Sizing Mode */
+/* Maintain your custom news frame width limits */
 .article-content img[data-size="small"] {
+  max-width: 320px !important; /* Tailwind max-w-xs equivalent */
   width: 100% !important;
-  max-width: 320px !important;
 }
 
-/* Medium Sizing Mode */
 .article-content img[data-size="medium"] {
+  max-width: 640px !important; /* Tailwind max-w-xl equivalent */
   width: 100% !important;
-  max-width: 640px !important;
 }
 
-/* Large / Original News Frame Mode (Fills the column up to 3xl) */
+/* Original News Frame Mode */
 .article-content img[data-size="large"],
 .article-content img:not([data-size]) {
+  max-width: 48rem !important; /* Exactly matches max-w-3xl (768px) */
   width: 100% !important;
-  max-width: 48rem !important; /* Exactly matches max-w-3xl */
-}
-
-/* --- 3. EXPLICIT FIGCAPTION CENTERING --- */
-.article-content figcaption {
-  text-align: center !important;
-  width: 100% !important;
-  display: block !important;
 }
