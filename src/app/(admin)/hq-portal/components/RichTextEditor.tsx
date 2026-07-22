@@ -147,7 +147,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     },
   });
 
-  if (!editor) return null;
+    if (!editor) return null;
 
   const addLink = () => {
     const url = window.prompt('Enter Hyperlink URL:');
@@ -233,13 +233,18 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           }
         });
 
-        // FIXED: Invokes custom command setVideo targeting schema pipeline safely
+        // FIXED: Replaced custom chained command with native insertContent dictionary layout to prevent silent drops
         if (newBlob?.url) {
           uploadedUrlsRef.current.push(newBlob.url);
           
-          (editor.chain().focus() as any)
-            .setVideo({ src: newBlob.url })
-            .insertContent('<p></p>')
+          editor
+            .chain()
+            .focus()
+            .insertContent({
+              type: 'video',
+              attrs: { src: newBlob.url }
+            })
+            .insertContent({ type: 'paragraph' }) // Safe empty spacing block
             .run();
         }
       } catch (err) {
