@@ -61,35 +61,40 @@ nav {
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-/* Add this snippet to your main CSS file to match your template sizes */
+/* Update your global.css targets to protect heights proportionally */
 
-/* 1. Small Images: Centered, bounds capped at 280px wide */
 .article-content img[data-size="small"] {
   width: 280px !important;
   max-width: 100% !important;
-  height: auto !important;
+  height: auto !important; /* Forces natural proportional scale */
+  object-fit: contain !important; /* Prevents cropping or stretching */
   margin-left: auto !important;
   margin-right: auto !important;
   display: block !important;
 }
 
-/* 2. Medium Images: Centered, bounds capped at 540px wide */
 .article-content img[data-size="medium"] {
   width: 540px !important;
   max-width: 100% !important;
   height: auto !important;
+  object-fit: contain !important;
   margin-left: auto !important;
   margin-right: auto !important;
   display: block !important;
 }
 
-/* 3. Original / Large Images: Full column width up to 3xl boundaries */
 .article-content img[data-size="large"],
 .article-content img:not([data-size]) {
   width: 100% !important;
-  max-width: 48rem !important; /* Matches your 3xl layout specification */
+  max-width: 48rem !important; /* 3xl spacing */
   height: auto !important;
+  object-fit: contain !important;
   margin-left: auto !important;
   margin-right: auto !important;
   display: block !important;
+}
+
+/* Force empty paragraph nodes to maintain physical height */
+.article-content p:empty::before {
+  content: "\00a0"; /* Injects an invisible non-breaking space */
 }
