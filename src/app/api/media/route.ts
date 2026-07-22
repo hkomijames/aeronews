@@ -1,29 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
+import { del } from '@vercel/blob';
+import { NextResponse } from 'next/server';
 
-export async function POST(request: NextRequest) {
+// ─── 1. HANDLE UPLOADS (POST) ───
+export async function POST(request: Request): Promise<NextResponse> {
   try {
-    const formData = await request.formData();
-    const file = formData.get('file') as File | null;
-    
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
-    }
+    const body = (await request.json()) as HandleUploadBody;
 
-    // Clean up spaces in filenames to maintain valid URLs
-    const sanitizedFileName = file.name.replace(/\s+/g, '-');
-    const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
+    const jsonResponse = await handleUpload({
+      body,
+      request,
+      onBeforeGenerateToken: async (pathname) => {
+        // Clean up spaces in filenames to maintain valid URLs
+        const sanitizedFileName = pathname.replace(/\s+/g, '-');
+        const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
 
-    // Upload directly to Vercel Blob Cloud Storage
-    const blob = await put(uniqueFileName, file, {
-      access: 'public', // Makes the file readable across the web
+        return {
+          allowedContentTypes: [
+            'image/jpeg', 
+            'image/png', 
+            'image/webp', 
+            'video/mp4', 
+            'video/quicktime', 
+            'video/webm'
+          ],
+          maximumSizeInBytes: 150 * 1024 * 1024, // Set file size ceiling (e.g., 150MB)
+          // Store our custom unique file name inside the token payload metadata
+          metadata: JSON.stringify({ uniqueFileName }), 
+        };
+      },
+      onUploadCompleted: async ({ blob, tokenPayload }) => {
+        // Optional: Run hooks once the asset lands successfully in Vercel Blob storage
+        console.log('File successfully written to cloud:', blob.url);
+      },
     });
 
-    // Returns the live, globally accessible CDN URL (e.g., https://vercel-storage.com)
-    return NextResponse.json({ success: true, url: blob.url });
-
+    return NextResponse.json(jsonResponse);
   } catch (error) {
-    console.error("Cloud upload error:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    console.error("Cloud upload security error:", error);
+    return NextResponse.json(
+      { error: "Token generation failed" },
+      { status: 400 },
+    );
+  }
+}
+
+// ─── 2. HANDLE UNMOUNT CLEANUP DELETIONS (DELETE) ───
+export async function DELETE(request: Request): Promise<NextResponse> {
+  try {
+    const { url } = await request.json();
+    
+    if (!url) {
+      return NextResponse.json({ error: "Missing blob URL asset parameter" }, { status: 400 });
+    }
+    
+    // Explicitly delete the specified file from your Vercel Blob cloud bucket
+    await del(url);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Failed to delete orphaned blob item:", error);
+    return NextResponse.json(
+      { error: "Asset deletion request failed" },
+      { status: 500 }
+    );
   }
 }
