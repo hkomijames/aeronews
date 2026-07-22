@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import imageCompression from 'browser-image-compression';
+import { upload } from '@vercel/blob/client'; // Import Vercel's secure direct-upload tool
 
 interface MediaSelectorProps {
   label: string;
@@ -20,9 +21,10 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
 
     setUploading(true);
     const originalFile = files[0];
-    const formData = new FormData();
 
     try {
+      let fileToUpload: File = originalFile;
+
       // Only run optimization if the file is an image
       if (originalFile.type.startsWith('image/')) {
         const options = {
@@ -37,28 +39,22 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
 
         // 2. Wrap blob container into a virtual File structure with .webp suffix extension
         const cleanName = originalFile.name.replace(/\.[^/.]+$/, "");
-        const optimizedFile = new File([compressedBlob], `${cleanName}.webp`, {
+        fileToUpload = new File([compressedBlob], `${cleanName}.webp`, {
           type: 'image/webp',
         });
-
-        // 3. Mount the light WebP file payload onto the standard browser transmission form
-        formData.append('file', optimizedFile);
-      } else {
-        // Fallback safety route for non-image objects like video paths
-        formData.append('file', originalFile);
       }
 
-      // Send the optimized file payload directly to your existing API route
-      const response = await fetch('/api/media', {
-        method: 'POST',
-        body: formData,
+      // 3. Directly stream the file from the browser straight to Vercel Blob cloud bucket
+      const newBlob = await upload(fileToUpload.name, fileToUpload, {
+        access: 'public',
+        handleUploadUrl: '/api/media',
+        multipart: originalFile.type.startsWith('video/'), // Enables multi-part streaming specifically for video assets
       });
-      const result = await response.json();
 
-      if (result.success) {
-        onUploadSuccess(result.url); // Send the permanent /media/... path back to the form state
+      if (newBlob && newBlob.url) {
+        onUploadSuccess(newBlob.url); // Send the permanent live CDN URL back to the form state
       } else {
-        alert(result.error || 'Media file upload failed.');
+        alert('Media file upload failed.');
       }
     } catch (err) {
       console.error(err);
@@ -72,7 +68,6 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
     <div className="w-full bg-slate-950/40 border border-slate-800 p-4 rounded-xl flex flex-col gap-2">
       <span className="block text-xs font-bold uppercase text-slate-400 tracking-wider">{label}</span>
       
-      {/* Hidden native system input element */}
       <input 
         type="file" 
         accept={accept} 
