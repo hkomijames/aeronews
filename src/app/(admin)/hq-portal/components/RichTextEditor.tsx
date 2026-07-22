@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { useEditor, EditorContent, Node } from '@tiptap/react';
+import { useEditor, EditorContent, Node, mergeAttributes } from '@tiptap/react'; // Added mergeAttributes helper
 import type { CommandProps } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -29,11 +29,11 @@ const VideoExtension = Node.create({
     return [{ tag: 'video[src]' }];
   },
 
+  // FIXED: Added mergeAttributes() to bind the source URL securely to the DOM element container
   renderHTML({ HTMLAttributes }) {
-    return ['video', HTMLAttributes];
+    return ['video', mergeAttributes(HTMLAttributes)];
   },
 
-  // FIXED: Registers the insertion commands explicitly so Tiptap accepts the element
   addCommands() {
     return {
       setVideo: (options: { src: string }) => ({ commands }: CommandProps) => {
@@ -94,6 +94,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       console.error("Failed to execute live asset deletion callback:", err);
     }
   };
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({ blockquote: {}, link: false, hardBreak: {} }),
@@ -146,8 +147,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       }
     },
   });
-
-    if (!editor) return null;
+  if (!editor) return null;
 
   const addLink = () => {
     const url = window.prompt('Enter Hyperlink URL:');
@@ -233,7 +233,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           }
         });
 
-        // FIXED: Replaced custom chained command with native insertContent dictionary layout to prevent silent drops
         if (newBlob?.url) {
           uploadedUrlsRef.current.push(newBlob.url);
           
@@ -244,7 +243,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
               type: 'video',
               attrs: { src: newBlob.url }
             })
-            .insertContent({ type: 'paragraph' }) // Safe empty spacing block
+            .insertContent({ type: 'paragraph' })
             .run();
         }
       } catch (err) {
