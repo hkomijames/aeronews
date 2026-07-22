@@ -1,10 +1,35 @@
 "use client";
 
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, Node } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
+
+// 1. Define a Custom Tiptap Node Extension for Native HTML5 Videos
+const VideoExtension = Node.create({
+  name: 'video',
+  group: 'block',
+  selectable: true,
+  draggable: true,
+  atom: true,
+
+  addAttributes() {
+    return {
+      src: { default: null },
+      controls: { default: true },
+      class: { default: 'w-full rounded-xl my-6 shadow-md bg-black' },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'video[src]' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['video', HTMLAttributes];
+  },
+});
 
 interface EditorProps {
   content: string;
@@ -16,8 +41,7 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
     extensions: [
       StarterKit.configure({
         blockquote: {}, 
-        link: false, // Disabling built-in link logic to silence duplicate warnings
-        // Ensure hardBreak handles Shift+Enter newlines correctly
+        link: false, 
         hardBreak: {},
       }),
       Link.configure({
@@ -30,6 +54,7 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
       Youtube.configure({
         HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' },
       }),
+      VideoExtension, // 2. Add the video extension here
     ],
     content: content,
     immediatelyRender: false, 
@@ -38,7 +63,6 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
     },
     editorProps: {
       attributes: {
-        // ─── FIX: Added prose-p:my-4, prose-p:min-h-[1.5rem], and prose-br:before:content-none ───
         class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-video:w-full prose-video:aspect-video prose-video:rounded-xl prose-video:my-6 prose-video:shadow-md prose-video:bg-black prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
         spellcheck: 'true',
       },
@@ -47,7 +71,6 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
 
   if (!editor) return null;
 
-  // Toolbar Actions
   const addLink = () => {
     const url = window.prompt('Enter Hyperlink URL:');
     if (url) editor.chain().focus().setLink({ href: url }).run();
@@ -99,6 +122,7 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
     input.click();
   };
 
+  // 3. Updated function that safely inserts the structured video element
   const addVideoLocally = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -114,7 +138,16 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
         const res = await fetch('/api/media', { method: 'POST', body: formData });
         const data = await res.json();
         if (data.success) {
-          editor.chain().focus().insertContent(`<video src="${data.url}" controls class="w-full rounded-xl my-6 shadow-md bg-black"></video><p></p>`).run();
+          // Utilizing the registered node safely allows insertion without sanitization dropping it
+          editor
+            .chain()
+            .focus()
+            .insertContent({
+              type: 'video',
+              attrs: { src: data.url },
+            })
+            .insertContent({ type: 'paragraph' }) // Inserts an empty row beneath so the user can keep typing
+            .run();
         } else {
           alert('Failed to upload video.');
         }
@@ -127,7 +160,6 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
 
   return (
     <div className="w-full flex flex-col">
-      {/* Editor Control Toolbar bar */}
       <div className="flex flex-wrap gap-1.5 bg-slate-900 border border-slate-800 p-2 rounded-t-xl border-b-0">
         <button
           type="button"
@@ -190,7 +222,6 @@ export default function RichTextEditor({ content, onChange }: EditorProps) {
         </button>
       </div>
 
-      {/* Primary Editable Canvas space */}
       <EditorContent editor={editor} />
     </div>
   );
