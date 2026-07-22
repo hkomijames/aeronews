@@ -25,12 +25,13 @@ export async function POST(request: Request): Promise<NextResponse> {
             'video/webm'
           ],
           maximumSizeInBytes: 150 * 1024 * 1024, // Set file size ceiling (e.g., 150MB)
-          // Store our custom unique file name inside the token payload metadata
-          metadata: JSON.stringify({ uniqueFileName }), 
+          addRandomSuffix: true,
+          // FIX: Swapped metadata for clientPayload to support multipart/chunked video tracks safely
+          clientPayload: JSON.stringify({ uniqueFileName }), 
         };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
-        // Optional: Run hooks once the asset lands successfully in Vercel Blob storage
+        // Run hooks once the asset lands successfully in Vercel Blob storage
         console.log('File successfully written to cloud:', blob.url);
       },
     });
