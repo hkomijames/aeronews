@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { useEditor, EditorContent, Node, mergeAttributes } from '@tiptap/react'; // Added mergeAttributes helper
+import { useEditor, EditorContent, Node, mergeAttributes } from '@tiptap/react';
 import type { CommandProps } from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
@@ -9,7 +9,16 @@ import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
 
-// Define a Custom Tiptap Node Extension for Native HTML5 Videos
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    video: {
+      setVideo: (options: { src: string }) => ReturnType;
+    };
+  }
+}
+
+
+// Define an Updated Custom Tiptap Node Extension for Native HTML5 Videos
 const VideoExtension = Node.create({
   name: 'video',
   group: 'block',
@@ -21,7 +30,7 @@ const VideoExtension = Node.create({
     return {
       src: { default: null },
       controls: { default: true },
-      class: { default: 'w-full rounded-xl my-6 shadow-md bg-black' },
+      class: { default: 'w-full aspect-video rounded-xl my-6 shadow-md bg-black' },
     };
   },
 
@@ -29,9 +38,19 @@ const VideoExtension = Node.create({
     return [{ tag: 'video[src]' }];
   },
 
-  // FIXED: Added mergeAttributes() to bind the source URL securely to the DOM element container
+  // FIXED: Wrapped in an un-editable container block to prevent the editor from collapsing its height to 0px
   renderHTML({ HTMLAttributes }) {
-    return ['video', mergeAttributes(HTMLAttributes)];
+    return [
+      'div', 
+      { class: 'w-full block clear-both', contenteditable: 'false' }, 
+      [
+        'video', 
+        mergeAttributes(HTMLAttributes, { 
+          preload: 'metadata', 
+          controls: 'true' 
+        })
+      ]
+    ];
   },
 
   addCommands() {
@@ -42,7 +61,7 @@ const VideoExtension = Node.create({
           attrs: options,
         });
       },
-    } as any;
+    };
   },
 });
 
@@ -108,7 +127,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
     editorProps: {
       attributes: {
-        class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-video:w-full prose-video:aspect-video prose-video:rounded-xl prose-video:my-6 prose-video:shadow-md prose-video:bg-black prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
+        class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
         spellcheck: 'true',
       },
       handleKeyDown(view, event) {
@@ -209,7 +228,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     };
     input.click();
   };
-
   const addVideoLocally = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -236,13 +254,11 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         if (newBlob?.url) {
           uploadedUrlsRef.current.push(newBlob.url);
           
+          // FIXED: Now safely executes your custom setVideo command with default configuration rules
           editor
             .chain()
             .focus()
-            .insertContent({
-              type: 'video',
-              attrs: { src: newBlob.url }
-            })
+            .setVideo({ src: newBlob.url })
             .insertContent({ type: 'paragraph' })
             .run();
         }
