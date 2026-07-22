@@ -103,39 +103,60 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         spellcheck: 'true',
       },
       handleKeyDown(view, event) {
-        if (event.key === 'Backspace' || event.key === 'Delete') {
-          const { state } = view;
-          const { selection } = state;
+  if (event.key === 'Backspace' || event.key === 'Delete') {
+    const { state } = view;
+    const { selection } = state;
+    let targetUrl = '';
+
+    // Scenario 1: The user has actively clicked/selected the block node
+    if (selection instanceof Object && 'node' in selection && selection.node) {
+      const selectedNode = (selection as any).node;
+      const nodeType = selectedNode.type?.name;
+
+      if (nodeType === 'image' && selectedNode.attrs) {
+        targetUrl = selectedNode.attrs.src;
+      } else if (nodeType === 'video' && selectedNode.attrs) {
+        targetUrl = selectedNode.attrs.src;
+      }
+    } 
+    // Scenario 2: Inline cursor backspace (the cursor is right next to the video block)
+    else {
+      const pos = event.key === 'Backspace' ? selection.$from.before() : selection.$from.after();
+      try {
+        const nodeAdjacent = state.doc.nodeAt(pos);
+        if (nodeAdjacent) {
+          const type = nodeAdjacent.type.name;
           
-          if (selection instanceof Object && 'node' in selection && selection.node) {
-            const selectedNode = (selection as any).node;
-            const nodeType = selectedNode.type?.name;
-            let targetUrl = '';
-
-            if ((nodeType === 'image' || nodeType === 'video') && selectedNode.attrs) {
-              targetUrl = selectedNode.attrs.src;
-            }
-
-            if (targetUrl) {
-              deleteBlobFromCloud(targetUrl);
-            }
-          } else {
-            const pos = event.key === 'Backspace' ? selection.$from.before() : selection.$from.after();
-            try {
-              const nodeAdjacent = state.doc.nodeAt(pos);
-              if (nodeAdjacent && nodeAdjacent.type && nodeAdjacent.attrs) {
-                const type = nodeAdjacent.type.name;
-                if ((type === 'image' || type === 'video') && nodeAdjacent.attrs.src) {
-                  deleteBlobFromCloud(nodeAdjacent.attrs.src);
-                }
+          if (type === 'image' && nodeAdjacent.attrs?.src) {
+            targetUrl = nodeAdjacent.attrs.src;
+          } 
+          // FALLBACK FOR RAW HTML: Inspect the raw DOM node structure directly if Tiptap attributes are missing
+          else if (type === 'video') {
+            if (nodeAdjacent.attrs?.src) {
+              targetUrl = nodeAdjacent.attrs.src;
+            } else {
+              // Extract the source directly from the underlying DOM element properties
+              const domNode = view.nodeDOM(pos) as HTMLElement;
+              const videoEl = domNode?.querySelector('video');
+              if (videoEl?.src) {
+                targetUrl = videoEl.src;
               }
-            } catch (e) {
-              // Ignore out-of-bounds selection blocks
             }
           }
         }
-        return false;
+      } catch (e) {
+        // Ignore out-of-bounds selection blocks quietly
       }
+    }
+
+    // Trigger the cloud deletion endpoint if a valid asset URL was identified
+    if (targetUrl) {
+      deleteBlobFromCloud(targetUrl);
+    }
+  }
+  return false; // Let Tiptap finish handling the actual text/node removal from the UI
+}
+
     },
   });
 

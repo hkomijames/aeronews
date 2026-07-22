@@ -1,21 +1,26 @@
-// app/api/media/route.ts
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { del } from '@vercel/blob';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers'; // Imported to read your login sessions
 
 // ─── 1. HANDLE UPLOADS (POST) ───
 export async function POST(request: Request): Promise<NextResponse> {
   try {
+    // SECURITY CHECK: Read your secure login cookie
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('auth_session');
+
+    // If the cookie doesn't exist, block the upload instantly
+    if (!sessionCookie) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = (await request.json()) as HandleUploadBody;
 
     const jsonResponse = await handleUpload({
       body,
       request,
       onBeforeGenerateToken: async (pathname) => {
-        // Clean up spaces in filenames to maintain valid URLs
-        const sanitizedFileName = pathname.replace(/\s+/g, '-');
-        const uniqueFileName = `${Date.now()}-${sanitizedFileName}`;
-
         return {
           allowedContentTypes: [
             'image/jpeg', 
@@ -26,12 +31,10 @@ export async function POST(request: Request): Promise<NextResponse> {
             'video/webm'
           ],
           maximumSizeInBytes: 150 * 1024 * 1024, // 150MB file limit
-          addRandomSuffix: true,
-          // FIX: clientPayload keeps chunk authorization stable for videos
-          clientPayload: JSON.stringify({ uniqueFileName }), 
+          addRandomSuffix: true, // Vercel handles making filenames unique automatically!
         };
       },
-      onUploadCompleted: async ({ blob, tokenPayload }) => {
+      onUploadCompleted: async ({ blob }) => {
         console.log('File successfully written to cloud:', blob.url);
       },
     });
@@ -49,6 +52,14 @@ export async function POST(request: Request): Promise<NextResponse> {
 // ─── 2. HANDLE UNMOUNT CLEANUP DELETIONS (DELETE) ───
 export async function DELETE(request: Request): Promise<NextResponse> {
   try {
+    // SECURITY CHECK: Protect deletions using your login session cookie
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('auth_session');
+
+    if (!sessionCookie) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { url } = await request.json();
     
     if (!url) {
