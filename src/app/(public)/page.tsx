@@ -1,15 +1,26 @@
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
+import { unstable_cache } from 'next/cache';
 
-export const revalidate = 900;
+// ─── STOP TIME-BASED CHECKS: CACHE INDEFINITELY AT GLOBAL EDGE CDN ───
+export const revalidate = false;
+
+// ─── ISOLATED AND MEMOIZED CDN DATA ACCESS LAYER ───
+const getCachedHomepageArticles = unstable_cache(
+  async () => {
+    return await prisma.article.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: 'desc' },
+      include: { author: true },
+    });
+  },
+  ['homepage-articles-stream'],
+  { tags: ['stream-home'] }
+);
 
 export default async function PublicHomePage() {
-  // 1. Fetch live articles from PostgreSQL via Prisma for instant SSR speeds
-  const allArticles = await prisma.article.findMany({
-    where: { isPublished: true },
-    orderBy: { createdAt: 'desc' },
-    include: { author: true },
-  });
+  // Reads directly from Vercel Edge Memory cache, shielding your Neon DB completely
+  const allArticles = await getCachedHomepageArticles();
 
   // ─── DATA PIPELINE SEGMENTATION MATCHING NEW LAYOUT SPECS ───
   // A: Extract Top 3 absolute latest articles regardless of category for Top Showcase
@@ -122,7 +133,8 @@ export default async function PublicHomePage() {
                 <div>
                   <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>
                   <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
-                    <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
+                    {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
+                    <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
                       {article.title}
                     </Link>
                   </h4>
@@ -182,7 +194,7 @@ export default async function PublicHomePage() {
         </div>
       </main>
 
-      {/* ─── 3. AIRPORT NEWS SECTION (Changed outer tag to a semantic div wrapper) ─── */}
+      {/* ─── 3. AIRPORT NEWS SECTION ─── */}
       <section className="bg-slate-50/30 border-t border-slate-100 py-12">
         <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2">
@@ -235,7 +247,8 @@ export default async function PublicHomePage() {
                   <div>
                     <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>
                     <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
-                      <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
+                      {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
+                      <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
                         {article.title}
                       </Link>
                     </h4>
@@ -246,7 +259,6 @@ export default async function PublicHomePage() {
             </div>
           </div>
           
-          {/* Empty column placeholder to maintain structural alignment with top sidebar layout blocks */}
           <div className="hidden lg:block"></div>
         </div>
       </section>
