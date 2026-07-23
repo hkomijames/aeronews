@@ -71,7 +71,8 @@ export default function PaginatedArticlesGrid({ initialArticles, categoryName }:
             <div className="p-5 flex-1 flex flex-col justify-between">
               <div>
                 <h2 className="text-base font-bold text-slate-100 group-hover:text-white leading-snug line-clamp-2">
-                  <Link href={`/news/${article.slug}`} className="hover:underline">
+                  {/* Added prefetch={false} to block dense on-mount prefetch waterfalls when scrolling categories */}
+                  <Link href={`/news/${article.slug}`} prefetch={false} className="hover:underline">
                     {article.title}
                   </Link>
                 </h2>

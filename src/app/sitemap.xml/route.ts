@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { unstable_cache } from 'next/cache'; // ─── IMPORT UNSTABLE_CACHE LAYER ───
 
-// ─── AGGRESSIVE COST REDUCTION: CACHE SITEMAP FOR 1 HOUR AT THE CDN EDGE ───
-// This shields your Neon DB. Crawlers get cached static XML instantly.
-export const revalidate = 3600; 
+// ─── STOP TIME-BASED REVALIDATION: CACHE INDEFINITELY AT THE GLOBAL EDGE CDN ───
+// Converts your dynamic sitemap into a zero-overhead static asset on Vercel's Edge.
+export const revalidate = false; 
 
-export async function GET() {
-  try {
-    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com').replace(/\/$/, '');
-
+// ─── BUNDLE SITEMAP LOOKUPS INTO A SINGLE ATOMIC DATA CACHE MATRIC ───
+// Scoped globally outside the function handler so Next.js type registers the connection strings.
+const getCachedSitemapData = unstable_cache(
+  async () => {
     // 1. Fetch only the core required fields for articles to minimize database payload size
     const articles = await prisma.article.findMany({
       where: { isPublished: true },
@@ -27,6 +28,19 @@ export async function GET() {
       distinct: ['category'],
     });
 
+    return { articles, categories };
+  },
+  ['sitemap-index-syndication-matrix'],
+  { tags: ['stream-home'] } // ⚡ Cleared instantly whenever your admin actions update an article!
+);
+
+export async function GET() {
+  try {
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com').replace(/\/$/, '');
+
+    // Pulls both datasets out of Vercel Edge Cache instantly, shielding Neon entirely
+    const { articles, categories } = await getCachedSitemapData();
+
     // 3. Initialize the XML structural map with index-critical core priority URLs
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://sitemaps.org">
@@ -37,7 +51,6 @@ export async function GET() {
     <priority>1.0</priority>
   </url>
 `;
-
     // 4. Inject Dynamic Category Index Pages
     for (const cat of categories) {
       const catSlug = cat.category.toLowerCase().replace(/\s+/g, '-');
@@ -68,7 +81,8 @@ export async function GET() {
     return new NextResponse(xml, {
       headers: {
         'Content-Type': 'text/xml; charset=utf-8',
-        'Cache-Control': 's-maxage=3600, stale-while-revalidate=600',
+        // Instructs Vercel CDN to cache this generated template forever until on-demand eviction fires
+        'Cache-Control': 'public, max-age=0, s-maxage=31536000, stale-while-revalidate=60',
       },
     });
 

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import SocialShare from '../../components/SocialShare';
+import { cache } from 'react'; // ─── IMPORT NATIVE REACT CACHE UTILITY ───
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -10,6 +11,14 @@ interface Props {
 
 // ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
 export const revalidate = false;
+
+// ─── MEMOIZE & SHIELD DATABASE QUERIES ACROSS PARALLEL NEXT.JS LIFECYCLES ───
+const getArticleBySlug = cache(async (slug: string) => {
+  return await prisma.article.findUnique({
+    where: { slug },
+    include: { author: true } // ✨ Included relation hook to feed writer profiles directly into tags
+  });
+});
 
 // ─── PRE-BUILD TOP HIGH-TRAFFIC ARTICLES TO SHIELD NEON DB AT LAUNCH ───
 export async function generateStaticParams() {
@@ -28,10 +37,9 @@ export async function generateStaticParams() {
 // ─── DYNAMIC SEO METADATA FOR BROWSER & SOCIAL SHARE CARDS ───
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  const article = await prisma.article.findUnique({
-    where: { slug: resolvedParams.slug },
-    include: { author: true } // ✨ Included relation hook to feed writer profiles directly into tags
-  });
+  
+  // Utilizes the memoized database fetcher instead of invoking an un-cached Prisma call
+  const article = await getArticleBySlug(resolvedParams.slug);
 
   if (!article || !article.isPublished) return {};
 
@@ -75,14 +83,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
   };
 }
+
 // ─── MAIN SERVER-RENDERED PAGE COMPONENT ───
 export default async function ArticlePage({ params }: Props) {
   const resolvedParams = await params;
   
-  const article = await prisma.article.findUnique({
-    where: { slug: resolvedParams.slug },
-    include: { author: true },
-  });
+  // Utilizes the memoized database fetcher instead of invoking an un-cached Prisma call
+  const article = await getArticleBySlug(resolvedParams.slug);
 
   if (!article || !article.isPublished) {
     notFound();
@@ -195,21 +202,18 @@ export default async function ArticlePage({ params }: Props) {
               />
             </div>
           )}
-          
           {/* ─── OPTIMIZED RENDERING CONTAINER: FORCES INJECTED PARAGRAPHS TO RENDER SPACING ─── */}
-    <div 
-  className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
-             whitespace-pre-wrap
-             [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
-             prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
-             prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
-             prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
-             prose-img:rounded-2xl prose-img:shadow-sm
-             prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
-  dangerouslySetInnerHTML={{ __html: article.content }}
-/>
-
-
+          <div 
+            className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
+                       whitespace-pre-wrap
+                       [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
+                       prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
+                       prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
+                       prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
+                       prose-img:rounded-2xl prose-img:shadow-sm
+                       prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
 
           <SocialShare title={article.title} slug={article.slug} />
           {article.author.bio && (
@@ -323,7 +327,8 @@ export default async function ArticlePage({ params }: Props) {
                       </div>
                     )}
                     <h4 className="font-extrabold text-slate-900 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      <Link href={`/news/${item.slug}`}>
+                      {/* Added prefetch={false} to block cascading background data fetches when reading an article */}
+                      <Link href={`/news/${item.slug}`} prefetch={false}>
                         {item.title}
                       </Link>
                     </h4>

@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/db';
 import { Metadata } from 'next';
+import { unstable_cache } from 'next/cache'; // ─── IMPORT UNSTABLE_CACHE LAYER ───
 import PaginatedArticlesGrid from './components/PaginatedArticlesGrid';
 
 interface CategoryPageProps {
@@ -11,6 +12,30 @@ interface CategoryPageProps {
 
 // ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
 export const revalidate = false;
+
+// ─── SEAL INITIAL GRID DATA RETRIEVAL INTO VERCEL EDGE ENGINE MEMORY ───
+const getCachedCategoryArticles = unstable_cache(
+  async (formattedCategoryTitle: string) => {
+    return await prisma.article.findMany({
+      where: {
+        category: {
+          equals: formattedCategoryTitle,
+          mode: 'insensitive',
+        },
+        isPublished: true,
+      },
+      include: {
+        author: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 12, // LOADS EXACTLY 12 ARTICLES INITIALLY ON SERVERS
+    });
+  },
+  ['category-initial-grid-cache'],
+  { tags: ['stream-home'] } // ⚡ Shared with your global stream-home tag for simultaneous purging!
+);
 
 // ─── PRE-BUILD CATEGORY PAGES AT BUILD TIME TO SHIELD NEON DB ───
 export async function generateStaticParams() {
@@ -50,30 +75,15 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 }
 export default async function DynamicCategoryPage({ params }: CategoryPageProps) {
   const { slug } = await params;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://avnewsroom.com';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com';
 
   const formattedCategoryTitle = slug
     .split('-')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
-  // LOADS EXACTLY 12 ARTICLES INITIALLY ON SERVERS
-  const articles = await prisma.article.findMany({
-    where: {
-      category: {
-        equals: formattedCategoryTitle,
-        mode: 'insensitive',
-      },
-      isPublished: true,
-    },
-    include: {
-      author: true,
-    },
-    orderBy: {
-      createdAt: 'desc',
-    },
-    take: 12,
-  });
+  // Utilizes the edge cache layer instead of invoking a raw database loop on every view revalidation
+  const articles = await getCachedCategoryArticles(formattedCategoryTitle);
 
   if (articles.length === 0) {
     notFound();

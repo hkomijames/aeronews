@@ -70,6 +70,9 @@ export async function createArticle(data: CreateArticleInput) {
       const cleanCategorySlug = newArticle.category.toLowerCase().replace(/\s+/g, '-');
       revalidatePath(`/category/${cleanCategorySlug}`);
 
+      // ─── ADDED: Evacuate the new homepage data pipeline cache ───
+      revalidateTag('stream-home', 'max');
+
       // ─── FIXED FOR NEXT.JS 16: Added 'max' as the required second profile argument ───
       revalidateTag(`category-${cleanCategorySlug}`, 'max');
     }
@@ -101,6 +104,9 @@ export async function togglePublishStatus(id: string, currentStatus: boolean) {
     revalidatePath(`/category/${cleanCategorySlug}`);
     revalidatePath('/hq-portal');
 
+    // ─── ADDED: Evacuate the new homepage data pipeline cache ───
+    revalidateTag('stream-home', 'max');
+
     // ─── FIXED FOR NEXT.JS 16: Added required 'max' profile parameter ───
     revalidateTag(`category-${cleanCategorySlug}`, 'max');
     
@@ -110,7 +116,6 @@ export async function togglePublishStatus(id: string, currentStatus: boolean) {
     return { success: false, error: 'Database update operation failed.' };
   }
 }
-
 // ─── AUDIT ACTION TO DELETE AN ARTICLE ENTIRELY ───
 export async function deleteArticle(id: string) {
   try {
@@ -133,6 +138,9 @@ export async function deleteArticle(id: string) {
       revalidatePath(`/news/${targets.slug}`);
       const cleanCategorySlug = targets.category.toLowerCase().replace(/\s+/g, '-');
       revalidatePath(`/category/${cleanCategorySlug}`);
+
+      // ─── ADDED: Evacuate the new homepage data pipeline cache ───
+      revalidateTag('stream-home', 'max');
 
       // ─── FIXED FOR NEXT.JS 16: Added required 'max' profile parameter ───
       revalidateTag(`category-${cleanCategorySlug}`, 'max');
@@ -175,6 +183,10 @@ export async function updateArticle(
 
     revalidatePath('/');
     revalidatePath(`/news/${updated.slug}`);
+    
+    // ─── ADDED: Evacuate the new homepage data pipeline cache ───
+    revalidateTag('stream-home', 'max');
+    revalidateTag('all-articles-feed', 'max');
     
     if (oldArticle) {
       const oldCatSlug = oldArticle.category.toLowerCase().replace(/\s+/g, '-');

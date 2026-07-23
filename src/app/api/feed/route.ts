@@ -1,22 +1,33 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { unstable_cache } from 'next/cache'; // ─── IMPORT UNSTABLE_CACHE LAYER ───
 
-// ─── AGGRESSIVE COST REDUCTION: CACHE FEED FOR 10 MINUTES AT THE CDN EDGE ───
-// This removes 'force-dynamic' so Next.js doesn't query your database on every single request.
-export const revalidate = 600; 
+// ─── STOP TIME-BASED REVALIDATION: CACHE INDEFINITELY AT THE GLOBAL EDGE CDN ───
+// This forces Vercel to save the XML file as a static file, shielding Neon entirely.
+export const revalidate = false; 
+
+// ─── SEAL INDIVIDUAL DATA RETRIEVAL INTO THE GLOBAL PIPELINE TAG ───
+// Declared outside the function scope so Next.js indexes connection strings correctly.
+const getCachedFeedArticles = unstable_cache(
+  async () => {
+    return await prisma.article.findMany({
+      where: { isPublished: true },
+      orderBy: { createdAt: 'desc' },
+      take: 30,
+      include: { author: true },
+    });
+  },
+  ['rss-syndication-feed-matrix'],
+  { tags: ['stream-home'] } // ⚡ Shared with your homepage tag for instant, zero-cost eviction!
+);
 
 export async function GET() {
   try {
     // Ensure standard production fallback URL ends cleanly without an accidental double slash later
     const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com').replace(/\/$/, '');
 
-    // 1. Fetch the 30 most recently published articles from PostgreSQL
-    const articles = await prisma.article.findMany({
-      where: { isPublished: true },
-      orderBy: { createdAt: 'desc' },
-      take: 30,
-      include: { author: true },
-    });
+    // Reads directly from Vercel Edge memory cache instead of opening a raw Prisma query pool
+    const articles = await getCachedFeedArticles();
 
     // Determine the latest build date based on the newest article, fallback to current time if empty
     const latestArticleDate = articles.length > 0 ? new Date(articles[0].createdAt) : new Date();
@@ -32,7 +43,6 @@ export async function GET() {
     <lastBuildDate>${latestArticleDate.toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/api/feed" rel="self" type="application/rss+xml" />
 `;
-
     // 3. Loop through individual articles and map them to structural RSS item tags
     for (const article of articles) {
       const articleUrl = `${siteUrl}/news/${article.slug}`;
@@ -66,8 +76,8 @@ export async function GET() {
     return new NextResponse(xml, {
       headers: {
         'Content-Type': 'text/xml; charset=utf-8',
-        // Complements the ISR revalidate configuration for multi-layer proxy caching
-        'Cache-Control': 's-maxage=600, stale-while-revalidate=300', 
+        // Combined edge caching configuration to match our permanent static profile setup
+        'Cache-Control': 'public, max-age=0, s-maxage=31536000, stale-while-revalidate=60', 
       },
     });
 
