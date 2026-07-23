@@ -11,6 +11,7 @@ interface CategoryPageProps {
 }
 
 // ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
+export const dynamic = 'force-static';
 export const revalidate = false;
 
 // ─── SEAL INITIAL GRID DATA RETRIEVAL INTO VERCEL EDGE ENGINE MEMORY ───

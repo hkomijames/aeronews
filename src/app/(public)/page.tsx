@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 
 // ─── STOP TIME-BASED CHECKS: CACHE INDEFINITELY AT GLOBAL EDGE CDN ───
+export const dynamic = 'force-static';
 export const revalidate = false;
 
 // ─── ISOLATED AND MEMOIZED CDN DATA ACCESS LAYER ───

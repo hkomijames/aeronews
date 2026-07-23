@@ -10,6 +10,7 @@ interface Props {
 }
 
 // ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
+export const dynamic = 'force-static';
 export const revalidate = false;
 
 // ─── MEMOIZE & SHIELD DATABASE QUERIES ACROSS PARALLEL NEXT.JS LIFECYCLES ───
