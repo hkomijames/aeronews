@@ -2,40 +2,41 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
 
-const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient };
+const globalForPrisma = globalThis as unknown as { 
+  prisma?: PrismaClient;
+  pool?: pg.Pool;
+};
 
-function createPrismaClient(): PrismaClient {
+function getOrCreatePrismaClient(): PrismaClient {
+  // 1. Instantly return the cached instance if it already exists (Crucial on production!)
   if (globalForPrisma.prisma) {
     return globalForPrisma.prisma;
   }
 
-  // ⚡ Cost-Optimized Serverless Pool Engine Configuration
+  // 2. Set up your optimized, tight pooling engine
   const pool = new pg.Pool({ 
-    // Passes your transaction pooler URL explicitly into the node-pg driver adapter
     connectionString: process.env.DATABASE_URL, 
-    idleTimeoutMillis: 10000, // Drops idle cloud connections quickly to keep Neon billing low
-    max: 1 // Restricts each serverless container thread to one dedicated socket channel
+    idleTimeoutMillis: 5000, // Reduced to 5 seconds to drop connections even faster
+    max: 1 // Strictly caps the socket limit per serverless context
   });
   
   const adapter = new PrismaPg(pool);
-  
-  // Clean initialization fully compliant with Prisma 7 strict TypeScript signatures
   const client = new PrismaClient({ adapter });
   
-  if (process.env.NODE_ENV !== 'production') {
-    globalForPrisma.prisma = client;
-  }
+  // 3. PERSIST THE INSTANCE UNIVERSALLY (Fixes the production memory leak)
+  globalForPrisma.pool = pool;
+  globalForPrisma.prisma = client;
   
   return client;
 }
 
-// ─── SHIELDED LAZY INTERFACE EXPORT ───
+// ─── SHIELDED UNIVERSAL LAZY INTERFACE EXPORT ───
 export const prisma = {
-  get user() { return createPrismaClient().user; },
-  get article() { return createPrismaClient().article; },
-  get $disconnect() { return createPrismaClient().$disconnect; },
-  get $connect() { return createPrismaClient().$connect; },
-  get $transaction() { return createPrismaClient().$transaction; },
-  get $executeRaw() { return createPrismaClient().$executeRaw; },
-  get $queryRaw() { return createPrismaClient().$queryRaw; },
+  get user() { return getOrCreatePrismaClient().user; },
+  get article() { return getOrCreatePrismaClient().article; },
+  get $disconnect() { return getOrCreatePrismaClient().$disconnect; },
+  get $connect() { return getOrCreatePrismaClient().$connect; },
+  get $transaction() { return getOrCreatePrismaClient().$transaction; },
+  get $executeRaw() { return getOrCreatePrismaClient().$executeRaw; },
+  get $queryRaw() { return getOrCreatePrismaClient().$queryRaw; },
 } as unknown as PrismaClient;
