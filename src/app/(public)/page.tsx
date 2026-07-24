@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
+import NewsletterForm from './components/NewsletterForm';
 
 // ─── STOP TIME-BASED CHECKS: CACHE INDEFINITELY AT GLOBAL EDGE CDN ───
 export const dynamic = 'force-static';
@@ -152,7 +153,7 @@ export default async function PublicHomePage() {
             <h3 className="font-black text-sm text-slate-900 uppercase tracking-wider border-b border-slate-200/60 pb-3 mb-4">Most Read</h3>
             <ol className="flex flex-col gap-4">
               <li className="flex gap-3 items-start">
-                <span className="font-black text-slate-300 text-lg leading-none mt-0.5">01</span>
+                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">01</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
                     Global Airport Infrastructure Spending Surges to Match Next-Gen Architectural Layouts
@@ -160,7 +161,7 @@ export default async function PublicHomePage() {
                 </div>
               </li>
               <li className="flex gap-3 items-start border-t border-slate-200/30 pt-3">
-                <span className="font-black text-slate-300 text-lg leading-none mt-0.5">02</span>
+                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">02</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
                     Autonomous Flight Controls Clear Major Validation Milestones Over Open Water Trials
@@ -171,27 +172,7 @@ export default async function PublicHomePage() {
           </div>
 
           {/* Flight Briefing Box Element */}
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
-            <span className="text-xl">✉️</span>
-            <h3 className="font-extrabold text-base mt-2">Flight Briefing</h3>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed mb-4">
-              The latest aviation scoops, delivered straight to your inbox every morning.
-            </p>
-            <form className="flex flex-col gap-2">
-              <input 
-                type="email" 
-                placeholder="Enter corporate email..." 
-                required 
-                className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500" 
-              />
-              <button 
-                type="button" 
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-2 rounded-lg transition-colors"
-              >
-                Join Elite Network
-              </button>
-            </form>
-          </div>
+          <NewsletterForm />
         </div>
       </main>
 

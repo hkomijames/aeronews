@@ -7,6 +7,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
+import { IframeExtension } from '../extensions/IframeExtension'; 
 
 // Streamlined video node extension to handle HTML5 Video parsing safely
 const VideoExtension = Node.create({
@@ -109,6 +110,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       CustomImage.configure({ HTMLAttributes: { class: 'rounded-xl max-h-[400px] object-cover mt-6 mx-auto shadow-md transitions-all' } }),
       Youtube.configure({ HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } }),
       VideoExtension,
+      IframeExtension,
     ],
     content: content,
     immediatelyRender: false, 
@@ -287,6 +289,22 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     input.click();
   };
 
+  const addSocialEmbed = () => {
+  const url = window.prompt('Paste the embed URL (the link inside the src="..." attribute):');
+  
+  if (url && editor) {
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: 'iframe',
+        attrs: { src: url }
+      })
+      .insertContent({ type: 'paragraph' })
+      .run();
+  }
+};
+
   // Helper command to mutate Blogger-style sizing metrics on the selected image element node
   const resizeSelectedImage = (size: 'small' | 'medium' | 'large') => {
     editor.chain().focus().updateAttributes('image', { dataSize: size }).run();
@@ -348,6 +366,14 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         >
           🔗 Link
         </button>
+        <button
+  type="button"
+  disabled={isAnyUploading}
+  onClick={addSocialEmbed}
+  className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200"
+>
+  🔗 Social Embed
+</button>
         <button
           type="button"
           disabled={isAnyUploading}

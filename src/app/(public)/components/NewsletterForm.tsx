@@ -41,7 +41,7 @@ export default function NewsletterForm() {
       <span className="text-xl">✉️</span>
       <h3 className="font-extrabold text-base mt-2">Aviation Newsletter</h3>
       <p className="text-xs text-slate-400 mt-1 leading-relaxed mb-4">
-        The latest aviation scoops, delivered straight to your inbox every morning.
+        The latest aviation scoops, delivered straight to your inbox.
       </p>
 
       {status === 'success' ? (
@@ -51,7 +51,8 @@ export default function NewsletterForm() {
       ) : (
         <form onSubmit={handleSubscribe} className="flex flex-col gap-2">
           <input 
-            type="email" 
+            type="email"
+            name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email..." 
