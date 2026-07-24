@@ -11,9 +11,17 @@ export default function AboutPage() {
           Chronicling the Skies.
         </h1>
         <div className="w-12 h-1 bg-slate-950 mx-auto mb-8 rounded-full" />
-        <p className="text-base text-slate-600 leading-relaxed mb-8 max-w-xl mx-auto">
-          Welcome to Aero Saga. This page is currently preparing for take-off. Soon, you will find our complete company profile, operational histories, and news desk details here.
-        </p>
+        <div className="text-base text-slate-600 leading-relaxed mb-8 max-w-xl mx-auto space-y-4">
+          <p>
+            Welcome to Aero Saga. We report on aviation incidents happening at airports and on airplanes worldwide. 
+          </p>
+          <p>
+            Our blog tracks everything from minor runway delays to major in-flight emergencies. We cover breaking news across the United States and around the globe. And we stick strictly to the facts.
+          </p>
+          <p>
+            Air travel changes fast. We built this site to keep passengers, crews, and aviation fans informed about what really happens in the skies. Thank you for reading our updates.
+          </p>
+        </div>
         <Link 
           href="/" 
           className="inline-flex items-center bg-slate-950 hover:bg-slate-900 text-white font-bold text-xs px-5 py-3 rounded-lg transition-colors shadow-md"

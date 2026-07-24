@@ -19,7 +19,7 @@ export default function ContactPage() {
           <div className="space-y-4 text-xs font-medium">
             <div>
               <span className="text-slate-400 block mb-0.5">Editorial Inquiries</span>
-              <p className="text-slate-800 font-bold">press@aerosaga.com</p>
+              <p className="text-slate-800 font-bold">webmaster@aerosaga.com</p>
             </div>
           </div>
         </div>

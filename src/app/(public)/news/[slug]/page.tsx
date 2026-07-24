@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import SocialShare from '../../components/SocialShare';
+import NewsletterForm from '../../components/NewsletterForm';
 import { cache } from 'react'; // ─── IMPORT NATIVE REACT CACHE UTILITY ───
 
 interface Props {
@@ -278,27 +279,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           {/* Flight Briefing Box */}
-          <div className="bg-linear-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
-            <span className="text-xl">✉️</span>
-            <h3 className="font-extrabold text-base mt-2">Flight Briefing</h3>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed mb-4">
-              The latest aviation scoops, delivered straight to your inbox every morning.
-            </p>
-            <form className="flex flex-col gap-2">
-              <input 
-                type="email" 
-                placeholder="Enter corporate email..." 
-                required 
-                className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-blue-500" 
-              />
-              <button 
-                type="button" 
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-2 rounded-lg transition-colors"
-              >
-                Join Elite Network
-              </button>
-            </form>
-          </div>
+          <NewsletterForm />
         </aside>
 
       </div>

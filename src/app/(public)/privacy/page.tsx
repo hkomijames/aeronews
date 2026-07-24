@@ -20,22 +20,25 @@ export default function PrivacyPage() {
         {/* Content Layout */}
         <div className="space-y-6 text-sm text-slate-600 leading-relaxed mb-10">
           <p className="font-semibold text-slate-900">
-            At Aero Saga, accessible from our public web portal, safeguarding the data privacy of our global aviation readers is an absolute operational priority.
+            We value your privacy. This page explains how we count visitors on Aero Saga.
           </p>
           <p>
-            This operational document outlines the specific types of identity profiles or browser telemetry records gathered and managed by our secure infrastructure layers.
+            We use Google Analytics to study website traffic. This tool places small files called cookies on your computer. These cookies count visits and see which airplane news articles you read. 
+          </p>
+          <p>
+            This data is completely anonymous. It does not look at your personal details. It cannot see your name, email, or physical address. And it will not track you across the rest of the web.
           </p>
           <div className="bg-slate-50/60 border border-slate-100 p-5 rounded-xl text-xs space-y-3">
-            <h3 className="font-bold text-slate-950 uppercase tracking-wider">Forthcoming Updates:</h3>
-            <p>Our upcoming framework expansion will explicitly detail:</p>
+            <h3 className="font-bold text-slate-950 uppercase tracking-wider">Your Controls:</h3>
+            <p>You can change how we track your visit at any time:</p>
             <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
-              <li>Log File Analytics & IP routing tracking structures</li>
-              <li>Browser Cookie caching boundaries</li>
-              <li>Third-party script integration controls</li>
+              <li>Block tracking via our home page cookie banner.</li>
+              <li>Turn off cookies directly in your browser settings.</li>
+              <li>Use the official Google Analytics opt-out extension.</li>
             </ul>
           </div>
           <p>
-            If you have additional validation inquiries or require structural clarification regarding our local metadata retention guidelines, do not hesitate to contact our desk.
+            We only use this data to pick better aviation topics for the blog. And we never sell your information to advertisers. If you have questions about this, please reach out to our team.
           </p>
         </div>
 
