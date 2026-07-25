@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent, Node, mergeAttributes } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
@@ -104,15 +103,16 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
 
     const editor = useEditor({
     extensions: [
-      // FIXED: Removed invalid link configuration and empty blockquote brackets
+      // Configure everything inside the unified StarterKit definition block
       StarterKit.configure({ 
-        hardBreak: {} 
+        hardBreak: {},
+        // Pass your custom Link configurations directly here
+        link: {
+          openOnClick: false,
+          HTMLAttributes: { class: 'text-blue-400 underline cursor-pointer' }
+        }
       }),
-      Link.configure({ 
-        openOnClick: false, 
-        HTMLAttributes: { class: 'text-blue-400 underline cursor-pointer' } 
-      }),
-      // FIXED: Corrected 'transitions-all' typo to 'transition-all'
+      // Removed standalone Link extension from here
       CustomImage.configure({ 
         HTMLAttributes: { class: 'rounded-xl max-h-[400px] object-cover mt-6 mx-auto shadow-md transition-all' } 
       }),
