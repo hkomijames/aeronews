@@ -1,32 +1,59 @@
 import { Node, mergeAttributes } from '@tiptap/core';
+import { ReactNodeViewRenderer } from '@tiptap/react';
+import { SocialEmbedComponent } from '../components/SocialEmbedComponent';
 
-export const IframeExtension = Node.create({
-  name: 'iframe',
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    socialEmbed: {
+      setSocialEmbed: (options: { rawHtml: string }) => ReturnType;
+    };
+  }
+}
+
+export const SocialEmbedExtension = Node.create({
+  name: 'socialEmbed',
   group: 'block',
-  selectable: true,
-  draggable: true,
   atom: true,
+  inline: false,
+  isolating: true,
 
   addAttributes() {
     return {
-      src: { default: null },
-      frameborder: { default: '0' },
-      scrolling: { default: 'no' },
-      allowtransparency: { default: 'true' },
-      allow: { default: 'encrypted-media; autoplay; clipboard-write' },
-      class: { default: 'w-full min-h-[450px] rounded-xl border border-slate-800 my-6 bg-white shadow-md' }
+      rawHtml: {
+        default: '',
+        parseHTML: (element: HTMLElement) => element.getAttribute('data-raw-html'),
+        renderHTML: (attributes) => ({
+          'data-raw-html': attributes.rawHtml,
+        }),
+      },
     };
   },
 
   parseHTML() {
-    return [{ tag: 'iframe[src]' }];
+    return [{ tag: 'div[data-social-embed]' }];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return [
-      'div',
-      { class: 'w-full block clear-both', contenteditable: 'false' },
-      ['iframe', mergeAttributes(HTMLAttributes)]
-    ];
+    return ['div', mergeAttributes({ 'data-social-embed': '' }, HTMLAttributes)];
+  },
+
+  addCommands() {
+    return {
+      setSocialEmbed:
+        (options) =>
+        ({ chain }) => {
+          return chain()
+            .insertContent({
+              type: this.name,
+              attrs: options,
+            })
+            .run();
+        },
+    };
+  },
+
+  addNodeView() {
+    // Bridges Tiptap nodes down into React components
+    return ReactNodeViewRenderer(SocialEmbedComponent);
   },
 });

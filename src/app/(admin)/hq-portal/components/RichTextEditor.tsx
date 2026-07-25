@@ -7,7 +7,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
-import { IframeExtension } from '../extensions/IframeExtension'; 
+import { SocialEmbedExtension } from '../extensions/IframeExtension'; 
 
 // Streamlined video node extension to handle HTML5 Video parsing safely
 const VideoExtension = Node.create({
@@ -102,22 +102,31 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     }
   };
 
-  const editor = useEditor({
+    const editor = useEditor({
     extensions: [
-      StarterKit.configure({ blockquote: {}, link: false, hardBreak: {} }),
-      Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-blue-400 underline cursor-pointer' } }),
-      // Swapped out the default Image module for our sizing mutation extension
-      CustomImage.configure({ HTMLAttributes: { class: 'rounded-xl max-h-[400px] object-cover mt-6 mx-auto shadow-md transitions-all' } }),
-      Youtube.configure({ HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } }),
+      // FIXED: Removed invalid link configuration and empty blockquote brackets
+      StarterKit.configure({ 
+        hardBreak: {} 
+      }),
+      Link.configure({ 
+        openOnClick: false, 
+        HTMLAttributes: { class: 'text-blue-400 underline cursor-pointer' } 
+      }),
+      // FIXED: Corrected 'transitions-all' typo to 'transition-all'
+      CustomImage.configure({ 
+        HTMLAttributes: { class: 'rounded-xl max-h-[400px] object-cover mt-6 mx-auto shadow-md transition-all' } 
+      }),
+      Youtube.configure({ 
+        HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } 
+      }),
       VideoExtension,
-      IframeExtension,
+      SocialEmbedExtension,
     ],
     content: content,
     immediatelyRender: false, 
     onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
     editorProps: {
       attributes: {
-        // FIXED: Added whitespace-pre-wrap to make multiple spacebars and double enters work natively
         class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto whitespace-pre-wrap prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
         spellcheck: 'true',
       },
@@ -172,6 +181,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       }
     },
   });
+
 
   if (!editor) return null;
 
@@ -290,19 +300,15 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
   };
 
   const addSocialEmbed = () => {
-  const url = window.prompt('Paste the embed URL (the link inside the src="..." attribute):');
-  
-  if (url && editor) {
-    editor
-      .chain()
-      .focus()
-      .insertContent({
-        type: 'iframe',
-        attrs: { src: url }
-      })
-      .insertContent({ type: 'paragraph' })
-      .run();
-  }
+  const snippet = window.prompt('Paste your X, Facebook, or Reddit embed code layout here:');
+    if (snippet && editor) {
+      editor
+        .chain()
+        .focus()
+        .setSocialEmbed({ rawHtml: snippet })
+        .insertContent('<p></p>')
+        .run();
+    }
 };
 
   // Helper command to mutate Blogger-style sizing metrics on the selected image element node
