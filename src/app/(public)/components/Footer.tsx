@@ -27,7 +27,7 @@ export default function Footer() {
           <a href="/feed" className="hover:text-white transition-colors duration-200">
             RSS
           </a>
-          <a href="https://x.com/aerosaga1" className="hover:text-white transition-colors duration-200">
+          <a href="https://x.com/aerosaga1" target="_blank" rel="nofollow noopener noreferrer" className="hover:text-white transition-colors duration-200">
             Follow AS on X
           </a>
         </div>

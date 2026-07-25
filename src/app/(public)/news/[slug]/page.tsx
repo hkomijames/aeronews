@@ -264,13 +264,13 @@ export default async function ArticlePage({ params }: Props) {
             <h3 className="font-black text-xs text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3 mb-4">Most Read Coverage</h3>
             <ol className="flex flex-col gap-4">
               <li className="flex gap-3 items-start">
-                <span className="font-black text-slate-300 text-lg leading-none mt-0.5">01</span>
+                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">01</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">Global Airport Infrastructure Spending Surges to Match Next-Gen Architectural Layouts</h4>
                 </div>
               </li>
               <li className="flex gap-3 items-start border-t border-slate-200/40 pt-3">
-                <span className="font-black text-slate-300 text-lg leading-none mt-0.5">02</span>
+                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">02</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">Autonomous Flight Controls Clear Major Validation Milestones Over Open Water Trials</h4>
                 </div>
