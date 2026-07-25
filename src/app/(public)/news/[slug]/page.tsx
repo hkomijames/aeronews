@@ -219,7 +219,7 @@ export default async function ArticlePage({ params }: Props) {
 
           <SocialShare title={article.title} slug={article.slug} />
           {article.author.bio && (
-            <footer className="mt-16 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col gap-3 font-sans">
+            <footer className="mt-6 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col gap-3 font-sans">
               <h3 className="font-black text-xs uppercase tracking-widest text-blue-600">About the Author</h3>
               <p className="text-sm text-slate-600 leading-relaxed">{article.author.bio}</p>
               {article.author.sameAsLinks && article.author.sameAsLinks.length > 0 && (
