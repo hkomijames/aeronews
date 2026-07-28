@@ -25,10 +25,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           allowedContentTypes: [
             'image/jpeg', 
             'image/png', 
-            'image/webp', 
-            'video/mp4', 
-            'video/quicktime', 
-            'video/webm'
+            'image/webp'
           ],
           maximumSizeInBytes: 150 * 1024 * 1024, // 150MB file limit
           addRandomSuffix: true, // Vercel handles making filenames unique automatically!

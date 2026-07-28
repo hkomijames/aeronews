@@ -11,14 +11,14 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
   const [copied, setCopied] = useState(false);
 
   // 1. Construct the production public path address
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aeronews.vercel.app';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com';
   // Strip trailing slashes safely if present to avoid dual-slash errors
   const cleanSiteUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
   const fullUrl = `${cleanSiteUrl}/news/${slug}`;
   
   // 2. Format components for URL parameters safely
   const encodedUrl = encodeURIComponent(fullUrl);
-  const encodedTitle = encodeURIComponent(`${title} | AV Newsroom`);
+  const encodedTitle = encodeURIComponent(`${title} | Aero Saga`);
 
   // 3. FIXED: Proper network intent routes using template literal variables
   const shareLinks = {

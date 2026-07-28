@@ -1,41 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from 'react';
-import { useEditor, EditorContent, Node, mergeAttributes } from '@tiptap/react';
+import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
-import { SocialEmbedExtension } from '../extensions/IframeExtension'; 
-
-// Streamlined video node extension to handle HTML5 Video parsing safely
-const VideoExtension = Node.create({
-  name: 'video',
-  group: 'block',
-  selectable: true,
-  draggable: true,
-  atom: true,
-
-  addAttributes() {
-    return {
-      src: { default: null },
-      controls: { default: true },
-      class: { default: 'w-full aspect-video rounded-xl my-6 shadow-md bg-black' },
-    };
-  },
-
-  parseHTML() {
-    return [{ tag: 'video[src]' }];
-  },
-
-  renderHTML({ HTMLAttributes }) {
-    return [
-      'div', 
-      { class: 'w-full block clear-both', contenteditable: 'false' }, 
-      ['video', mergeAttributes(HTMLAttributes, { preload: 'metadata', controls: 'true' })]
-    ];
-  },
-});
 
 // Custom Image Extension supporting Blogger-style Sizing Parameters
 const CustomImage = Image.extend({
@@ -61,7 +31,6 @@ interface EditorProps {
 
 export default function RichTextEditor({ content, onChange, isSaved = false }: EditorProps) {
   const [imageLoading, setImageLoading] = useState(false);
-  const [videoLoading, setVideoLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const uploadedUrlsRef = useRef<string[]>([]);
@@ -119,8 +88,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       Youtube.configure({ 
         HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } 
       }),
-      VideoExtension,
-      SocialEmbedExtension,
     ],
     content: content,
     immediatelyRender: false, 
@@ -142,8 +109,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
 
             if (nodeType === 'image' && selectedNode.attrs) {
               targetUrl = selectedNode.attrs.src;
-            } else if (nodeType === 'video' && selectedNode.attrs) {
-              targetUrl = selectedNode.attrs.src;
             }
           } 
           else {
@@ -155,17 +120,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
                 
                 if (type === 'image' && nodeAdjacent.attrs?.src) {
                   targetUrl = nodeAdjacent.attrs.src;
-                } 
-                else if (type === 'video') {
-                  if (nodeAdjacent.attrs?.src) {
-                    targetUrl = nodeAdjacent.attrs.src;
-                  } else {
-                    const domNode = view.nodeDOM(pos) as HTMLElement;
-                    const videoEl = domNode?.querySelector('video');
-                    if (videoEl?.src) {
-                      targetUrl = videoEl.src;
-                    }
-                  }
                 }
               }
             } catch (e) {
@@ -246,77 +200,12 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     };
     input.click();
   };
-  const addVideoLocally = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'video/*';
-
-    input.onchange = async () => {
-      const files = input.files;
-      if (!files || files.length === 0) return;
-      const file = files[0];
-
-      try {
-        setVideoLoading(true);
-        setUploadProgress(5);
-
-        const newBlob = await upload(file.name, file, {
-          access: 'public',
-          handleUploadUrl: '/api/media',
-          multipart: true,
-          onUploadProgress: (progressEvent) => {
-            setUploadProgress(progressEvent.percentage);
-          }
-        });
-
-        if (newBlob?.url) {
-          uploadedUrlsRef.current.push(newBlob.url);
-          setUploadProgress(100);
-          
-          const videoHtml = `
-            <div class="w-full block clear-both" contenteditable="false">
-              <video src="${newBlob.url}" controls="true" preload="metadata" class="w-full aspect-video rounded-xl my-6 shadow-md bg-black"></video>
-            </div>
-          `;
-
-          editor
-            .chain()
-            .focus()
-            .insertContent(videoHtml)
-            .insertContent({ type: 'paragraph' })
-            .run();
-        }
-      } catch (err) {
-        console.error("Video upload details:", err);
-        alert('Error uploading large video asset.');
-      } finally {
-        setTimeout(() => {
-          setVideoLoading(false);
-          setUploadProgress(0);
-        }, 800);
-      }
-    };
-    input.click();
-  };
-
-  const addSocialEmbed = () => {
-  const snippet = window.prompt('Paste your X, Facebook, or Reddit embed code layout here:');
-    if (snippet && editor) {
-      editor
-        .chain()
-        .focus()
-        .setSocialEmbed({ rawHtml: snippet })
-        .insertContent('<p></p>')
-        .run();
-    }
-};
-
   // Helper command to mutate Blogger-style sizing metrics on the selected image element node
   const resizeSelectedImage = (size: 'small' | 'medium' | 'large') => {
     editor.chain().focus().updateAttributes('image', { dataSize: size }).run();
   };
 
-  const isAnyUploading = imageLoading || videoLoading;
+  const isAnyUploading = imageLoading;
 
   return (
     <div className="w-full flex flex-col relative">
@@ -373,14 +262,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           🔗 Link
         </button>
         <button
-  type="button"
-  disabled={isAnyUploading}
-  onClick={addSocialEmbed}
-  className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200"
->
-  🔗 Social Embed
-</button>
-        <button
           type="button"
           disabled={isAnyUploading}
           onClick={addImageLocally}
@@ -388,15 +269,6 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         >
           {imageLoading ? '⌛ Uploading...' : '🖼️ Image'}
         </button>
-        <button
-          type="button"
-          disabled={isAnyUploading}
-          onClick={addVideoLocally}
-          className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200 disabled:opacity-50"
-        >
-          {videoLoading ? '⌛ Uploading...' : '📺 Video'}
-        </button>
-
         {/* DYNAMIC CONTEXTUAL TOOLBAR ELEMENT: Displays resizing choices if an image node is highlighted */}
         {editor.isActive('image') && (
           <div className="flex gap-1 bg-slate-950 p-0.5 rounded border border-slate-800 ml-auto animate-fade-in">

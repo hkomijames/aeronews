@@ -6,7 +6,7 @@ import { upload } from '@vercel/blob/client'; // Import Vercel's secure direct-u
 
 interface MediaSelectorProps {
   label: string;
-  accept: string; // e.g., "image/*" or "video/*"
+  accept: string; // e.g., "image/*"
   onUploadSuccess: (url: string) => void;
   currentUrl?: string;
 }
@@ -48,7 +48,6 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
       const newBlob = await upload(fileToUpload.name, fileToUpload, {
         access: 'public',
         handleUploadUrl: '/api/media',
-        multipart: originalFile.type.startsWith('video/'), // Enables multi-part streaming specifically for video assets
       });
 
       if (newBlob && newBlob.url) {
