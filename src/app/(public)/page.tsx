@@ -43,43 +43,57 @@ export default async function PublicHomePage() {
       
       {/* ─── 1. TOP EXTENDED DARK AREA: LATEST 3 REPRINTS SHOWCASE ─── */}
       <section className="w-full bg-slate-950 text-white py-16 border-b border-slate-900">
-        <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="border-b border-slate-800 pb-3 mb-8">
-            <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
-              Featured Coverage <span className="text-base">.</span>
-            </h2>
-            <p className="text-xs text-slate-400 mt-0.5 font-medium">Latest breaking dispatches curated straight from our news desks.</p>
-          </div>
+  <div className="max-w-7xl mx-auto px-4 md:px-8">
+    <div className="border-b border-slate-800 pb-3 mb-8">
+      <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
+        Featured Coverage <span className="text-base">.</span>
+      </h2>
+      <p className="text-xs text-slate-400 mt-0.5 font-medium">Latest breaking dispatches curated straight from our news desks.</p>
+    </div>
 
-          {topLatestArticles.length === 0 ? (
-            <div className="h-50 flex items-center justify-center text-slate-500 text-xs italic">
-              No aviation articles published yet. Use your admin dashboard to create posts.
+    {topLatestArticles.length === 0 ? (
+      <div className="h-50 flex items-center justify-center text-slate-500 text-xs italic">
+        No aviation articles published yet. Use your admin dashboard to create posts.
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {topLatestArticles.map((article, index) => (
+          <div key={article.id} className="relative h-95 bg-slate-900 rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl group">
+            
+            {/* 1. STRUCTURAL IMAGE: Instantly discoverable by PageSpeed HTML parsing engines */}
+            <img
+              src={article.imageUrl || '/logo.png'}
+              alt={article.title}
+              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+              
+              // CRITICAL: The very first card in the loop is your LCP element. Load it instantly!
+              loading={index === 0 ? "eager" : "lazy"}
+              fetchPriority={index === 0 ? "high" : "low"}
+            />
+
+            {/* 2. GRADIENT LAYER OVERLAY: Extracted out of inline CSS styles into standard Tailwind utility nodes */}
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/98 via-slate-950/20 to-transparent pointer-events-none" />
+
+            {/* 3. CONTENT BOUNDARY LAYOUT BOX */}
+            <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
+              <span className="text-[9px] font-black tracking-widest text-orange-400 uppercase mb-1">{article.category}</span>
+              <h3 className="font-extrabold text-base leading-snug text-white group-hover:text-orange-400 transition-colors">
+                <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
+                  {article.title}
+                </Link>
+              </h3>
+              <div className="text-[10px] font-bold text-slate-400 group-hover:text-white transition-colors mt-3 block underline underline-offset-4 pointer-events-none">
+                Read it →
+              </div>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {topLatestArticles.map((article) => (
-                <div key={article.id} className="relative h-95 bg-slate-900 rounded-xl overflow-hidden border border-slate-800/60 shadow-2xl group">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center group-hover:scale-105 transition-transform duration-500"
-                    style={{ backgroundImage: `linear-gradient(to top, rgba(2, 6, 23, 0.98) 25%, rgba(2, 6, 23, 0.2)), url(${article.imageUrl || '/logo.png'})` }}
-                  />
-                  <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                    <span className="text-[9px] font-black tracking-widest text-orange-400 uppercase mb-1">{article.category}</span>
-                    <h3 className="font-extrabold text-base leading-snug text-white group-hover:text-orange-400 transition-colors">
-                      <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
-                        {article.title}
-                      </Link>
-                    </h3>
-                    <div className="text-[10px] font-bold text-slate-400 group-hover:text-white transition-colors mt-3 block underline underline-offset-4 pointer-events-none">
-                      Read it →
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
 
       {/* ─── 2. AIRPLANE NEWS SECTION (2 Grid Cards + 6 List Rows + Sidebar Right) ─── */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
