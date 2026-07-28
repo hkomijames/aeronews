@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  /* Enforce critical CSS inlining to eliminate render-blocking network chunks */
+  experimental: {
+    inlineCss: true,
+  },
+  
   async rewrites() {
     return [
       {
