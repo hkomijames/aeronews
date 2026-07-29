@@ -63,6 +63,15 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
             return (
               <div className="my-8 not-prose flex justify-center w-full react-tweet-theme">
                 <EmbeddedTweet tweet={tweetDataMap[id]} />
+                
+                {/* ─── INLINE GLITCH SHIELD: MUTING ASYNC MEDIA REMOVAL ERROR ─── */}
+                <script dangerouslySetInnerHTML={{ __html: `
+                  window.addEventListener('unhandledrejection', function(event) {
+                    if (event.reason && event.reason.name === 'AbortError') {
+                      event.preventDefault();
+                    }
+                  });
+                `}} />
               </div>
             );
           }
