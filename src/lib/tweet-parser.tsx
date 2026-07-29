@@ -77,8 +77,13 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
           domNode.attribs.width = "800";
           domNode.attribs.height = "450";
         }
-        // 💡 FORCE FIX: Removes layout-breaking tailwind classes on the fly
-        domNode.attribs.class = (domNode.attribs.class || "").replace("h-100", "") + " !h-auto";
+
+        const normalizedClasses = (domNode.attribs.class || "")
+          .split(/\s+/)
+          .filter((cls) => cls && !['h-100', 'object-cover', 'max-h-100', 'max-h-[400px]'].includes(cls))
+          .join(' ');
+
+        domNode.attribs.class = `${normalizedClasses} !h-auto`.trim();
       }
 
       if (domNode instanceof Element && domNode.name === 'iframe') {

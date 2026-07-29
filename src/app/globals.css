@@ -106,10 +106,7 @@ nav {
   height: auto;
   margin-left: auto;
   margin-right: auto;
-  
-  /* ─── FIXED: RESERVES A WIDESCREEN ASPECT RATIO FOR IMAGES MISSING WIDTH/HEIGHT IN HTML ─── */
-  aspect-ratio: 16 / 9; 
-  object-fit: cover; /* Ensures images scale cleanly into the 16:9 fallback block without distorting */
+  object-fit: contain;
 }
 
 /* Maintain your custom image-size attributes explicitly without overwriting native calculations */
