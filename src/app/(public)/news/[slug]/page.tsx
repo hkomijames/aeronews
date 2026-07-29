@@ -5,6 +5,8 @@ import Link from 'next/link';
 import SocialShare from '../../components/SocialShare';
 import NewsletterForm from '../../components/NewsletterForm';
 import { cache } from 'react'; // ─── IMPORT NATIVE REACT CACHE UTILITY ───
+import { RenderArticleContent } from '@/lib/tweet-parser';
+
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -206,16 +208,18 @@ export default async function ArticlePage({ params }: Props) {
           )}
           {/* ─── OPTIMIZED RENDERING CONTAINER: FORCES INJECTED PARAGRAPHS TO RENDER SPACING ─── */}
           <div 
-            className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
-                       whitespace-pre-wrap
-                       [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
-                       prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
-                       prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
-                       prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
-                       prose-img:rounded-2xl prose-img:shadow-sm
-                       prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
+  className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
+             whitespace-pre-wrap
+             [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
+             prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
+             prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
+             prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
+             prose-img:rounded-2xl prose-img:shadow-sm
+             prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
+>
+  {/* ts-expect-error Async Server Component */}
+  <RenderArticleContent html={article.content} />
+</div>
 
           <SocialShare title={article.title} slug={article.slug} />
           {article.author.bio && (
