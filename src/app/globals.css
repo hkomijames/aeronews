@@ -5,8 +5,6 @@
   --foreground: #171717;
 }
 
-/* Replaced unknown @theme rule with a valid attribute-scoped selector.
-   Use <html data-theme="inline"> to enable these variables. */
 :root[data-theme="inline"] {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -30,47 +28,41 @@ body {
   font-size: clamp(2rem, calc(1.75rem + 1vw), 3.5rem);
 }
 
+/* ─── OPTIMIZED ARTICLE CONTENT FRAME (Inheritance-Driven) ─── */
 .article-content {
-  /* ─── INCREASED BASELINE RESPONSIVE SCALE SIZES ─── */
-  font-size: clamp(1.125rem, calc(1.05rem + 0.35vw), 1.25rem); /* Scaled up baseline from 16px-18px to 18px-20px */
-  line-height: 1.75; /* Increased line spacing slightly to accommodate larger letters smoothly */
+  font-size: clamp(1.125rem, calc(1.05rem + 0.35vw), 1.25rem);
+  line-height: 1.75;
   
-  /* ─── FORCED DEEP RICH BLACK ACROSS STACK NODES ─── */
-  color: #000000 !important;
+  /* 💡 INHERITANCE: Setting this color on the parent automatically forces
+     paragraphs, lists, and span texts to render pure black without child selectors */
+  color: #000000;
 }
 
-/* Ensure all nested paragraphs and headings match the deep black requirement */
-.article-content p,
+/* Restrict heading overrides to a lightweight single block pass */
 .article-content h1,
 .article-content h2,
 .article-content h3,
 .article-content h4 {
-  color: #000000 !important;
+  color: #000000;
 }
 
+/* ─── ACCESSIBLE HYPERLINK STYLING ENGINE ─── */
 .article-content a {
-  /* Use a deep, high-contrast burnt orange (Tailwind orange-700 equivalent) */
-  color: #C2410C !important;
-  
-  /* Retain a visible text decoration so colorblind users can spot links instantly */
-  text-decoration: underline !important;
+  color: #C2410C;
+  text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 1.5px;
-  
-  font-weight: 600; /* Bump weight slightly to make text more readable against white */
-  transition: all 0.2s ease-in-out;
+  font-weight: 600;
+  transition: color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out;
 }
 
-/* Clear hover state mutations for modern desktop interactions */
 .article-content a:hover {
-  /* Darken on hover to Tailwind orange-800 for clear interactive feedback */
-  color: #9A3412 !important;
-  text-decoration-color: #9A3412 !important;
+  color: #9A3412;
+  text-decoration-color: #9A3412;
 }
 
-/* Accessible focus rings for keyboard users traversing with the Tab key */
 .article-content a:focus-visible {
-  outline: 2px solid #C2410C !important;
+  outline: 2px solid #C2410C;
   outline-offset: 2px;
   border-radius: 4px;
 }
@@ -101,42 +93,34 @@ nav {
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-/* Core Styling Rules for News Article Body */
-
-/* --- 1. CLEAN NEW LINE SPACING FIX --- */
-/* Removes the wide artificial whitespace gaps and establishes natural editorial paragraph flows */
+/* ─── OPTIMIZEDparagraph flows ─── */
 .article-content p:empty {
-  display: block !important;
+  display: block;
 }
 .article-content p:empty::before {
-  content: "" !important; /* Cleans up the previous wide spacing hack completely */
+  content: "";
 }
 
+/* ─── OPTIMIZED NEWS MEDIA RULES (Eliminates Layout Thrashing) ─── */
 .article-content img {
-  width: 100% !important;
-  height: auto !important;              /* Overrides baked-in height ceilings */
-  aspect-ratio: auto !important;        /* Breaks the forced video box constraint */
-  object-fit: initial !important;       /* Disables object-cover cropping completely */
-  max-height: none !important;          /* Strips max-height limits */
-  display: block !important;
-  margin-left: auto !important;
-  margin-right: auto !important;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* Maintain your custom news frame width limits */
+/* Maintain your custom image-size attributes explicitly without overwriting native calculations */
 .article-content img[data-size="small"] {
-  max-width: 320px !important; /* Tailwind max-w-xs equivalent */
-  width: 100% !important;
+  max-width: 320px; 
 }
 
 .article-content img[data-size="medium"] {
-  max-width: 640px !important; /* Tailwind max-w-xl equivalent */
-  width: 100% !important;
+  max-width: 640px; 
 }
 
-/* Original News Frame Mode */
 .article-content img[data-size="large"],
 .article-content img:not([data-size]) {
-  max-width: 48rem !important; /* Exactly matches max-w-3xl (768px) */
-  width: 100% !important;
+  max-width: 48rem; /* Exactly matches max-w-3xl (768px) */
 }

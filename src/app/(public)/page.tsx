@@ -1,11 +1,15 @@
 import { prisma } from '@/lib/db';
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
-import NewsletterForm from './components/NewsletterForm';
+import nextDynamic from 'next/dynamic';
 
 // ─── STOP TIME-BASED CHECKS: CACHE INDEFINITELY AT GLOBAL EDGE CDN ───
 export const dynamic = 'force-static';
 export const revalidate = false;
+
+const NewsletterForm = nextDynamic(() => import('./components/NewsletterForm'), {
+  ssr: true, 
+});
 
 // ─── ISOLATED AND MEMOIZED CDN DATA ACCESS LAYER ───
 const getCachedHomepageArticles = unstable_cache(

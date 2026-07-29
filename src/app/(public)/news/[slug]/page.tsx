@@ -2,11 +2,9 @@ import { prisma } from '@/lib/db';
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
-import SocialShare from '../../components/SocialShare';
-import NewsletterForm from '../../components/NewsletterForm';
 import { cache } from 'react'; // ─── IMPORT NATIVE REACT CACHE UTILITY ───
 import { RenderArticleContent } from '@/lib/tweet-parser';
-
+import nextDynamic from 'next/dynamic';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -15,6 +13,15 @@ interface Props {
 // ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
 export const dynamic = 'force-static';
 export const revalidate = false;
+// Safely load your client components using the new alias name
+const NewsletterForm = nextDynamic(() => import('../../components/NewsletterForm'), {
+  ssr: true, 
+});
+
+const SocialShare = nextDynamic(() => import('../../components/SocialShare'), {
+  ssr: true,
+});
+
 
 // ─── MEMOIZE & SHIELD DATABASE QUERIES ACROSS PARALLEL NEXT.JS LIFECYCLES ───
 const getArticleBySlug = cache(async (slug: string) => {
