@@ -13,21 +13,42 @@ interface Props {
 // ─── AGGRESSIVE COST REDUCTION: CACHE INDEFINITELY AT THE GLOBAL CDN EDGE ───
 export const dynamic = 'force-static';
 export const revalidate = false;
-// Safely load your client components using the new alias name
+
+// ─── MAIN THREAD JS OPTIMIZATION: LOAD INTERACTIVE CLIENT COMPONENT PACKAGES DEFERRED ───
 const NewsletterForm = nextDynamic(() => import('../../components/NewsletterForm'), {
-  ssr: true, 
+  ssr: false, 
 });
 
 const SocialShare = nextDynamic(() => import('../../components/SocialShare'), {
-  ssr: true,
+  ssr: false,
 });
 
+// ─── HYDRATION-SAFE STATIC DATE FORMATTER (Option 1: Fixed UTC layout presentation) ───
+function formatDateStatic(dateInput: Date | string) {
+  const d = new Date(dateInput);
+  const months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  
+  const month = months[d.getUTCMonth()];
+  const day = d.getUTCDate();
+  const year = d.getUTCFullYear();
+  
+  let hours = d.getUTCHours();
+  const minutes = String(d.getUTCMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; 
+  
+  return `${month} ${day}, ${year} at ${hours}:${minutes} ${ampm} UTC`;
+}
 
 // ─── MEMOIZE & SHIELD DATABASE QUERIES ACROSS PARALLEL NEXT.JS LIFECYCLES ───
 const getArticleBySlug = cache(async (slug: string) => {
   return await prisma.article.findUnique({
     where: { slug },
-    include: { author: true } // ✨ Included relation hook to feed writer profiles directly into tags
+    include: { author: true } 
   });
 });
 
@@ -36,7 +57,7 @@ export async function generateStaticParams() {
   const articles = await prisma.article.findMany({
     where: { isPublished: true },
     orderBy: { createdAt: 'desc' },
-    take: 500, // Pre-compiles the 500 latest articles. Older ones build on-demand and cache forever.
+    take: 500, 
     select: { slug: true },
   });
 
@@ -48,8 +69,6 @@ export async function generateStaticParams() {
 // ─── DYNAMIC SEO METADATA FOR BROWSER & SOCIAL SHARE CARDS ───
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const resolvedParams = await params;
-  
-  // Utilizes the memoized database fetcher instead of invoking an un-cached Prisma call
   const article = await getArticleBySlug(resolvedParams.slug);
 
   if (!article || !article.isPublished) return {};
@@ -60,9 +79,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: `${article.title} | Aero Saga`,
     description: article.excerpt || `Read the full aviation dispatch: ${article.title}`,
-
     referrer: 'strict-origin-when-cross-origin',
-    // ✨ Google News Bot explicit crawling configuration signals
+    
     robots: {
       index: true,
       follow: true,
@@ -81,7 +99,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'article',
       url: `/news/${article.slug}`,
       siteName: 'Aero Saga',
-      publishedTime: article.createdAt.toISOString(), // ✨ Mandatory Google Discover structured dates
+      publishedTime: article.createdAt.toISOString(), 
       modifiedTime: article.updatedAt.toISOString(),
       section: article.category,
       authors: [article.author?.name || 'Aero Saga Staff'],
@@ -99,32 +117,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 // ─── MAIN SERVER-RENDERED PAGE COMPONENT ───
 export default async function ArticlePage({ params }: Props) {
   const resolvedParams = await params;
-  
-  // Utilizes the memoized database fetcher instead of invoking an un-cached Prisma call
   const article = await getArticleBySlug(resolvedParams.slug);
 
   if (!article || !article.isPublished) {
     notFound();
   }
 
-  // ─── COST-OPTIMIZED RELATED POSTS PIPELINE (Computed once at build time) ───
   const relatedArticles = await prisma.article.findMany({
     where: {
       category: article.category,
       isPublished: true,
-      NOT: { id: article.id }, // Never show the current article as related to itself
+      NOT: { id: article.id }, 
     },
     orderBy: { createdAt: 'desc' },
-    take: 3, // Pull exactly 3 items to fit a clean responsive desktop layout row
+    take: 3, 
     include: { author: true },
   });
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://aerosaga.com';
 
-  // ─── OPTIMIZED GOOGLE NEWS JSON-LD STRUCTURED DATA SCHEMA ───
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle', // ✨ Kept strict schema tracking context intact
+    '@type': 'NewsArticle', 
     'headline': article.title,
     'description': article.excerpt || article.title,
     'image': article.imageUrl ? [article.imageUrl] : [`${siteUrl}/logo.png`],
@@ -140,14 +154,14 @@ export default async function ArticlePage({ params }: Props) {
       'jobTitle': article.author.title || 'Journalist',
       'description': article.author.bio || undefined,
       'image': article.author.avatarUrl || undefined,
-      'sameAs': article.author.sameAsLinks || [], // ✨ Maps authority back footprints seamlessly
+      'sameAs': article.author.sameAsLinks || [], 
     },
     'publisher': {
       '@type': 'Organization',
       'name': 'Aero Saga',
       'logo': {
         '@type': 'ImageObject',
-        'url': `${siteUrl}/logo.png`, // Adjusted placeholder lookup variables cleanly
+        'url': `${siteUrl}/logo.png`, 
       },
     },
   };
@@ -159,10 +173,8 @@ export default async function ArticlePage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Main Structural Wrapper Grid */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-16 grid grid-cols-1 lg:grid-cols-3 gap-12">
         
-        {/* LEFT & CENTER CLUSTERS: MAIN EDITORIAL CONTENT ENGINE */}
         <main className="lg:col-span-2">
           <Link href={`/category/${article.category.toLowerCase().replace(/\s+/g, '-')}`}>
             <span className="text-xs font-black uppercase text-blue-600 tracking-widest bg-blue-50 px-2.5 py-1 rounded">
@@ -173,7 +185,6 @@ export default async function ArticlePage({ params }: Props) {
             {article.title}
           </h1>
 
-          {/* Journalist Bio Identity Details */}
           <div className="flex items-center gap-4 border-y border-slate-100 py-4 mb-8">
             {article.author.avatarUrl && (
               <img 
@@ -194,40 +205,39 @@ export default async function ArticlePage({ params }: Props) {
                   </>
                 )}
               </div>
-              <p className="text-xs text-slate-600 mt-0.5" suppressHydrationWarning>
-                Published: {new Date(article.createdAt).toLocaleString()}
+              <p className="text-xs text-slate-600 mt-0.5">
+                Published: {formatDateStatic(article.createdAt)}
                 {new Date(article.updatedAt).getTime() - new Date(article.createdAt).getTime() > 60000 && (
-                  ` | Updated: ${new Date(article.updatedAt).toLocaleString()}`
+                  ` | Updated: ${formatDateStatic(article.updatedAt)}`
                 )}
               </p>
             </div>
           </div>
 
           {article.imageUrl && (
-  <div className="w-full h-100 bg-slate-50 rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
-    <img 
-      src={article.imageUrl} 
-      alt={article.title}
-      loading="eager" // Main feature cover image should load immediately for performance
-      decoding="async"
-      // ─── FIXED: Changed h-100 to h-full and object-fit to object-cover ───
-      className="w-full h-full object-cover object-center rounded-2xl"
-    />
-  </div>
-)}
-          {/* ─── OPTIMIZED RENDERING CONTAINER: FORCES INJECTED PARAGRAPHS TO RENDER SPACING ─── */}
+            <div className="w-full h-100 bg-slate-50 rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
+              <img 
+                src={article.imageUrl} 
+                alt={article.title}
+                loading="eager" 
+                decoding="async"
+                className="w-full h-full object-cover object-center rounded-2xl"
+              />
+            </div>
+          )}
+          {/* ─── OPTIMIZED RENDERING CONTAINER: CONFINES PRE-WRAP STRUCTURAL SHIFTS STRICTLY TO TEXT PARAGRAPHS ─── */}
           <div 
-  className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
-             whitespace-pre-wrap
-             [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
-             prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
-             prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
-             prose-img:rounded-2xl prose-img:shadow-sm
-             prose-figcaption:text-xs prose-figcaption:text-slate-600 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
->
-  {/* ts-expect-error Async Server Component */}
-  <RenderArticleContent html={article.content} />
-</div>
+            className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
+                       [&>p]:whitespace-pre-wrap
+                       [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
+                       prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
+                       prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
+                       prose-img:rounded-2xl prose-img:shadow-sm
+                       prose-figcaption:text-xs prose-figcaption:text-slate-600 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
+          >
+            {/* ts-expect-error Async Server Component */}
+            <RenderArticleContent html={article.content} />
+          </div>
 
           <SocialShare title={article.title} slug={article.slug} />
           {article.author.bio && (
@@ -321,7 +331,6 @@ export default async function ArticlePage({ params }: Props) {
                       </div>
                     )}
                     <h4 className="font-extrabold text-slate-900 leading-snug line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {/* Added prefetch={false} to block cascading background data fetches when reading an article */}
                       <Link href={`/news/${item.slug}`} prefetch={false}>
                         {item.title}
                       </Link>
@@ -333,7 +342,7 @@ export default async function ArticlePage({ params }: Props) {
                   
                   <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-600">
                     <span className="font-bold text-slate-700">{item.author.name}</span>
-                    <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+                    <span>{formatDateStatic(item.createdAt)}</span>
                   </div>
                 </div>
               ))}
