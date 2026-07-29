@@ -47,17 +47,25 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
 
   const options: HTMLReactParserOptions = {
     replace: (domNode) => {
-      if (domNode instanceof Element && domNode.name === 'a') {
-        const href = domNode.attribs.href || '';
-        const id = extractTweetId(href);
+      // 1. Intercept the paragraph tag instead of the link tag
+      if (domNode instanceof Element && domNode.name === 'p') {
+        // Look through the children of the paragraph for the anchor tag
+        const anchorChild = domNode.children.find(
+          (child) => child instanceof Element && child.name === 'a'
+        ) as Element | undefined;
 
-        if (id && tweetDataMap[id]) {
-          return (
-            // Override prose isolation cleanly so styling scales naturally inside light/dark grids
-            <div className="my-8 not-prose flex justify-center w-full react-tweet-theme">
-              <EmbeddedTweet tweet={tweetDataMap[id]} />
-            </div>
-          );
+        if (anchorChild) {
+          const href = anchorChild.attribs.href || '';
+          const id = extractTweetId(href);
+
+          // If it matches a valid, cached tweet, replace the ENTIRE paragraph node
+          if (id && tweetDataMap[id]) {
+            return (
+              <div className="my-8 not-prose flex justify-center w-full react-tweet-theme">
+                <EmbeddedTweet tweet={tweetDataMap[id]} />
+              </div>
+            );
+          }
         }
       }
     },

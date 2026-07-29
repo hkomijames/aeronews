@@ -53,6 +53,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     metadataBase: new URL(siteUrl),
     title: `${article.title} | Aero Saga`,
     description: article.excerpt || `Read the full aviation dispatch: ${article.title}`,
+
+    referrer: 'no-referrer-when-downgrade',
     
     // ✨ Google News Bot explicit crawling configuration signals
     robots: {

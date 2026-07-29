@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   experimental: {
     inlineCss: true,
   },
+
+  /* Configure external image optimization domains used by react-tweet */
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: '://twimg.com' },
+      { protocol: 'https', hostname: '://twimg.com' },
+      { protocol: 'https', hostname: '://twimg.com' },
+    ],
+  },
   
   async rewrites() {
     return [
