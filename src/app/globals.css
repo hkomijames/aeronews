@@ -48,6 +48,33 @@ body {
   color: #000000 !important;
 }
 
+.article-content a {
+  /* Use a deep, high-contrast burnt orange (Tailwind orange-700 equivalent) */
+  color: #C2410C !important;
+  
+  /* Retain a visible text decoration so colorblind users can spot links instantly */
+  text-decoration: underline !important;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.5px;
+  
+  font-weight: 600; /* Bump weight slightly to make text more readable against white */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Clear hover state mutations for modern desktop interactions */
+.article-content a:hover {
+  /* Darken on hover to Tailwind orange-800 for clear interactive feedback */
+  color: #9A3412 !important;
+  text-decoration-color: #9A3412 !important;
+}
+
+/* Accessible focus rings for keyboard users traversing with the Tab key */
+.article-content a:focus-visible {
+  outline: 2px solid #C2410C !important;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 /* Container link to ensure proper alignment */
 .logo-link {
   display: inline-block;

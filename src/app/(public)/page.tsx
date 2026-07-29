@@ -48,7 +48,7 @@ export default async function PublicHomePage() {
       <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
         Featured Coverage <span className="text-base">.</span>
       </h2>
-      <p className="text-xs text-slate-300 mt-0.5 font-medium">Latest breaking dispatches curated straight from our news desks.</p>
+      <p className="text-xs text-white mt-0.5 font-medium">Latest breaking dispatches curated straight from our news desks.</p>
     </div>
 
     {topLatestArticles.length === 0 ? (
@@ -72,7 +72,7 @@ export default async function PublicHomePage() {
             />
 
             {/* 2. GRADIENT LAYER OVERLAY: Extracted out of inline CSS styles into standard Tailwind utility nodes */}
-            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/98 via-slate-950/20 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-t from-slate-950/98 via-slate-950/20 to-transparent pointer-events-none" />
 
             {/* 3. CONTENT BOUNDARY LAYOUT BOX */}
             <div className="absolute inset-0 p-6 flex flex-col justify-end z-10">
@@ -137,7 +137,7 @@ export default async function PublicHomePage() {
           <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
             {airplaneSubList.map((article) => (
               <article key={article.id} className="flex gap-4 items-center group relative">
-                <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
+                <div className="w-30 h-24 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
                   <img 
                     src={article.imageUrl || '/logo.png'} 
                     alt={article.title} 
@@ -147,7 +147,7 @@ export default async function PublicHomePage() {
                   />
                 </div>
                 <div>
-                  <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">{article.category}</span>
+                  <span className="text-[12px] font-black text-orange-800 uppercase tracking-widest">{article.category}</span>
                   <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
                     {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
                     <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
@@ -231,7 +231,7 @@ export default async function PublicHomePage() {
             <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
               {airportSubList.map((article) => (
                 <article key={article.id} className="flex gap-4 items-center group relative">
-                  <div className="w-24 h-16 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
+                  <div className="w-30 h-24 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
                     <img 
                       src={article.imageUrl || '/logo.png'} 
                       alt={article.title} 
@@ -241,7 +241,7 @@ export default async function PublicHomePage() {
                     />
                   </div>
                   <div>
-                    <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">{article.category}</span>
+                    <span className="text-[12px] font-black text-orange-800 uppercase tracking-widest">{article.category}</span>
                     <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
                       {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
                       <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
