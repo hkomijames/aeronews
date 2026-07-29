@@ -32,9 +32,6 @@ body {
 .article-content {
   font-size: clamp(1.125rem, calc(1.05rem + 0.35vw), 1.25rem);
   line-height: 1.75;
-  
-  /* 💡 INHERITANCE: Setting this color on the parent automatically forces
-     paragraphs, lists, and span texts to render pure black without child selectors */
   color: #000000;
 }
 
@@ -46,8 +43,8 @@ body {
   color: #000000;
 }
 
-/* ─── ACCESSIBLE HYPERLINK STYLING ENGINE ─── */
-.article-content a {
+/* ─── OPTIMIZED HYPERLINK STYLING ENGINE (Excludes Twitter/X Embeds) ─── */
+.article-content a:not(.react-tweet-theme a) {
   color: #C2410C;
   text-decoration: underline;
   text-underline-offset: 4px;
@@ -56,12 +53,12 @@ body {
   transition: color 0.2s ease-in-out, text-decoration-color 0.2s ease-in-out;
 }
 
-.article-content a:hover {
+.article-content a:not(.react-tweet-theme a):hover {
   color: #9A3412;
   text-decoration-color: #9A3412;
 }
 
-.article-content a:focus-visible {
+.article-content a:not(.react-tweet-theme a):focus-visible {
   outline: 2px solid #C2410C;
   outline-offset: 2px;
   border-radius: 4px;
@@ -93,7 +90,7 @@ nav {
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
 }
 
-/* ─── OPTIMIZEDparagraph flows ─── */
+/* ─── OPTIMIZED paragraph flows ─── */
 .article-content p:empty {
   display: block;
 }
@@ -101,7 +98,7 @@ nav {
   content: "";
 }
 
-/* ─── OPTIMIZED NEWS MEDIA RULES (Eliminates Layout Thrashing) ─── */
+/* ─── OPTIMIZED NEWS MEDIA RULES (Eliminates CLS Layout Shift) ─── */
 .article-content img {
   display: block;
   width: 100%;
@@ -109,6 +106,10 @@ nav {
   height: auto;
   margin-left: auto;
   margin-right: auto;
+  
+  /* ─── FIXED: RESERVES A WIDESCREEN ASPECT RATIO FOR IMAGES MISSING WIDTH/HEIGHT IN HTML ─── */
+  aspect-ratio: 16 / 9; 
+  object-fit: cover; /* Ensures images scale cleanly into the 16:9 fallback block without distorting */
 }
 
 /* Maintain your custom image-size attributes explicitly without overwriting native calculations */
@@ -122,5 +123,5 @@ nav {
 
 .article-content img[data-size="large"],
 .article-content img:not([data-size]) {
-  max-width: 48rem; /* Exactly matches max-w-3xl (768px) */
+  max-width: 48rem; 
 }
