@@ -221,7 +221,6 @@ export default async function ArticlePage({ params }: Props) {
              whitespace-pre-wrap
              [&>p]:mb-6 [&>p]:mt-0 [&>p]:block
              prose-headings:font-sans prose-headings:font-black prose-headings:tracking-tight
-             prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
              prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
              prose-img:rounded-2xl prose-img:shadow-sm
              prose-figcaption:text-xs prose-figcaption:text-slate-600 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"

@@ -58,9 +58,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
           if (id && tweetDataMap[id]) {
             return (
               <div className="my-8 not-prose flex justify-center w-full react-tweet-theme">
-                <div className="w-full max-w-2xl max-h-180 overflow-hidden rounded-2xl">
-                  <EmbeddedTweet tweet={tweetDataMap[id]} />
-                </div>
+                <EmbeddedTweet tweet={tweetDataMap[id]} />
                 <script dangerouslySetInnerHTML={{ __html: `
                   window.addEventListener('unhandledrejection', function(event) {
                     if (event.reason && event.reason.name === 'AbortError') {
