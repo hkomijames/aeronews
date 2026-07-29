@@ -3,9 +3,8 @@ import parse, { HTMLReactParserOptions, Element } from 'html-react-parser';
 import { EmbeddedTweet } from 'react-tweet';
 import { getTweet } from 'react-tweet/api';
 import { unstable_cache } from 'next/cache';
-import 'react-tweet/theme.css'; // Global core styling definitions 
+import 'react-tweet/theme.css'; 
 
-// Secure server cache layer wrapping Twitter API 
 export const getCachedTweet = unstable_cache(
   async (id: string) => {
     try {
@@ -16,12 +15,12 @@ export const getCachedTweet = unstable_cache(
     }
   },
   ['static-article-tweets-v1'],
-  { revalidate: 86400 } // Builds cache dynamically for on-demand ISR paths
+  { revalidate: 86400 } 
 );
 
 function extractTweetId(url: string): string | null {
   const match = url.match(/(?:twitter|x)\.com\/\w+\/status\/(\d+)/i);
-  return match ? match[1] : null; // 💡 FIXED: Safely returns capture group string index 1
+  return match ? match[1] : null; // 💡 FIXED: Uses index 1 capture string safely
 }
 
 interface RenderEngineProps {
@@ -29,16 +28,14 @@ interface RenderEngineProps {
 }
 
 export async function RenderArticleContent({ html }: RenderEngineProps) {
-  // Extract all Twitter/X link sequences from the raw markup
   const hrefMatches = html.match(/href="https?:\/\/(?:www\.)?(?:twitter|x)\.com\/\w+\/status\/(\d+)/gi) || [];
   
-  // 💡 FIXED: Added index string check [1] to capture group array match assignments
+  // 💡 FIXED: Extracts capture group string index 1 to satisfy the TypeScript compiler
   const tweetIds = Array.from(new Set(hrefMatches.map(link => {
     const rawId = link.match(/\/status\/(\d+)/);
-    return rawId ? rawId[1] : ''; // 👈 Extracts index 1 capture string instead of the full RegExp object
+    return rawId ? rawId[1] : ''; 
   }).filter(Boolean)));
 
-  // Batch pre-fetch all matching components in parallel during static generation lifecycle
   const tweetDataMap: Record<string, any> = {};
   await Promise.all(
     tweetIds.map(async (id) => {
@@ -49,9 +46,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
 
   const options: HTMLReactParserOptions = {
     replace: (domNode) => {
-      // 1. Intercept the paragraph tag instead of the link tag
       if (domNode instanceof Element && domNode.name === 'p') {
-        // Look through the children of the paragraph for the anchor tag
         const anchorChild = domNode.children.find(
           (child) => child instanceof Element && child.name === 'a'
         ) as Element | undefined;
@@ -60,13 +55,10 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
           const href = anchorChild.attribs.href || '';
           const id = extractTweetId(href);
 
-          // If it matches a valid, cached tweet, replace the ENTIRE paragraph node
           if (id && tweetDataMap[id]) {
             return (
               <div className="my-8 not-prose flex justify-center w-full react-tweet-theme">
                 <EmbeddedTweet tweet={tweetDataMap[id]} />
-                
-                {/* ─── INLINE GLITCH SHIELD: MUTING ASYNC MEDIA REMOVAL ERROR ─── */}
                 <script dangerouslySetInnerHTML={{ __html: `
                   window.addEventListener('unhandledrejection', function(event) {
                     if (event.reason && event.reason.name === 'AbortError') {
@@ -80,7 +72,15 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
         }
       }
 
-      // 2. YouTube Embed Interceptor (Fixes Error 153 player validation checks)
+      if (domNode instanceof Element && domNode.name === 'img') {
+        if (!domNode.attribs.width || !domNode.attribs.height) {
+          domNode.attribs.width = "800";
+          domNode.attribs.height = "450";
+        }
+        // 💡 FORCE FIX: Removes layout-breaking tailwind classes on the fly
+        domNode.attribs.class = (domNode.attribs.class || "").replace("h-100", "") + " !h-auto";
+      }
+
       if (domNode instanceof Element && domNode.name === 'iframe') {
         const src = domNode.attribs.src || '';
         if (src.includes('youtube.com') || src.includes('youtube-nocookie.com')) {
