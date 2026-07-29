@@ -16,11 +16,11 @@ export const revalidate = false;
 
 // ─── MAIN THREAD JS OPTIMIZATION: LOAD INTERACTIVE CLIENT COMPONENT PACKAGES DEFERRED ───
 const NewsletterForm = nextDynamic(() => import('../../components/NewsletterForm'), {
-  ssr: false, 
+  ssr: true, 
 });
 
 const SocialShare = nextDynamic(() => import('../../components/SocialShare'), {
-  ssr: false,
+  ssr: true,
 });
 
 // ─── HYDRATION-SAFE STATIC DATE FORMATTER (Option 1: Fixed UTC layout presentation) ───
