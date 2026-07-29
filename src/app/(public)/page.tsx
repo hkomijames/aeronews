@@ -48,11 +48,11 @@ export default async function PublicHomePage() {
       <h2 className="text-2xl font-black tracking-tight flex items-center gap-2">
         Featured Coverage <span className="text-base">.</span>
       </h2>
-      <p className="text-xs text-slate-400 mt-0.5 font-medium">Latest breaking dispatches curated straight from our news desks.</p>
+      <p className="text-xs text-slate-300 mt-0.5 font-medium">Latest breaking dispatches curated straight from our news desks.</p>
     </div>
 
     {topLatestArticles.length === 0 ? (
-      <div className="h-50 flex items-center justify-center text-slate-500 text-xs italic">
+      <div className="h-50 flex items-center justify-center text-slate-600 text-xs italic">
         No aviation articles published yet. Use your admin dashboard to create posts.
       </div>
     ) : (
@@ -82,7 +82,7 @@ export default async function PublicHomePage() {
                   {article.title}
                 </Link>
               </h3>
-              <div className="text-[10px] font-bold text-slate-400 group-hover:text-white transition-colors mt-3 block underline underline-offset-4 pointer-events-none">
+              <div className="text-[10px] font-bold text-slate-300 group-hover:text-white transition-colors mt-3 block underline underline-offset-4 pointer-events-none">
                 Read it →
               </div>
             </div>
@@ -126,7 +126,7 @@ export default async function PublicHomePage() {
                     {article.title}
                   </Link>
                 </h3>
-                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
+                <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
                   {article.excerpt}
                 </p>
               </article>
@@ -147,14 +147,14 @@ export default async function PublicHomePage() {
                   />
                 </div>
                 <div>
-                  <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>
+                  <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">{article.category}</span>
                   <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
                     {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
                     <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
                       {article.title}
                     </Link>
                   </h4>
-                  <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{article.excerpt}</p>
+                  <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">{article.excerpt}</p>
                 </div>
               </article>
             ))}
@@ -167,7 +167,7 @@ export default async function PublicHomePage() {
             <h3 className="font-black text-sm text-slate-900 uppercase tracking-wider border-b border-slate-200/60 pb-3 mb-4">Most Read</h3>
             <ol className="flex flex-col gap-4">
               <li className="flex gap-3 items-start">
-                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">01</span>
+                <span className="font-black text-orange-700 text-lg leading-none mt-0.5">01</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
                     Global Airport Infrastructure Spending Surges to Match Next-Gen Architectural Layouts
@@ -175,7 +175,7 @@ export default async function PublicHomePage() {
                 </div>
               </li>
               <li className="flex gap-3 items-start border-t border-slate-200/30 pt-3">
-                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">02</span>
+                <span className="font-black text-orange-700 text-lg leading-none mt-0.5">02</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
                     Autonomous Flight Controls Clear Major Validation Milestones Over Open Water Trials
@@ -220,7 +220,7 @@ export default async function PublicHomePage() {
                       {article.title}
                     </Link>
                   </h3>
-                  <p className="text-xs text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
                     {article.excerpt}
                   </p>
                 </article>
@@ -241,14 +241,14 @@ export default async function PublicHomePage() {
                     />
                   </div>
                   <div>
-                    <span className="text-[9px] font-black text-orange-500 uppercase tracking-widest">{article.category}</span>
+                    <span className="text-[9px] font-black text-orange-600 uppercase tracking-widest">{article.category}</span>
                     <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
                       {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
                       <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
                         {article.title}
                       </Link>
                     </h4>
-                    <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{article.excerpt}</p>
+                    <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">{article.excerpt}</p>
                   </div>
                 </article>
               ))}

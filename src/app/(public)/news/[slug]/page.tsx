@@ -183,11 +183,11 @@ export default async function ArticlePage({ params }: Props) {
                 {article.author.title && (
                   <>
                     <span className="text-xs text-slate-300">|</span>
-                    <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">{article.author.title}</span>
+                    <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">{article.author.title}</span>
                   </>
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-0.5" suppressHydrationWarning>
+              <p className="text-xs text-slate-600 mt-0.5" suppressHydrationWarning>
                 Published: {new Date(article.createdAt).toLocaleString()}
                 {new Date(article.updatedAt).getTime() - new Date(article.createdAt).getTime() > 60000 && (
                   ` | Updated: ${new Date(article.updatedAt).toLocaleString()}`
@@ -216,7 +216,7 @@ export default async function ArticlePage({ params }: Props) {
              prose-video:w-full prose-video:aspect-video prose-video:rounded-2xl prose-video:shadow-md prose-video:bg-slate-950 prose-video:my-8 prose-video:border prose-video:border-slate-100
              prose-figure:my-8 prose-figure:mx-auto prose-figure:text-center prose-figure:w-full
              prose-img:rounded-2xl prose-img:shadow-sm
-             prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
+             prose-figcaption:text-xs prose-figcaption:text-slate-600 prose-figcaption:mt-3 prose-figcaption:italic prose-figcaption:font-sans prose-figcaption:tracking-wide prose-figcaption:text-center"
 >
   {/* ts-expect-error Async Server Component */}
   <RenderArticleContent html={article.content} />
@@ -269,13 +269,13 @@ export default async function ArticlePage({ params }: Props) {
             <h3 className="font-black text-xs text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3 mb-4">Most Read Coverage</h3>
             <ol className="flex flex-col gap-4">
               <li className="flex gap-3 items-start">
-                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">01</span>
+                <span className="font-black text-orange-700 text-lg leading-none mt-0.5">01</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">Global Airport Infrastructure Spending Surges to Match Next-Gen Architectural Layouts</h4>
                 </div>
               </li>
               <li className="flex gap-3 items-start border-t border-slate-200/40 pt-3">
-                <span className="font-black text-orange-600 text-lg leading-none mt-0.5">02</span>
+                <span className="font-black text-orange-700 text-lg leading-none mt-0.5">02</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">Autonomous Flight Controls Clear Major Validation Milestones Over Open Water Trials</h4>
                 </div>
@@ -319,12 +319,12 @@ export default async function ArticlePage({ params }: Props) {
                         {item.title}
                       </Link>
                     </h4>
-                    <p className="text-xs text-slate-500 line-clamp-2 mt-2 leading-relaxed">
+                    <p className="text-xs text-slate-600 line-clamp-2 mt-2 leading-relaxed">
                       {item.excerpt}
                     </p>
                   </div>
                   
-                  <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-400">
+                  <div className="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-[11px] text-slate-600">
                     <span className="font-bold text-slate-700">{item.author.name}</span>
                     <span>{new Date(item.createdAt).toLocaleDateString()}</span>
                   </div>

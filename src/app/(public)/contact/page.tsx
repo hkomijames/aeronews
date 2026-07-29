@@ -10,7 +10,7 @@ export default function ContactPage() {
         <h1 className="text-3xl font-black tracking-tight text-slate-950 mb-4">
           Connect With Aero Saga
         </h1>
-        <p className="text-xs text-slate-500 leading-relaxed mb-8">
+        <p className="text-xs text-slate-600 leading-relaxed mb-8">
           Have an aviation tip, corporate inquiry, or editorial feedback? Our channels are opening soon.
         </p>
         
@@ -18,7 +18,7 @@ export default function ContactPage() {
         <div className="bg-slate-50/60 border border-slate-100 p-6 rounded-xl text-left mb-8">
           <div className="space-y-4 text-xs font-medium">
             <div>
-              <span className="text-slate-400 block mb-0.5">Editorial Inquiries</span>
+              <span className="text-slate-600 block mb-0.5">Editorial Inquiries</span>
               <p className="text-slate-800 font-bold">webmaster@aerosaga.com</p>
             </div>
           </div>
@@ -26,7 +26,7 @@ export default function ContactPage() {
 
         <Link 
           href="/" 
-          className="text-xs font-bold text-slate-500 hover:text-slate-950 transition-colors underline underline-offset-4"
+          className="text-xs font-bold text-slate-700 hover:text-slate-950 transition-colors underline underline-offset-4"
         >
           Back to Home Page
         </Link>

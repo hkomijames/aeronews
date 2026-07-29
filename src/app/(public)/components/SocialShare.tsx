@@ -39,7 +39,7 @@ export default function SocialShare({ title, slug }: SocialShareProps) {
   };
   return (
     <div className="flex flex-wrap items-center gap-2.5 py-4 border-y border-slate-100 my-6 font-sans">
-      <span className="text-[11px] font-black uppercase text-slate-400 tracking-widest mr-1">
+      <span className="text-[11px] font-black uppercase text-slate-700 tracking-widest mr-1">
         Share Coverage:
       </span>
 

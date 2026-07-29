@@ -40,7 +40,7 @@ export default function NewsletterForm() {
     <div className="bg-linear-to-br from-slate-900 to-slate-950 p-6 rounded-xl text-white shadow-lg border border-slate-800">
       <span className="text-xl">✉️</span>
       <h3 className="font-extrabold text-base mt-2">Aviation Newsletter</h3>
-      <p className="text-xs text-slate-400 mt-1 leading-relaxed mb-4">
+      <p className="text-xs text-slate-300 mt-1 leading-relaxed mb-4">
         The latest aviation scoops, delivered straight to your inbox.
       </p>
 
@@ -59,12 +59,12 @@ export default function NewsletterForm() {
             placeholder="Enter your email..." 
             required 
             disabled={status === 'loading'}
-            className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-orange-500 disabled:opacity-50" 
+            className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-orange-500 disabled:opacity-50" 
           />
           <button 
             type="submit" 
             disabled={status === 'loading'}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs py-2 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-slate-800 disabled:text-slate-500"
+            className="w-full bg-orange-700 hover:bg-orange-800 text-white font-bold text-xs py-2 rounded-lg transition-colors flex items-center justify-center gap-2 disabled:bg-slate-800 disabled:text-slate-400"
           >
             {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
           </button>

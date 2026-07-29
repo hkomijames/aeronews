@@ -76,7 +76,7 @@ export default function PaginatedArticlesGrid({ initialArticles, categoryName }:
                     {article.title}
                   </Link>
                 </h2>
-                <p className="text-xs text-slate-400 line-clamp-3 mt-2 leading-relaxed">
+                <p className="text-xs text-slate-300 line-clamp-3 mt-2 leading-relaxed">
                   {article.excerpt}
                 </p>
               </div>
@@ -91,11 +91,11 @@ export default function PaginatedArticlesGrid({ initialArticles, categoryName }:
                     className="w-8 h-8 rounded-full bg-slate-800 object-cover border border-slate-700"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500">AV</div>
+                  <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-400">AV</div>
                 )}
                 <div>
                   <span className="text-xs font-bold text-slate-300 block">{article.author.name}</span>
-                  <span className="text-[10px] text-slate-500 block mt-0.5">{article.author.title || 'Staff Writer'}</span>
+                  <span className="text-[10px] text-slate-400 block mt-0.5">{article.author.title || 'Staff Writer'}</span>
                 </div>
               </div>
             </div>

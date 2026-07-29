@@ -117,7 +117,7 @@ export default async function DynamicCategoryPage({ params }: CategoryPageProps)
 
       <div className="max-w-[80%] mx-auto">
         <header className="mb-12 border-b border-slate-800 pb-6">
-          <span className="text-xs font-bold uppercase tracking-widest text-orange-500">Aviation Index Feed</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-orange-600">Aviation Index Feed</span>
           <h1 className="text-4xl font-black tracking-tight text-white mt-1">{formattedCategoryTitle} Desk</h1>
         </header>
 

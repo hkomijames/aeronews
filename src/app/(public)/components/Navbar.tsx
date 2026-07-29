@@ -34,7 +34,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`relative py-2 font-serif text-base font-semibold tracking-wide transition-colors duration-200 ${
-                  isActive ? 'text-slate-950' : 'text-slate-500 hover:text-slate-800'
+                  isActive ? 'text-slate-950' : 'text-slate-700 hover:text-slate-900'
                 }`}
               >
                 {link.name}
@@ -87,7 +87,7 @@ export default function Navbar() {
                 href={link.href}
                 onClick={() => setIsOpen(false)} // Auto-closes panel on route switch
                 className={`flex items-center justify-between py-2 font-serif text-lg font-bold ${
-                  isActive ? 'text-orange-600 border-l-4 border-orange-600 pl-3' : 'text-slate-600 pl-3'
+                  isActive ? 'text-orange-700 border-l-4 border-orange-700 pl-3' : 'text-slate-700 pl-3'
                 }`}
               >
                 {link.name}
