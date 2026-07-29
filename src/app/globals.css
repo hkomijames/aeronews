@@ -31,8 +31,21 @@ body {
 }
 
 .article-content {
-  font-size: clamp(1rem, calc(0.95rem + 0.25vw), 1.125rem);
-  line-height: 1.6;
+  /* ─── INCREASED BASELINE RESPONSIVE SCALE SIZES ─── */
+  font-size: clamp(1.125rem, calc(1.05rem + 0.35vw), 1.25rem); /* Scaled up baseline from 16px-18px to 18px-20px */
+  line-height: 1.75; /* Increased line spacing slightly to accommodate larger letters smoothly */
+  
+  /* ─── FORCED DEEP RICH BLACK ACROSS STACK NODES ─── */
+  color: #000000 !important;
+}
+
+/* Ensure all nested paragraphs and headings match the deep black requirement */
+.article-content p,
+.article-content h1,
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  color: #000000 !important;
 }
 
 /* Container link to ensure proper alignment */

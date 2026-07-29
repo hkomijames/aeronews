@@ -197,16 +197,17 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           {article.imageUrl && (
-            <div className="w-full h-100 bg-slate-50 rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
-              <img 
-                src={article.imageUrl} 
-                alt={article.title}
-                loading="eager" // Main feature cover image should load immediately for performance
-                decoding="async"
-                className="w-full h-100 object-fit rounded-2xl"
-              />
-            </div>
-          )}
+  <div className="w-full h-100 bg-slate-50 rounded-2xl overflow-hidden mb-10 shadow-sm border border-slate-100">
+    <img 
+      src={article.imageUrl} 
+      alt={article.title}
+      loading="eager" // Main feature cover image should load immediately for performance
+      decoding="async"
+      // ─── FIXED: Changed h-100 to h-full and object-fit to object-cover ───
+      className="w-full h-full object-cover object-center rounded-2xl"
+    />
+  </div>
+)}
           {/* ─── OPTIMIZED RENDERING CONTAINER: FORCES INJECTED PARAGRAPHS TO RENDER SPACING ─── */}
           <div 
   className="prose prose-slate max-w-none text-slate-800 leading-relaxed article-content font-serif tracking-normal
