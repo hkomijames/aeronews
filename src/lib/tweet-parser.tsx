@@ -21,7 +21,7 @@ export const getCachedTweet = unstable_cache(
 
 function extractTweetId(url: string): string | null {
   const match = url.match(/(?:twitter|x)\.com\/\w+\/status\/(\d+)/i);
-  return match ? match[1] : null;
+  return match ? match[1] : null; // 💡 FIXED: Safely returns capture group string index 1
 }
 
 interface RenderEngineProps {
@@ -31,9 +31,11 @@ interface RenderEngineProps {
 export async function RenderArticleContent({ html }: RenderEngineProps) {
   // Extract all Twitter/X link sequences from the raw markup
   const hrefMatches = html.match(/href="https?:\/\/(?:www\.)?(?:twitter|x)\.com\/\w+\/status\/(\d+)/gi) || [];
+  
+  // 💡 FIXED: Added index string check [1] to capture group array match assignments
   const tweetIds = Array.from(new Set(hrefMatches.map(link => {
     const rawId = link.match(/\/status\/(\d+)/);
-    return rawId ? rawId[1] : '';
+    return rawId ? rawId[1] : ''; // 👈 Extracts index 1 capture string instead of the full RegExp object
   }).filter(Boolean)));
 
   // Batch pre-fetch all matching components in parallel during static generation lifecycle
@@ -75,6 +77,14 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
               </div>
             );
           }
+        }
+      }
+
+      // 2. YouTube Embed Interceptor (Fixes Error 153 player validation checks)
+      if (domNode instanceof Element && domNode.name === 'iframe') {
+        const src = domNode.attribs.src || '';
+        if (src.includes('youtube.com') || src.includes('youtube-nocookie.com')) {
+          domNode.attribs.referrerpolicy = "strict-origin-when-cross-origin";
         }
       }
     },

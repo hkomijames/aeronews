@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: `${article.title} | Aero Saga`,
     description: article.excerpt || `Read the full aviation dispatch: ${article.title}`,
 
-    referrer: 'no-referrer',
+    referrer: 'strict-origin-when-cross-origin',
     // ✨ Google News Bot explicit crawling configuration signals
     robots: {
       index: true,
