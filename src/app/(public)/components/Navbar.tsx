@@ -10,9 +10,9 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'Airplane News', href: '/category/airplane-news' }, // Maps directly to [category]
-    { name: 'Airport News', href: '/category/airport-news' },   // Maps directly to [category]
+    { name: 'Home', href: '/', prefetch: false }, // 👈 BLOCKS BACKGROUND PREFETCH FOR THE HOME CARD IMAGES
+    { name: 'Airplane News', href: '/category/airplane-news', prefetch: true }, 
+    { name: 'Airport News', href: '/category/airport-news', prefetch: true },   
   ];
 
   return (
@@ -21,7 +21,8 @@ export default function Navbar() {
       <div className="max-w-[80%] mx-auto flex items-center justify-between py-2 px-2">
         
         {/* Brand Logo Wrapper */}
-        <Link href="/" className="flex items-center" aria-label="Aero Saga Home">
+        {/* 👈 BLOCKS BACKGROUND PREFETCH ON LOGO CLICK AS WELL */}
+        <Link href="/" prefetch={false} className="flex items-center" aria-label="Aero Saga Home">
           <AeroSagaLogo />
         </Link>
 
@@ -33,6 +34,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={link.prefetch} // 👈 FORCES DYNAMIC SELECTION MATCHES FOR THE LINKS LOOP
                 className={`relative py-2 font-serif text-base font-semibold tracking-wide transition-colors duration-200 ${
                   isActive ? 'text-slate-950' : 'text-slate-700 hover:text-slate-900'
                 }`}
@@ -85,6 +87,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                prefetch={link.prefetch} // 👈 APPLIES THE PREFETCH ADJUSTMENT ON MOBILE TOO
                 onClick={() => setIsOpen(false)} // Auto-closes panel on route switch
                 className={`flex items-center justify-between py-2 font-serif text-lg font-bold ${
                   isActive ? 'text-orange-700 border-l-4 border-orange-700 pl-3' : 'text-slate-700 pl-3'

@@ -201,8 +201,9 @@ export default async function ArticlePage({ params }: Props) {
               <img 
                 src={article.imageUrl} 
                 alt={article.title}
+                loading="eager" // Main feature cover image should load immediately for performance
                 decoding="async"
-                className="w-full h-full object-contain object-center rounded-2xl"
+                className="w-full h-100 object-fit rounded-2xl"
               />
             </div>
           )}

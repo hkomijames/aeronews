@@ -6,9 +6,12 @@ export default function Footer() {
       <div className="container mx-auto px-4 max-w-6xl">
         {/* Navigation Links Grid */}
         <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-8 text-sm font-medium tracking-wide">
-          <Link href="/" className="hover:text-white transition-colors duration-200">
+          
+          {/* ─── FIXED: BLOCKS BACKGROUND PREFETCH FOR THE HOMEPAGE LCP IMAGES FROM THE FOOTER ─── */}
+          <Link href="/" prefetch={false} className="hover:text-white transition-colors duration-200">
             Home
           </Link>
+          
           <Link href="/about" className="hover:text-white transition-colors duration-200">
             About
           </Link>
