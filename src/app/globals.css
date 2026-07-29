@@ -98,30 +98,31 @@ nav {
   content: "";
 }
 
-/* ─── OPTIMIZED NEWS MEDIA RULES (Eliminates CLS Layout Shift) ─── */
-.article-content img {
+/* ─── OPTIMIZED NEWS MEDIA RULES (Isolating Native layout bounds) ─── */
+/* 💡 FIXED: Isolates and targets ONLY standard body images; leaves Twitter assets untouched */
+.article-content img:not(.react-tweet-theme img) {
   display: block;
   width: 100%;
   max-width: 100%;
-  height: auto;
+  height: auto !important; /* 👈 Restores natural un-cropped portrait/landscape full heights */
   margin-left: auto;
   margin-right: auto;
-  
-  /* ─── FIXED: RESERVES A WIDESCREEN ASPECT RATIO FOR IMAGES MISSING WIDTH/HEIGHT IN HTML ─── */
-  aspect-ratio: 16 / 9; 
-  object-fit: cover; /* Ensures images scale cleanly into the 16:9 fallback block without distorting */
 }
 
 /* Maintain your custom image-size attributes explicitly without overwriting native calculations */
-.article-content img[data-size="small"] {
-  max-width: 320px; 
-}
-
-.article-content img[data-size="medium"] {
-  max-width: 640px; 
-}
-
+.article-content img[data-size="small"] { max-width: 320px; }
+.article-content img[data-size="medium"] { max-width: 640px; }
 .article-content img[data-size="large"],
 .article-content img:not([data-size]) {
   max-width: 48rem; 
+}
+
+/* ─── TWITTER VIDEO RESIZER HOOK ─── */
+/* 💡 FIXED: Prevents inherited container styles from stretching embedded videos vertically */
+.react-tweet-theme video {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: auto !important; /* 👈 Strips any forced height rules causing the stretch */
+  aspect-ratio: auto !important; /* 👈 Automatically adapts layout boxes to 16:9 widescreen or 9:16 portrait video clips */
+  object-fit: contain !important;
 }
