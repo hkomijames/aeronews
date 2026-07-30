@@ -230,7 +230,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           type="button"
           disabled={isAnyUploading}
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`px-2.5 py-1 text-lg font-bold rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-blue-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-slate-200'}`}
+          className={`px-2.5 py-1 text-xs font-bold rounded ${editor.isActive('heading', { level: 2 }) ? 'bg-blue-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-slate-200'}`}
         >
           H2
         </button>
