@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef } from 'react';
-import imageCompression from 'browser-image-compression';
-import { upload } from '@vercel/blob/client'; // Import Vercel's secure direct-upload tool
+import { upload } from '@vercel/blob/client';
+import { compressImageForUpload } from '@/lib/optimize-image';
 
 interface MediaSelectorProps {
   label: string;
@@ -23,28 +23,8 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
     const originalFile = files[0];
 
     try {
-      let fileToUpload: File = originalFile;
+      const fileToUpload = await compressImageForUpload(originalFile);
 
-      // Only run optimization if the file is an image
-      if (originalFile.type.startsWith('image/')) {
-        const options = {
-          maxSizeMB: 0.2,          // Forces target file size under 200KB
-          maxWidthOrHeight: 1200,  // Automatically resizes massive width bounds
-          useWebWorker: true,
-          fileType: 'image/webp'   // Changes format container type to optimized WebP
-        };
-
-        // 1. Run local client device compression engine
-        const compressedBlob = await imageCompression(originalFile, options);
-
-        // 2. Wrap blob container into a virtual File structure with .webp suffix extension
-        const cleanName = originalFile.name.replace(/\.[^/.]+$/, "");
-        fileToUpload = new File([compressedBlob], `${cleanName}.webp`, {
-          type: 'image/webp',
-        });
-      }
-
-      // 3. Directly stream the file from the browser straight to Vercel Blob cloud bucket
       const newBlob = await upload(fileToUpload.name, fileToUpload, {
         access: 'public',
         handleUploadUrl: '/api/media',

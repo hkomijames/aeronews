@@ -6,6 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
+import { compressImageForUpload } from '@/lib/optimize-image';
 
 // Custom Image Extension supporting Blogger-style Sizing Parameters
 const CustomImage = Image.extend({
@@ -164,7 +165,8 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         setImageLoading(true);
         setUploadProgress(15);
 
-        const newBlob = await upload(file.name, file, {
+        const optimizedFile = await compressImageForUpload(file);
+        const newBlob = await upload(optimizedFile.name, optimizedFile, {
           access: 'public',
           handleUploadUrl: '/api/media',
         });
