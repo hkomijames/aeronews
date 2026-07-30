@@ -43,6 +43,17 @@ body {
   color: #000000;
 }
 
+.article-content h2,
+.article-content h3,
+.article-content h4 {
+  font-weight: bold;
+}
+
+/* Unique fluid sizes */
+.article-content h2 { font-size: clamp(2rem, 4vw + 1rem, 3.5rem); }
+.article-content h3 { font-size: clamp(1.75rem, 3vw + 1rem, 2.75rem); }
+.article-content h4 { font-size: clamp(1.5rem, 2vw + 1rem, 2.25rem); }
+
 /* ─── OPTIMIZED HYPERLINK STYLING ENGINE (Excludes Twitter/X Embeds) ─── */
 .article-content a:not(.react-tweet-theme a) {
   color: #C2410C;
