@@ -17,6 +17,7 @@ interface ModalProps {
 export default function EditArticleModal({ article }: ModalProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [loading, setLoading] = useState(false);
+  const [editorSaved, setEditorSaved] = useState(false);
   const [title, setTitle] = useState(article.title);
   const [category, setCategory] = useState(article.category);
   const [excerpt, setExcerpt] = useState(article.excerpt || '');
@@ -30,6 +31,7 @@ export default function EditArticleModal({ article }: ModalProps) {
     // Dispatches complete data sync block including content mutations
     const res = await updateArticle(article.id, { title, category, excerpt, content });
     if (res.success) {
+      setEditorSaved(true);
       dialogRef.current?.close();
     } else {
       alert(res.error || 'Update failed.');
@@ -93,7 +95,8 @@ export default function EditArticleModal({ article }: ModalProps) {
             </label>
             <RichTextEditor 
               content={content} 
-              onChange={(htmlOutputString) => setContent(htmlOutputString)} 
+              onChange={(htmlOutputString) => setContent(htmlOutputString)}
+              isSaved={editorSaved}
             />
           </div>
 

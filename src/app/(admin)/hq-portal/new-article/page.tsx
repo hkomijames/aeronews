@@ -10,6 +10,7 @@ export default function NewArticlePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [editorSaved, setEditorSaved] = useState(false);
 
   // Form Field parameters mapping directly to your Prisma Schema
   const [title, setTitle] = useState('');
@@ -36,6 +37,7 @@ export default function NewArticlePage() {
     setLoading(false);
 
     if (result.success) {
+      setEditorSaved(true);
       alert('News article deployed and indexing parameters optimized!');
       router.push('/hq-portal');
     } else {
@@ -71,7 +73,7 @@ export default function NewArticlePage() {
 
             <div>
               <label className="block text-xs font-bold uppercase text-slate-400 mb-1">Article Body Content</label>
-              <RichTextEditor content={content} onChange={setContent} />
+              <RichTextEditor content={content} onChange={setContent} isSaved={editorSaved} />
             </div>
           </div>
 
