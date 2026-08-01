@@ -49,6 +49,19 @@ body {
   font-weight: bold;
 }
 
+.article-content blockquote {
+  border-left: 4px solid #C2410C;
+  padding-left: 1rem;
+  margin-left: 0;
+  color: #555555;
+  font-style: italic;
+}
+
+.article-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+}
+
 /* Unique fluid sizes */
 .article-content h2 { 
   font-size: clamp(1.625rem, 2.5vw + 1rem, 2.5rem); 
