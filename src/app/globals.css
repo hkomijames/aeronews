@@ -62,20 +62,6 @@ body {
   padding-left: 1.5rem;
 }
 
-.article-content ul li,
-.article-content ol li {
-  display: list-item;
-  margin-bottom: 0.25rem; /* Adds clean spacing between bullet points */
-}
-
-/* 2. Strip the block properties from the paragraph inside it */
-.article-content ul li p,
-.article-content ol li p {
-  display: inline !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
 /* Unique fluid sizes */
 .article-content h2 { 
   font-size: clamp(1.625rem, 2.5vw + 1rem, 2.5rem); 
