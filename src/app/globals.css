@@ -62,7 +62,7 @@ body {
   padding-left: 1.5rem;
 }
 
-.article-content li > p {
+.article-content ul li p{
   display: inline;
   margin: 0;
 }
