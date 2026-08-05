@@ -33,6 +33,9 @@ interface EditorProps {
 export default function RichTextEditor({ content, onChange, isSaved = false }: EditorProps) {
   const [imageLoading, setImageLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [linkFormOpen, setLinkFormOpen] = useState(false);
+  const [linkUrlInput, setLinkUrlInput] = useState('');
+  const [linkNofollow, setLinkNofollow] = useState(false);
 
   const uploadedUrlsRef = useRef<string[]>([]);
   const isSavedRef = useRef(isSaved);
@@ -69,6 +72,41 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     } catch (err) {
       console.error("Failed to execute live asset deletion callback:", err);
     }
+  };
+
+  const getLinkAttributes = (href: string, nofollow: boolean) => {
+    const normalizedHref = href.trim();
+    if (!normalizedHref) {
+      return { href: '' };
+    }
+
+    let target: string | undefined;
+    let rel: string | undefined;
+
+    try {
+      const url = new URL(normalizedHref, window.location.origin);
+      const isExternal = (url.protocol === 'http:' || url.protocol === 'https:') &&
+        url.origin !== window.location.origin;
+
+      if (isExternal) {
+        target = '_blank';
+        const relValues = ['noopener', 'noreferrer'];
+        if (nofollow) relValues.push('nofollow');
+        rel = relValues.join(' ');
+      } else if (nofollow) {
+        rel = 'nofollow';
+      }
+    } catch {
+      if (nofollow) {
+        rel = 'nofollow';
+      }
+    }
+
+    return {
+      href: normalizedHref,
+      ...(target ? { target } : {}),
+      ...(rel ? { rel } : {}),
+    };
   };
 
     const editor = useEditor({
@@ -141,8 +179,38 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
   if (!editor) return null;
 
   const addLink = () => {
-    const url = window.prompt('Enter Hyperlink URL:');
-    if (url) editor.chain().focus().setLink({ href: url }).run();
+    if (linkFormOpen) {
+      setLinkFormOpen(false);
+      return;
+    }
+
+    const existingLink = (editor.getAttributes('link').href as string | undefined) || '';
+    const existingRel = (editor.getAttributes('link').rel as string | undefined) || '';
+
+    setLinkUrlInput(existingLink);
+    setLinkNofollow(existingRel.includes('nofollow'));
+    setLinkFormOpen(true);
+  };
+
+  const applyLink = () => {
+    const trimmedUrl = linkUrlInput.trim();
+    if (!trimmedUrl) return;
+
+    editor.chain()
+      .focus()
+      .extendMarkRange('link')
+      .setLink(getLinkAttributes(trimmedUrl, linkNofollow))
+      .run();
+
+    setLinkFormOpen(false);
+    setLinkUrlInput('');
+    setLinkNofollow(false);
+  };
+
+  const cancelLinkForm = () => {
+    setLinkFormOpen(false);
+    setLinkUrlInput('');
+    setLinkNofollow(false);
   };
 
   const addImageLocally = () => {
@@ -271,6 +339,46 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         >
           🔗 Link
         </button>
+        {linkFormOpen && (
+          <div className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/90 p-2 shadow-lg">
+            <input
+              type="url"
+              value={linkUrlInput}
+              onChange={(event) => setLinkUrlInput(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') {
+                  event.preventDefault();
+                  applyLink();
+                }
+              }}
+              placeholder="https://example.com"
+              className="min-w-[220px] rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 outline-none focus:border-blue-500"
+            />
+            <label className="flex items-center gap-1 text-xs text-slate-400">
+              <input
+                type="checkbox"
+                checked={linkNofollow}
+                onChange={(event) => setLinkNofollow(event.target.checked)}
+                className="h-3.5 w-3.5 rounded border-slate-700 bg-slate-900"
+              />
+              nofollow
+            </label>
+            <button
+              type="button"
+              onClick={applyLink}
+              className="rounded bg-blue-600 px-2 py-1 text-[11px] font-semibold text-white"
+            >
+              Apply
+            </button>
+            <button
+              type="button"
+              onClick={cancelLinkForm}
+              className="rounded bg-slate-800 px-2 py-1 text-[11px] font-semibold text-slate-300"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
         <button
           type="button"
           disabled={isAnyUploading}

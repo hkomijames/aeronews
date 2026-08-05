@@ -101,10 +101,6 @@ export default async function PublicHomePage() {
 
       {/* ─── 2. AIRPLANE NEWS SECTION (2 Grid Cards + 6 List Rows + Sidebar Right) ─── */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
-        
-<span className="hidden" aria-hidden="true">
-        Impact-Site-Verification: f41d32d6-6600-42d4-90ae-743d7d8dc5ed
-      </span>
 
         {/* LEFT COLUMN: AIRPLANE NEWS CONTENT CLUSTER */}
         <div className="lg:col-span-2">
