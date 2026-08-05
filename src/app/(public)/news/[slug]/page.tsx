@@ -6,6 +6,7 @@ import { cache } from 'react'; // ─── IMPORT NATIVE REACT CACHE UTILITY �
 import { RenderArticleContent } from '@/lib/tweet-parser';
 import nextDynamic from 'next/dynamic';
 import MostReadList from '../../components/MostReadList';
+import AirModelAffiliate from '../../components/AirModelAffiliate';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -241,6 +242,7 @@ export default async function ArticlePage({ params }: Props) {
           </div>
 
           <SocialShare title={article.title} slug={article.slug} />
+
           {article.author.bio && (
             <footer className="mt-6 bg-slate-50 p-6 rounded-2xl border border-slate-100 flex flex-col gap-3 font-sans">
               <h2 className="font-black text-xs uppercase tracking-widest text-blue-600">About the Author</h2>
@@ -277,6 +279,10 @@ export default async function ArticlePage({ params }: Props) {
               )}
             </footer>
           )}
+
+          <div className="mt-8">
+            <AirModelAffiliate variant="main" title="AirModel Picks" subtitle="Curated aviation models and display gear." />
+          </div>
         </main>
 
         {/* ─── THE PERSISTENT VISUAL SIDEBAR COMPARTMENT ROW ─── */}
@@ -284,8 +290,8 @@ export default async function ArticlePage({ params }: Props) {
           
           {/* Most Read Component */}
           <MostReadList
-            title="Most Read Coverage"
-            titleClassName="font-black text-xs text-slate-900 uppercase tracking-widest"
+            title="Most Read"
+            titleClassName="font-black text-md text-slate-900 uppercase tracking-widest"
             containerClassName="bg-slate-50/70 border border-slate-100 p-5 rounded-xl"
             items={[
               { title: 'Emergency Landings on Highways in Florida', href: '/news/emergency-landings-on-highways-in-florida' },
@@ -295,6 +301,8 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* Flight Briefing Box */}
           <NewsletterForm />
+
+          <AirModelAffiliate variant="sidebar" title="Sponsored Picks" subtitle="Gear picks for modern travelers." />
         </aside>
 
       </div>

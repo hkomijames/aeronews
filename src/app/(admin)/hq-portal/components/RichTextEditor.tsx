@@ -368,7 +368,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
                 }
               }}
               placeholder="https://example.com"
-              className="min-w-[220px] rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 outline-none focus:border-blue-500"
+              className="min-w-55 rounded border border-slate-700 bg-slate-900 px-2 py-1 text-xs text-slate-200 outline-none focus:border-blue-500"
             />
             <label className="flex items-center gap-1 text-xs text-slate-400">
               <input
