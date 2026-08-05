@@ -29,6 +29,7 @@ export async function POST(request: Request): Promise<NextResponse> {
           ],
           maximumSizeInBytes: 150 * 1024 * 1024, // 150MB file limit
           addRandomSuffix: true, // Vercel handles making filenames unique automatically!
+          cacheControlMaxAge: 31536000,
         };
       },
       onUploadCompleted: async ({ blob }) => {

@@ -40,6 +40,9 @@ export default function MediaSelector({ label, accept, onUploadSuccess, currentU
       alert('Network error or compression crash communicating with file server storage.');
     } finally {
       setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''; // Reset the file input so the same file can be selected again if needed
+      }
     }
   }
 
