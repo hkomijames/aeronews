@@ -2,6 +2,7 @@ import { prisma } from '@/lib/db';
 import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import nextDynamic from 'next/dynamic';
+import MostReadList from './components/MostReadList';
 
 // ─── STOP TIME-BASED CHECKS: CACHE INDEFINITELY AT GLOBAL EDGE CDN ───
 export const dynamic = 'force-static';
@@ -167,31 +168,14 @@ export default async function PublicHomePage() {
         {/* RIGHT COLUMN: SIDEBAR UTILITY INFRASTRUCTURE */}
         <div className="space-y-8">
           {/* Top Ranked Sidebar Component */}
-          <div className="bg-slate-50/60 border border-slate-100 p-5 rounded-xl">
-            <h3 className="font-black text-sm text-slate-900 uppercase tracking-wider border-b border-slate-200/60 pb-3 mb-4">Most Read</h3>
-            <ol className="flex flex-col gap-4">
-              <li className="flex gap-3 items-start">
-                <span className="font-black text-orange-700 text-lg leading-none mt-0.5">01</span>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
-                    <Link href="/news/emergency-landings-on-highways-in-florida" prefetch={false} className="after:absolute after:inset-0">
-                      Emergency Landings on Highways in Florida
-                    </Link>
-                  </h4>
-                </div>
-              </li>
-              <li className="flex gap-3 items-start border-t border-slate-200/30 pt-3">
-                <span className="font-black text-orange-700 text-lg leading-none mt-0.5">02</span>
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
-                    <Link href="/news/she-survived-911-only-to-die-on-flight-587-two-months-later" prefetch={false} className="after:absolute after:inset-0">
-                      She Survived 9/11 Only to Die on Flight 587 Two Months Later
-                    </Link>
-                  </h4>
-                </div>
-              </li>
-            </ol>
-          </div>
+          <MostReadList
+            title="Most Read"
+            titleClassName="font-black text-sm text-slate-900 uppercase tracking-wider"
+            items={[
+              { title: 'Emergency Landings on Highways in Florida', href: '/news/emergency-landings-on-highways-in-florida' },
+              { title: 'She Survived 9/11 Only to Die on Flight 587 Two Months Later', href: '/news/she-survived-911-only-to-die-on-flight-587-two-months-later' },
+            ]}
+          />
 
           {/* Flight Briefing Box Element */}
           <NewsletterForm />
