@@ -132,7 +132,7 @@ export default async function ArticlePage({ params }: Props) {
       NOT: { id: article.id }, 
     },
     orderBy: { createdAt: 'desc' },
-    take: 3, 
+    take: 6, 
     include: { author: true },
   });
 

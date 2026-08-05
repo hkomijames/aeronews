@@ -167,7 +167,7 @@ export default async function PublicHomePage() {
           </div>
         </div>
         {/* RIGHT COLUMN: SIDEBAR UTILITY INFRASTRUCTURE */}
-        <div className="space-y-8">
+        <div className="space-y-6 lg:sticky lg:top-8 self-start">
           {/* Top Ranked Sidebar Component */}
           <MostReadList
             title="Most Read"
