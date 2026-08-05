@@ -174,7 +174,9 @@ export default async function PublicHomePage() {
                 <span className="font-black text-orange-700 text-lg leading-none mt-0.5">01</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
-                    Global Airport Infrastructure Spending Surges to Match Next-Gen Architectural Layouts
+                    <Link href="/news/emergency-landings-on-highways-in-florida" prefetch={false} className="after:absolute after:inset-0">
+                      Emergency Landings on Highways in Florida
+                    </Link>
                   </h4>
                 </div>
               </li>
@@ -182,7 +184,9 @@ export default async function PublicHomePage() {
                 <span className="font-black text-orange-700 text-lg leading-none mt-0.5">02</span>
                 <div>
                   <h4 className="text-xs font-bold text-slate-800 hover:text-blue-600 transition-colors cursor-pointer leading-snug">
-                    Autonomous Flight Controls Clear Major Validation Milestones Over Open Water Trials
+                    <Link href="/news/she-survived-911-only-to-die-on-flight-587-two-months-later" prefetch={false} className="after:absolute after:inset-0">
+                      She Survived 9/11 Only to Die on Flight 587 Two Months Later
+                    </Link>
                   </h4>
                 </div>
               </li>

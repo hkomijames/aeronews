@@ -53,7 +53,9 @@ body {
   border-left: 4px solid #C2410C;
   padding-left: 1rem;
   margin-left: 0;
-  color: #555555;
+  color: black;
+  background-color: #f9f9f9;
+  font-weight: bold;
   font-style: italic;
 }
 
@@ -93,6 +95,40 @@ body {
   outline: 2px solid #C2410C;
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+.article-content button,
+.ProseMirror button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem auto;
+  padding: 0.8rem 1.25rem;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  line-height: 1.2;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.25);
+  cursor: pointer;
+  max-width: 100%;
+  text-align: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.article-content button:hover,
+.ProseMirror button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.3);
+  background: linear-gradient(135deg, #111827 0%, #273449 100%);
+}
+
+.article-content button:focus-visible,
+.ProseMirror button:focus-visible {
+  outline: 2px solid #f8fafc;
+  outline-offset: 2px;
 }
 
 /* Container link to ensure proper alignment */

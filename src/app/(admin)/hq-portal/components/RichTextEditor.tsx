@@ -213,6 +213,14 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     setLinkNofollow(false);
   };
 
+  const insertButtonTag = () => {
+    const { from, to } = editor.state.selection;
+    const selectedText = editor.state.doc.textBetween(from, to, ' ').trim();
+    const buttonLabel = selectedText || 'Button';
+
+    editor.chain().focus().insertContent(`<button type="button">${buttonLabel}</button>`).run();
+  };
+
   const addImageLocally = () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -331,6 +339,14 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         
         <div className="w-px bg-slate-800 mx-1 self-stretch" />
 
+        <button
+          type="button"
+          disabled={isAnyUploading}
+          onClick={insertButtonTag}
+          className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200"
+        >
+          ⬢ Button
+        </button>
         <button
           type="button"
           disabled={isAnyUploading}
