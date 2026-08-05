@@ -101,162 +101,149 @@ export default async function PublicHomePage() {
 </section>
 
 
-      {/* ─── 2. AIRPLANE NEWS SECTION (2 Grid Cards + 6 List Rows + Sidebar Right) ─── */}
-      <main className="max-w-7xl mx-auto px-4 md:px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-10">
+      {/* ─── 2. AIRPLANE + AIRPORT NEWS SECTION ─── */}
+      <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-10">
+          <div className="space-y-12">
+            <section>
+              <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
+                <h2 className="text-xl font-black tracking-tight text-slate-900">Airplane Saga</h2>
+                <Link href="/category/airplane-news" className="text-xs text-blue-600 font-bold hover:underline">
+                  View All Airplane News →
+                </Link>
+              </div>
 
-        {/* LEFT COLUMN: AIRPLANE NEWS CONTENT CLUSTER */}
-        <div className="lg:col-span-2">
-          <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
-            <h2 className="text-xl font-black tracking-tight text-slate-900">Airplane Saga</h2>
-            <Link href="/category/airplane-news" className="text-xs text-blue-600 font-bold hover:underline">
-              View All Airplane News →
-            </Link>
-          </div>
-
-          {/* 2 Primary Grid Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {airplaneGrid.map((article) => (
-              <article key={article.id} className="group relative">
-                <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
-                  <img 
-                    src={article.imageUrl || '/logo.png'} 
-                    alt={article.title} 
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                  />
-                </div>
-                <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
-                <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
-                  <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
-                    {article.title}
-                  </Link>
-                </h3>
-                <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
-                  {article.excerpt}
-                </p>
-              </article>
-            ))}
-          </div>
-
-          {/* 6 Secondary Sub-Row Lists */}
-          <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
-            {airplaneSubList.map((article) => (
-              <article key={article.id} className="flex gap-4 items-center group relative">
-                <div className="w-30 h-24 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
-                  <img 
-                    src={article.imageUrl || '/logo.png'} 
-                    alt={article.title} 
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-contain" 
-                  />
-                </div>
-                <div>
-                  <span className="text-[12px] font-black text-orange-800 uppercase tracking-widest">{article.category}</span>
-                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
-                    {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
-                    <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
-                      {article.title}
-                    </Link>
-                  </h4>
-                  <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">{article.excerpt}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-        {/* RIGHT COLUMN: SIDEBAR UTILITY INFRASTRUCTURE */}
-        <div className="space-y-6 lg:sticky lg:top-8 self-start">
-          {/* Top Ranked Sidebar Component */}
-          <MostReadList
-            title="Most Read"
-            titleClassName="font-black text-sm text-slate-900 uppercase tracking-wider"
-            items={[
-              { title: 'Emergency Landings on Highways in Florida', href: '/news/emergency-landings-on-highways-in-florida' },
-              { title: 'She Survived 9/11 Only to Die on Flight 587 Two Months Later', href: '/news/she-survived-911-only-to-die-on-flight-587-two-months-later' },
-            ]}
-          />
-
-          {/* Flight Briefing Box Element */}
-          <NewsletterForm />
-
-          <AirModelAffiliate
-            variant="sidebar"
-            title="AirModels Picks"
-            subtitle="Curated aviation models and display gear."
-          />
-        </div>
-      </main>
-
-      {/* ─── 3. AIRPORT NEWS SECTION ─── */}
-      <section className="bg-slate-50/30 border-t border-slate-100 py-12">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 grid grid-cols-1 lg:grid-cols-3 gap-10">
-          <div className="lg:col-span-2">
-            <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
-              <h2 className="text-xl font-black tracking-tight text-slate-900">Airport Saga</h2>
-              <Link href="/category/airport-news" className="text-xs text-blue-600 font-bold hover:underline">
-                View All Airport News →
-              </Link>
-            </div>
-
-            {/* 2 Primary Grid Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {airportGrid.map((article) => (
-                <article key={article.id} className="group relative">
-                  <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
-                    <img 
-                      src={article.imageUrl || '/logo.png'} 
-                      alt={article.title} 
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
-                    />
-                  </div>
-                  <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
-                  <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
-                    <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
-                      {article.title}
-                    </Link>
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
-                    {article.excerpt}
-                  </p>
-                </article>
-              ))}
-            </div>
-
-            {/* 6 Secondary Sub-Row Lists */}
-            <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
-              {airportSubList.map((article) => (
-                <article key={article.id} className="flex gap-4 items-center group relative">
-                  <div className="w-30 h-24 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
-                    <img 
-                      src={article.imageUrl || '/logo.png'} 
-                      alt={article.title} 
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full h-full object-contain" 
-                    />
-                  </div>
-                  <div>
-                    <span className="text-[12px] font-black text-orange-800 uppercase tracking-widest">{article.category}</span>
-                    <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
-                      {/* Added prefetch={false} to shield Neon DB from instant hover link scanning cascades */}
-                      <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {airplaneGrid.map((article) => (
+                  <article key={article.id} className="group relative">
+                    <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
+                      <img 
+                        src={article.imageUrl || '/logo.png'} 
+                        alt={article.title} 
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
+                    <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
+                      <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
                         {article.title}
                       </Link>
-                    </h4>
-                    <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">{article.excerpt}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
+                {airplaneSubList.map((article) => (
+                  <article key={article.id} className="flex gap-4 items-center group relative">
+                    <div className="w-30 h-24 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
+                      <img 
+                        src={article.imageUrl || '/logo.png'} 
+                        alt={article.title} 
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-contain" 
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[12px] font-black text-orange-800 uppercase tracking-widest">{article.category}</span>
+                      <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
+                        <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
+                          {article.title}
+                        </Link>
+                      </h4>
+                      <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">{article.excerpt}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-slate-50/30 border-t border-slate-100 pt-12">
+              <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
+                <h2 className="text-xl font-black tracking-tight text-slate-900">Airport Saga</h2>
+                <Link href="/category/airport-news" className="text-xs text-blue-600 font-bold hover:underline">
+                  View All Airport News →
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {airportGrid.map((article) => (
+                  <article key={article.id} className="group relative">
+                    <div className="w-full aspect-video bg-slate-50 rounded-lg overflow-hidden border border-slate-100 mb-3 shadow-sm">
+                      <img 
+                        src={article.imageUrl || '/logo.png'} 
+                        alt={article.title} 
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                      />
+                    </div>
+                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">{article.category}</span>
+                    <h3 className="font-extrabold text-base text-slate-900 mt-1 leading-snug group-hover:text-blue-600 transition-colors">
+                      <Link href={`/news/${article.slug}`} className="after:absolute after:inset-0">
+                        {article.title}
+                      </Link>
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed">
+                      {article.excerpt}
+                    </p>
+                  </article>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-5 border-t border-slate-100 pt-6">
+                {airportSubList.map((article) => (
+                  <article key={article.id} className="flex gap-4 items-center group relative">
+                    <div className="w-30 h-24 bg-slate-50 border border-slate-100 rounded-md overflow-hidden shrink-0">
+                      <img 
+                        src={article.imageUrl || '/logo.png'} 
+                        alt={article.title} 
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-contain" 
+                      />
+                    </div>
+                    <div>
+                      <span className="text-[12px] font-black text-orange-800 uppercase tracking-widest">{article.category}</span>
+                      <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-snug mt-0.5">
+                        <Link href={`/news/${article.slug}`} prefetch={false} className="after:absolute after:inset-0">
+                          {article.title}
+                        </Link>
+                      </h4>
+                      <p className="text-xs text-slate-600 line-clamp-1 mt-0.5">{article.excerpt}</p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
           </div>
-          
-          <div className="hidden lg:block"></div>
+
+          <aside className="space-y-6 lg:sticky lg:top-8 self-start">
+            <MostReadList
+              title="Most Read"
+              titleClassName="font-black text-sm text-slate-900 uppercase tracking-wider"
+              items={[
+                { title: 'Emergency Landings on Highways in Florida', href: '/news/emergency-landings-on-highways-in-florida' },
+                { title: 'She Survived 9/11 Only to Die on Flight 587 Two Months Later', href: '/news/she-survived-911-only-to-die-on-flight-587-two-months-later' },
+              ]}
+            />
+
+            <NewsletterForm />
+
+            <AirModelAffiliate
+              variant="sidebar"
+              title="AirModels Picks"
+              subtitle="Curated aviation models and display gear."
+            />
+          </aside>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
