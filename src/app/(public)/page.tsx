@@ -103,7 +103,7 @@ export default async function PublicHomePage() {
 
       {/* ─── 2. AIRPLANE + AIRPORT NEWS SECTION ─── */}
       <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_minmax(280px,1fr)] gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,2fr)_320px] gap-10 items-start">
           <div className="space-y-12">
             <section>
               <div className="flex justify-between items-baseline border-b border-slate-100 pb-3 mb-6">
@@ -224,7 +224,7 @@ export default async function PublicHomePage() {
             </section>
           </div>
 
-          <aside className="space-y-6 lg:sticky lg:top-8 self-start">
+          <aside className="space-y-6 lg:sticky lg:top-8 h-fit">
             <MostReadList
               title="Most Read"
               titleClassName="font-black text-sm text-slate-900 uppercase tracking-wider"
