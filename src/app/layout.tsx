@@ -57,11 +57,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <script
-    dangerouslySetInnerHTML={{
-      __html: `<meta name="impact-site-verification" value="4c728b87-4b28-41e1-8fb4-7a626637fc27">`
-    }}
-  />
+  
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
