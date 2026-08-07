@@ -3,7 +3,8 @@ import parse, { HTMLReactParserOptions, Element } from 'html-react-parser';
 import { EmbeddedTweet } from 'react-tweet';
 import { getTweet } from 'react-tweet/api';
 import { unstable_cache } from 'next/cache';
-import 'react-tweet/theme.css'; 
+import 'react-tweet/theme.css';
+import { sanitizeLinkAttributesInHtml } from '@/lib/link-attributes';
 
 export const getCachedTweet = unstable_cache(
   async (id: string) => {
@@ -95,5 +96,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
     },
   };
 
-  return <>{parse(html, options)}</>;
+  const sanitizedHtml = sanitizeLinkAttributesInHtml(html, { nofollow: false });
+
+  return <>{parse(sanitizedHtml, options)}</>;
 }

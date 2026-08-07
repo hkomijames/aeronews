@@ -7,6 +7,7 @@ import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
 import { upload } from '@vercel/blob/client';
 import { compressImageForUpload } from '@/lib/optimize-image';
+import { getLinkAttributes, sanitizeLinkAttributesInHtml } from '@/lib/link-attributes';
 
 // Custom Image Extension supporting Blogger-style Sizing Parameters
 const CustomImage = Image.extend({
@@ -74,42 +75,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     }
   };
 
-  const getLinkAttributes = (href: string, nofollow: boolean) => {
-    const normalizedHref = href.trim();
-    if (!normalizedHref) {
-      return { href: '' };
-    }
-
-    let target: string | undefined;
-    let rel: string | undefined;
-
-    try {
-      const url = new URL(normalizedHref, window.location.origin);
-      const isExternal = (url.protocol === 'http:' || url.protocol === 'https:') &&
-        url.origin !== window.location.origin;
-
-      if (isExternal) {
-        target = '_blank';
-        const relValues = ['noopener', 'noreferrer'];
-        if (nofollow) relValues.push('nofollow');
-        rel = relValues.join(' ');
-      } else if (nofollow) {
-        rel = 'nofollow';
-      }
-    } catch {
-      if (nofollow) {
-        rel = 'nofollow';
-      }
-    }
-
-    return {
-      href: normalizedHref,
-      ...(target ? { target } : {}),
-      ...(rel ? { rel } : {}),
-    };
-  };
-
-    const editor = useEditor({
+  const editor = useEditor({
     extensions: [
       // Configure everything inside the unified StarterKit definition block
       StarterKit.configure({ 
@@ -128,9 +94,9 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
         HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } 
       }),
     ],
-    content: content,
+    content: sanitizeLinkAttributesInHtml(content, { nofollow: false }),
     immediatelyRender: false, 
-    onUpdate: ({ editor }) => { onChange(editor.getHTML()); },
+    onUpdate: ({ editor }) => { onChange(sanitizeLinkAttributesInHtml(editor.getHTML(), { nofollow: false })); },
     editorProps: {
       attributes: {
         class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto whitespace-pre-wrap prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
@@ -199,7 +165,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     editor.chain()
       .focus()
       .extendMarkRange('link')
-      .setLink(getLinkAttributes(trimmedUrl, linkNofollow))
+      .setLink(getLinkAttributes(trimmedUrl, { nofollow: linkNofollow }))
       .run();
 
     setLinkFormOpen(false);
