@@ -66,6 +66,7 @@ body {
 
 .article-content li::marker {
   color: #C2410C;
+  font-size: 0.95rem;
 }
 
 /* Unique fluid sizes */
@@ -103,7 +104,8 @@ body {
 
 .article-content button,
 .ProseMirror button {
-  display: inline-flex;
+  display: block;
+  width: fit-content;
   align-items: center;
   justify-content: center;
   margin: 1.5rem auto;
@@ -120,6 +122,18 @@ body {
   max-width: 100%;
   text-align: center;
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.article-content button a,
+.article-content button a:hover,
+.article-content button a:focus-visible,
+.ProseMirror button a,
+.ProseMirror button a:hover,
+.ProseMirror button a:focus-visible {
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-weight: 700;
+  text-underline-offset: 0;
 }
 
 .article-content button:hover,
