@@ -39,6 +39,19 @@ function isSiteLink(href: string, currentOrigin: string) {
   return true;
 }
 
+function shouldNofollow(href: string, options: LinkAttributeOptions = {}) {
+  if (options.nofollow) {
+    return true;
+  }
+
+  try {
+    const normalizedHref = href.trim().toLowerCase();
+    return normalizedHref.includes('amzn.to') || normalizedHref.includes('amazon.com');
+  } catch {
+    return false;
+  }
+}
+
 export function getLinkAttributes(href: string, options: LinkAttributeOptions = {}): LinkAttributeResult {
   const normalizedHref = href.trim();
   if (!normalizedHref) {
@@ -56,7 +69,7 @@ export function getLinkAttributes(href: string, options: LinkAttributeOptions = 
     }
 
     const relValues: string[] = ['noopener'];
-    if (options.nofollow) {
+    if (shouldNofollow(normalizedHref, options)) {
       relValues.push('nofollow');
     }
 
@@ -94,6 +107,14 @@ export function sanitizeLinkAttributesInHtml(html: string, options: LinkAttribut
     const href = hrefMatch[2] || '';
     const attrs = getLinkAttributes(href, options);
 
+    const existingRelMatch = attributes.match(/\brel=(['"])(.*?)\1/i);
+    const existingRel = existingRelMatch ? existingRelMatch[2] : '';
+    const relValues = new Set<string>(existingRel.split(/\s+/).filter(Boolean));
+
+    if (attrs.rel) {
+      attrs.rel.split(/\s+/).filter(Boolean).forEach((value) => relValues.add(value));
+    }
+
     const newAttributes = attributes
       .replace(/\btarget=(['"]).*?\1/i, '')
       .replace(/\brel=(['"]).*?\1/i, '')
@@ -101,7 +122,7 @@ export function sanitizeLinkAttributesInHtml(html: string, options: LinkAttribut
 
     const parts = [
       attrs.target ? `target="${attrs.target}"` : '',
-      attrs.rel ? `rel="${attrs.rel}"` : '',
+      relValues.size > 0 ? `rel="${Array.from(relValues).join(' ')}"` : '',
       newAttributes.trim(),
     ].filter(Boolean);
 
