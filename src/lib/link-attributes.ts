@@ -70,6 +70,16 @@ export function getLinkAttributes(href: string, options: LinkAttributeOptions = 
   }
 }
 
+export function decodeEscapedButtonTags(html: string) {
+  if (!html) {
+    return html;
+  }
+
+  return html
+    .replace(/&lt;button\b([^>]*)&gt;/gi, (_match, attributes) => `<button${attributes}>`)
+    .replace(/&lt;\/button&gt;/gi, '</button>');
+}
+
 export function sanitizeLinkAttributesInHtml(html: string, options: LinkAttributeOptions = {}) {
   if (!html) {
     return html;

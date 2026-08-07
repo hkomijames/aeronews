@@ -5,9 +5,38 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
+import { Node, mergeAttributes } from '@tiptap/core';
 import { upload } from '@vercel/blob/client';
 import { compressImageForUpload } from '@/lib/optimize-image';
-import { getLinkAttributes, sanitizeLinkAttributesInHtml } from '@/lib/link-attributes';
+import { decodeEscapedButtonTags, getLinkAttributes, sanitizeLinkAttributesInHtml } from '@/lib/link-attributes';
+
+const ButtonNode = Node.create({
+  name: 'buttonNode',
+  group: 'inline',
+  content: 'inline*',
+  inline: true,
+  draggable: false,
+  selectable: true,
+
+  addAttributes() {
+    return {
+      type: {
+        default: 'button',
+      },
+      class: {
+        default: null,
+      },
+    };
+  },
+
+  parseHTML() {
+    return [{ tag: 'button' }];
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['button', mergeAttributes(HTMLAttributes), 0];
+  },
+});
 
 // Custom Image Extension supporting Blogger-style Sizing Parameters
 const CustomImage = Image.extend({
@@ -90,13 +119,18 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       CustomImage.configure({ 
         HTMLAttributes: { class: 'rounded-xl max-h-[400px] object-cover mt-6 mx-auto shadow-md transition-all' } 
       }),
+      ButtonNode.configure({
+        HTMLAttributes: {
+          class: 'inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
+        },
+      }),
       Youtube.configure({ 
         HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } 
       }),
     ],
-    content: sanitizeLinkAttributesInHtml(content, { nofollow: false }),
+    content: sanitizeLinkAttributesInHtml(decodeEscapedButtonTags(content), { nofollow: false }),
     immediatelyRender: false, 
-    onUpdate: ({ editor }) => { onChange(sanitizeLinkAttributesInHtml(editor.getHTML(), { nofollow: false })); },
+    onUpdate: ({ editor }) => { onChange(sanitizeLinkAttributesInHtml(decodeEscapedButtonTags(editor.getHTML()), { nofollow: false })); },
     editorProps: {
       attributes: {
         class: 'prose prose-invert max-w-none min-h-[350px] bg-slate-950 border border-slate-800 rounded-b-xl p-4 focus:outline-none focus:border-slate-700 text-slate-200 overflow-y-auto whitespace-pre-wrap prose-p:my-4 prose-p:min-h-[1.5rem] prose-br:before:content-none prose-figure:my-6 prose-figure:text-center prose-img:rounded-xl prose-img:max-h-[400px] prose-img:object-cover prose-img:mx-auto prose-img:shadow-md prose-figcaption:text-xs prose-figcaption:text-slate-400 prose-figcaption:mt-2 prose-figcaption:italic prose-figcaption:font-sans',
