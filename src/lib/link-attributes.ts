@@ -118,7 +118,7 @@ export function sanitizeLinkAttributesInHtml(html: string, options: LinkAttribut
     if (attrs.target) {
       const existingRelMatch = linkAttributes.match(/\brel=(['"])(.*?)\1/i);
       const existingRel = existingRelMatch ? existingRelMatch[2] : '';
-      existingRel.split(/\s+/).filter(Boolean).forEach((value) => relValues.add(value));
+      existingRel.split(/\s+/).filter(Boolean).forEach((value: string) => relValues.add(value));
     }
 
     if (attrs.rel) {
@@ -162,7 +162,7 @@ export function sanitizeLinkAttributesInHtml(html: string, options: LinkAttribut
     if (attrs.target) {
       const existingRelMatch = attributes.match(/\brel=(['"])(.*?)\1/i);
       const existingRel = existingRelMatch ? existingRelMatch[2] : '';
-      existingRel.split(/\s+/).filter(Boolean).forEach((value) => relValues.add(value));
+      existingRel.split(/\s+/).filter(Boolean).forEach((value: string) => relValues.add(value));
     }
 
     if (attrs.rel) {
