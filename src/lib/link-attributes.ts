@@ -129,8 +129,8 @@ export function sanitizeLinkAttributesInHtml(html: string, options: LinkAttribut
     const buttonClassMatch = buttonAttributes.match(/\bclass=(['"])(.*?)\1/i);
     const linkClassMatch = linkAttributes.match(/\bclass=(['"])(.*?)\1/i);
 
-    [buttonClassMatch?.[2], linkClassMatch?.[2]].filter(Boolean).forEach((className) => {
-      className.split(/\s+/).filter(Boolean).forEach((value) => classValues.add(value));
+    [buttonClassMatch?.[2], linkClassMatch?.[2]].filter(Boolean).forEach((className: string) => {
+      className.split(/\s+/).filter(Boolean).forEach((value: string) => classValues.add(value));
     });
 
     const cleanedButtonAttributes = buttonAttributes
