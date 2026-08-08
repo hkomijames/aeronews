@@ -103,7 +103,9 @@ body {
 }
 
 .article-content button,
-.ProseMirror button {
+.article-content a[role="button"],
+.ProseMirror button,
+.ProseMirror a[role="button"] {
   display: block;
   width: fit-content;
   align-items: center;
@@ -127,9 +129,15 @@ body {
 .article-content button a,
 .article-content button a:hover,
 .article-content button a:focus-visible,
+.article-content a[role="button"],
+.article-content a[role="button"]:hover,
+.article-content a[role="button"]:focus-visible,
 .ProseMirror button a,
 .ProseMirror button a:hover,
-.ProseMirror button a:focus-visible {
+.ProseMirror button a:focus-visible,
+.ProseMirror a[role="button"],
+.ProseMirror a[role="button"]:hover,
+.ProseMirror a[role="button"]:focus-visible {
   color: #ffffff !important;
   text-decoration: none !important;
   font-weight: 700;
@@ -137,14 +145,18 @@ body {
 }
 
 .article-content button:hover,
-.ProseMirror button:hover {
+.article-content a[role="button"]:hover,
+.ProseMirror button:hover,
+.ProseMirror a[role="button"]:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.3);
   background: linear-gradient(135deg, #111827 0%, #273449 100%);
 }
 
 .article-content button:focus-visible,
-.ProseMirror button:focus-visible {
+.article-content a[role="button"]:focus-visible,
+.ProseMirror button:focus-visible,
+.ProseMirror a[role="button"]:focus-visible {
   outline: 2px solid #f8fafc;
   outline-offset: 2px;
 }
