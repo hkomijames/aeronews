@@ -96,15 +96,15 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
       }
 
       if (domNode instanceof Element && domNode.name === 'table') {
-        domNode.attribs.class = `${domNode.attribs.class || ''} not-prose my-6 w-full border-collapse overflow-hidden rounded-xl border border-slate-300`.trim();
+        domNode.attribs.class = `${domNode.attribs.class || ''} not-prose my-6 w-full border-collapse overflow-hidden rounded-xl border border-slate-700 bg-slate-900 text-white`.trim();
       }
 
       if (domNode instanceof Element && domNode.name === 'th') {
-        domNode.attribs.class = `${domNode.attribs.class || ''} bg-slate-900 text-white font-semibold uppercase tracking-wide`.trim();
+        domNode.attribs.class = `${domNode.attribs.class || ''} border border-slate-700 bg-slate-800 text-white font-semibold uppercase tracking-wide`.trim();
       }
 
       if (domNode instanceof Element && domNode.name === 'td') {
-        domNode.attribs.class = `${domNode.attribs.class || ''} border border-slate-300 px-3 py-2 align-top text-slate-800`.trim();
+        domNode.attribs.class = `${domNode.attribs.class || ''} border border-slate-700 px-3 py-2 align-top bg-slate-900/80 text-white`.trim();
       }
     },
   };
