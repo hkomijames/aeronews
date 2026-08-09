@@ -296,7 +296,7 @@ export default async function ArticlePage({ params }: Props) {
             items={[
               { title: 'Emergency Landings on Highways in Florida', href: '/news/emergency-landings-on-highways-in-florida' },
               { title: 'She Survived 9/11 Only to Die on Flight 587 Two Months Later', href: '/news/she-survived-911-only-to-die-on-flight-587-two-months-later' },
-              { title: '7 Best 22" x 14" x 9" Carry-On Bags For Delta Air Lines Flights', href: '/news/7-best-22-x-14-x-9-carry-on-bags-for-delta-air-lines-flights' },
+              { title: 'American Airlines Accidents Statistics (1931 - 2025)', href: '/news/american-airlines-accidents-statistics-1931-2025' },
             ]}
           />
 

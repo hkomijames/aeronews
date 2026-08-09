@@ -133,7 +133,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
       TableRow,
       TableCell.configure({
         HTMLAttributes: {
-          class: 'border border-slate-700 px-3 py-2 align-top text-sm text-slate-200',
+          class: 'border border-slate-700 px-3 py-2 align-top text-sm text-white',
         },
       }),
       TableHeader.configure({
