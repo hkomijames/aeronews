@@ -87,7 +87,7 @@ body {
 
 .article-content th,
 .ProseMirror th {
-  background-color: #1e293b;
+  background-color: #0f172a;
   color: #ffffff;
   font-weight: 700;
   text-align: left;
@@ -95,7 +95,7 @@ body {
 
 .article-content td,
 .ProseMirror td {
-  background-color: #1f2937 !important;
+  background-color: #334155 !important;
   color: #ffffff;
 }
 

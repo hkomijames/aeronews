@@ -105,7 +105,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
 
       if (domNode instanceof Element && domNode.name === 'th') {
         domNode.attribs.class = `${domNode.attribs.class || ''} font-semibold uppercase tracking-wide`.trim();
-        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #ffffff; background-color: #1e293b; color: #ffffff;`.trim();
+        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #ffffff; background-color: #0f172a; color: #ffffff;`.trim();
         if (!domNode.attribs.scope) {
           domNode.attribs.scope = 'col';
         }
@@ -113,7 +113,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
 
       if (domNode instanceof Element && domNode.name === 'td') {
         domNode.attribs.class = `${domNode.attribs.class || ''} align-top`.trim();
-        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #ffffff; background-color: #1f2937; color: #ffffff;`.trim();
+        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #ffffff; background-color: #334155; color: #ffffff;`.trim();
       }
     },
   };
