@@ -96,7 +96,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
       }
 
       if (domNode instanceof Element && domNode.name === 'table') {
-        domNode.attribs.class = `${domNode.attribs.class || ''} not-prose my-6 w-full border-collapse overflow-hidden rounded-xl border border-slate-700 bg-slate-900 text-white`.trim();
+        domNode.attribs.class = `${domNode.attribs.class || ''} not-prose my-6 w-full border-collapse border border-slate-700 bg-slate-900 text-white`.trim();
         if (!domNode.attribs['aria-label'] && !domNode.attribs['aria-labelledby']) {
           domNode.attribs['aria-label'] = 'Data table';
         }
