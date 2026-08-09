@@ -64,6 +64,33 @@ body {
   padding-left: 1.5rem;
 }
 
+.article-content table,
+.ProseMirror table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  overflow: hidden;
+  border: 1px solid #334155;
+  border-radius: 0.75rem;
+}
+
+.article-content th,
+.article-content td,
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid #334155;
+  padding: 0.75rem 0.9rem;
+  vertical-align: top;
+}
+
+.article-content th,
+.ProseMirror th {
+  background-color: #0f172a;
+  color: #ffffff;
+  font-weight: 700;
+  text-align: left;
+}
+
 .article-content li::marker {
   color: #C2410C;
   font-size: 1.1rem;

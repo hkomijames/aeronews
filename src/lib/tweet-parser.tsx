@@ -2,6 +2,7 @@
 import parse, { HTMLReactParserOptions, Element } from 'html-react-parser';
 import { EmbeddedTweet } from 'react-tweet';
 import { getTweet } from 'react-tweet/api';
+import type { Tweet } from 'react-tweet/api';
 import { unstable_cache } from 'next/cache';
 import 'react-tweet/theme.css';
 import { decodeEscapedButtonTags, sanitizeLinkAttributesInHtml } from '@/lib/link-attributes';
@@ -37,7 +38,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
     return rawId ? rawId[1] : ''; 
   }).filter(Boolean)));
 
-  const tweetDataMap: Record<string, any> = {};
+  const tweetDataMap: Record<string, Tweet> = {};
   await Promise.all(
     tweetIds.map(async (id) => {
       const data = await getCachedTweet(id);
@@ -92,6 +93,18 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
         if (src.includes('youtube.com') || src.includes('youtube-nocookie.com')) {
           domNode.attribs.referrerpolicy = "strict-origin-when-cross-origin";
         }
+      }
+
+      if (domNode instanceof Element && domNode.name === 'table') {
+        domNode.attribs.class = `${domNode.attribs.class || ''} not-prose my-6 w-full border-collapse overflow-hidden rounded-xl border border-slate-300`.trim();
+      }
+
+      if (domNode instanceof Element && domNode.name === 'th') {
+        domNode.attribs.class = `${domNode.attribs.class || ''} bg-slate-900 text-white font-semibold uppercase tracking-wide`.trim();
+      }
+
+      if (domNode instanceof Element && domNode.name === 'td') {
+        domNode.attribs.class = `${domNode.attribs.class || ''} border border-slate-300 px-3 py-2 align-top text-slate-800`.trim();
       }
     },
   };

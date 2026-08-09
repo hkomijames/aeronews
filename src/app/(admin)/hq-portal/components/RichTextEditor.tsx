@@ -5,6 +5,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
+import { Table, TableCell, TableHeader, TableRow } from '@tiptap/extension-table';
 import { Node, mergeAttributes } from '@tiptap/core';
 import { upload } from '@vercel/blob/client';
 import { compressImageForUpload } from '@/lib/optimize-image';
@@ -124,6 +125,22 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           class: 'inline-flex items-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2',
         },
       }),
+      Table.configure({
+        HTMLAttributes: {
+          class: 'w-full my-6 border-collapse overflow-hidden rounded-xl border border-slate-700 bg-slate-900/60',
+        },
+      }),
+      TableRow,
+      TableCell.configure({
+        HTMLAttributes: {
+          class: 'border border-slate-700 px-3 py-2 align-top text-sm text-slate-200',
+        },
+      }),
+      TableHeader.configure({
+        HTMLAttributes: {
+          class: 'border border-slate-700 bg-slate-800 px-3 py-2 text-left text-sm font-semibold uppercase tracking-wide text-white',
+        },
+      }),
       Youtube.configure({ 
         HTMLAttributes: { class: 'w-full aspect-video rounded-xl my-6 shadow-md' } 
       }),
@@ -143,7 +160,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           let targetUrl = '';
 
           if (selection instanceof Object && 'node' in selection && selection.node) {
-            const selectedNode = (selection as any).node;
+            const selectedNode = selection.node as { type?: { name?: string }; attrs?: Record<string, string> };
             const nodeType = selectedNode.type?.name;
 
             if (nodeType === 'image' && selectedNode.attrs) {
@@ -161,7 +178,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
                   targetUrl = nodeAdjacent.attrs.src;
                 }
               }
-            } catch (e) {
+            } catch {
               // Ignore out-of-bounds selection blocks quietly
             }
           }
@@ -335,6 +352,30 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           className={`px-2.5 py-1 text-xs font-bold rounded ${editor.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-slate-200'}`}
         >
           • Bullet
+        </button>
+        <button
+          type="button"
+          disabled={isAnyUploading}
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          className={`px-2.5 py-1 text-xs font-medium rounded ${editor.isActive('table') ? 'bg-blue-600 text-white' : 'bg-slate-950 text-slate-400 hover:text-slate-200'}`}
+        >
+          ▦ Table
+        </button>
+        <button
+          type="button"
+          disabled={isAnyUploading}
+          onClick={() => editor.chain().focus().addRowAfter().run()}
+          className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200"
+        >
+          ↕ Row
+        </button>
+        <button
+          type="button"
+          disabled={isAnyUploading}
+          onClick={() => editor.chain().focus().addColumnAfter().run()}
+          className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200"
+        >
+          ↔ Col
         </button>
         
         <div className="w-px bg-slate-800 mx-1 self-stretch" />
