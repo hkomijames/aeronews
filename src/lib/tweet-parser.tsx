@@ -96,21 +96,24 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
       }
 
       if (domNode instanceof Element && domNode.name === 'table') {
-        domNode.attribs.class = `${domNode.attribs.class || ''} not-prose my-6 w-full border-collapse border border-slate-700 bg-slate-900 text-white`.trim();
+        domNode.attribs.class = `${domNode.attribs.class || ''} not-prose my-6 w-full border-collapse`.trim();
+        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #334155; background-color: #0f172a; color: #ffffff;`.trim();
         if (!domNode.attribs['aria-label'] && !domNode.attribs['aria-labelledby']) {
           domNode.attribs['aria-label'] = 'Data table';
         }
       }
 
       if (domNode instanceof Element && domNode.name === 'th') {
-        domNode.attribs.class = `${domNode.attribs.class || ''} border border-slate-700 bg-slate-800 text-white font-semibold uppercase tracking-wide`.trim();
+        domNode.attribs.class = `${domNode.attribs.class || ''} font-semibold uppercase tracking-wide`.trim();
+        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #334155; background-color: #1e293b; color: #ffffff;`.trim();
         if (!domNode.attribs.scope) {
           domNode.attribs.scope = 'col';
         }
       }
 
       if (domNode instanceof Element && domNode.name === 'td') {
-        domNode.attribs.class = `${domNode.attribs.class || ''} border border-slate-700 px-3 py-2 align-top bg-slate-800/70 text-white`.trim();
+        domNode.attribs.class = `${domNode.attribs.class || ''} align-top`.trim();
+        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #334155; background-color: rgba(30, 41, 59, 0.7); color: #ffffff;`.trim();
       }
     },
   };
