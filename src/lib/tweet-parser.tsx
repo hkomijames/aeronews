@@ -113,7 +113,7 @@ export async function RenderArticleContent({ html }: RenderEngineProps) {
 
       if (domNode instanceof Element && domNode.name === 'td') {
         domNode.attribs.class = `${domNode.attribs.class || ''} align-top`.trim();
-        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #ffffff; background-color: #162033; color: #ffffff;`.trim();
+        domNode.attribs.style = `${domNode.attribs.style || ''}; border: 1px solid #ffffff; background-color: #1f2937; color: #ffffff;`.trim();
       }
     },
   };

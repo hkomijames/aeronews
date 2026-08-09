@@ -95,7 +95,7 @@ body {
 
 .article-content td,
 .ProseMirror td {
-  background-color: #1f2937;
+  background-color: #1f2937 !important;
   color: #ffffff;
 }
 
