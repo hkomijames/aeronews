@@ -70,25 +70,33 @@ body {
   border-collapse: collapse;
   margin: 1.5rem 0;
   overflow: hidden;
-  border: 1px solid #334155;
+  border: 1px solid #ffffff;
   border-radius: 0.75rem;
+  background-color: #0f172a;
+  color: #ffffff;
 }
 
 .article-content th,
 .article-content td,
 .ProseMirror th,
 .ProseMirror td {
-  border: 1px solid #334155;
+  border: 1px solid #ffffff;
   padding: 0.75rem 0.9rem;
   vertical-align: top;
 }
 
 .article-content th,
 .ProseMirror th {
-  background-color: #0f172a;
+  background-color: #1e293b;
   color: #ffffff;
   font-weight: 700;
   text-align: left;
+}
+
+.article-content td,
+.ProseMirror td {
+  background-color: #162033;
+  color: #ffffff;
 }
 
 .article-content li::marker {
