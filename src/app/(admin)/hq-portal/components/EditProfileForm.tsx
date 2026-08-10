@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from 'react';
+import { upload } from '@vercel/blob/client';
+import { compressImageForUpload } from '@/lib/optimize-image';
 import { updateUserProfile } from '../profile-actions'; // Verified Server Action pipeline connection
 
 // ─── 1. TYPE CONTRACT DEFINITIONS FOR STRICT COMPILER COMPLIANCE ───
@@ -33,22 +35,25 @@ export default function EditProfileForm({ initialData }: EditProfileFormProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('file', file);
-
     try {
       setSaving(true);
-      const res = await fetch('/api/media', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (data.success) {
-        setAvatarUrl(data.url);
+      const fileToUpload = await compressImageForUpload(file);
+      const newBlob = await upload(fileToUpload.name, fileToUpload, {
+        access: 'public',
+        handleUploadUrl: '/api/media',
+      });
+
+      if (newBlob?.url) {
+        setAvatarUrl(newBlob.url);
       } else {
         alert('Cloud image processing rejected.');
       }
     } catch (err) {
+      console.error('Avatar upload failed:', err);
       alert('Network issue streaming image.');
     } finally {
       setSaving(false);
+      e.target.value = '';
     }
   };
 
