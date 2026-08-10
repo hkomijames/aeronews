@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { unstable_cache } from 'next/cache';
 import nextDynamic from 'next/dynamic';
 import MostReadList from './components/MostReadList';
-import AirModelAffiliate from './components/AirModelAffiliate';
 
 // ─── STOP TIME-BASED CHECKS: CACHE INDEFINITELY AT GLOBAL EDGE CDN ───
 export const dynamic = 'force-static';
@@ -237,12 +236,6 @@ export default async function PublicHomePage() {
             />
 
             <NewsletterForm />
-
-            <AirModelAffiliate
-              variant="sidebar"
-              title="AirModels Picks"
-              subtitle="Curated aviation models and display gear."
-            />
           </aside>
         </div>
       </div>

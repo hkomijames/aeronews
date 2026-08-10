@@ -6,7 +6,6 @@ import { cache } from 'react'; // ─── IMPORT NATIVE REACT CACHE UTILITY �
 import { RenderArticleContent } from '@/lib/tweet-parser';
 import nextDynamic from 'next/dynamic';
 import MostReadList from '../../components/MostReadList';
-import AirModelAffiliate from '../../components/AirModelAffiliate';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -280,9 +279,6 @@ export default async function ArticlePage({ params }: Props) {
             </footer>
           )}
 
-          <div className="mt-8">
-            <AirModelAffiliate variant="main" title="AirModel Picks" subtitle="Curated aviation models and display gear." />
-          </div>
         </main>
 
         {/* ─── THE PERSISTENT VISUAL SIDEBAR COMPARTMENT ROW ─── */}
@@ -302,8 +298,6 @@ export default async function ArticlePage({ params }: Props) {
 
           {/* Flight Briefing Box */}
           <NewsletterForm />
-
-          <AirModelAffiliate variant="sidebar" title="Sponsored Picks" subtitle="Gear picks for modern travelers." />
         </aside>
 
       </div>
