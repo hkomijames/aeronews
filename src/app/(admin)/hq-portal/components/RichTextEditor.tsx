@@ -67,6 +67,10 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
   const [linkFormOpen, setLinkFormOpen] = useState(false);
   const [linkUrlInput, setLinkUrlInput] = useState('');
   const [linkNofollow, setLinkNofollow] = useState(false);
+  const [imageUrlModalOpen, setImageUrlModalOpen] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [imageAltInput, setImageAltInput] = useState('');
+  const [imageCaptionInput, setImageCaptionInput] = useState('');
 
   const uploadedUrlsRef = useRef<string[]>([]);
   const isSavedRef = useRef(isSaved);
@@ -183,7 +187,7 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
             }
           }
 
-          if (targetUrl) {
+          if (targetUrl && uploadedUrlsRef.current.includes(targetUrl)) {
             deleteBlobFromCloud(targetUrl);
           }
         }
@@ -236,6 +240,63 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
     const buttonLabel = selectedText || 'Button';
 
     editor.chain().focus().insertContent(`<button type="button">${buttonLabel}</button>`).run();
+  };
+
+  const openImageUrlModal = () => {
+    setImageUrlInput('');
+    setImageAltInput('');
+    setImageCaptionInput('');
+    setImageUrlModalOpen(true);
+  };
+
+  const closeImageUrlModal = () => {
+    setImageUrlModalOpen(false);
+    setImageUrlInput('');
+    setImageAltInput('');
+    setImageCaptionInput('');
+  };
+
+  const insertImageFromUrl = () => {
+    const trimmedUrl = imageUrlInput.trim();
+    const trimmedAlt = imageAltInput.trim();
+    const trimmedCaption = imageCaptionInput.trim();
+
+    if (!trimmedUrl) {
+      alert('Image URL is required.');
+      return;
+    }
+
+    if (!trimmedAlt) {
+      alert('Alt text is required.');
+      return;
+    }
+
+    try {
+      new URL(trimmedUrl, window.location.origin);
+    } catch {
+      alert('Please enter a valid image URL.');
+      return;
+    }
+
+    // This path inserts the remote image URL directly into the article.
+    // It does not use the Vercel Blob upload pipeline.
+    const validatedAlt = trimmedAlt || 'News illustration graphic';
+
+    if (trimmedCaption) {
+      const figureHtml = `
+        <figure class="my-6 text-center">
+          <img src="${trimmedUrl}" alt="${validatedAlt}" data-size="large" class="rounded-xl max-h-100 object-cover mx-auto shadow-md" />
+          <figcaption class="text-xs text-slate-400 mt-2 font-sans">
+            <i>${trimmedCaption}</i>
+          </figcaption>
+        </figure>
+      `;
+      editor.chain().focus().insertContent(figureHtml).run();
+    } else {
+      editor.chain().focus().setImage({ src: trimmedUrl, alt: validatedAlt }).updateAttributes('image', { dataSize: 'large' }).run();
+    }
+
+    closeImageUrlModal();
   };
 
   const addImageLocally = () => {
@@ -436,6 +497,64 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
             </button>
           </div>
         )}
+        {imageUrlModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 p-4">
+            <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900 p-4 shadow-2xl">
+              <div className="mb-3">
+                <h3 className="text-sm font-semibold text-white">Insert image from URL</h3>
+                <p className="mt-1 text-xs text-slate-400">This adds the image directly to the article without using the local file upload flow.</p>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">Image URL</label>
+                  <input
+                    type="url"
+                    value={imageUrlInput}
+                    onChange={(event) => setImageUrlInput(event.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 text-sm text-slate-200 outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">Alt Text</label>
+                  <input
+                    type="text"
+                    value={imageAltInput}
+                    onChange={(event) => setImageAltInput(event.target.value)}
+                    placeholder="Descriptive alt text"
+                    className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 text-sm text-slate-200 outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-400">Caption (Optional)</label>
+                  <input
+                    type="text"
+                    value={imageCaptionInput}
+                    onChange={(event) => setImageCaptionInput(event.target.value)}
+                    placeholder="Optional caption"
+                    className="w-full rounded border border-slate-700 bg-slate-950 px-2.5 py-2 text-sm text-slate-200 outline-none focus:border-blue-500"
+                  />
+                </div>
+              </div>
+              <div className="mt-4 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={closeImageUrlModal}
+                  className="rounded bg-slate-800 px-3 py-2 text-sm font-semibold text-slate-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={insertImageFromUrl}
+                  className="rounded bg-blue-600 px-3 py-2 text-sm font-semibold text-white"
+                >
+                  Insert Image
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
         <button
           type="button"
           disabled={isAnyUploading}
@@ -443,6 +562,14 @@ export default function RichTextEditor({ content, onChange, isSaved = false }: E
           className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200 disabled:opacity-50"
         >
           {imageLoading ? '⌛ Uploading...' : '🖼️ Image'}
+        </button>
+        <button
+          type="button"
+          disabled={isAnyUploading}
+          onClick={openImageUrlModal}
+          className="px-2.5 py-1 text-xs font-medium rounded bg-slate-950 text-slate-400 hover:text-slate-200 disabled:opacity-50"
+        >
+          🔗 Upload via URL
         </button>
         {/* DYNAMIC CONTEXTUAL TOOLBAR ELEMENT: Displays resizing choices if an image node is highlighted */}
         {editor.isActive('image') && (
