@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { unstable_cache } from 'next/cache';
 
-export const revalidate = false;
+// 1. Tell Next.js to dynamically update this route on the edge
+export const dynamic = 'force-dynamic';
+export const revalidate = 3600; // Automatically sync fresh database items every hour
 
 const getCachedSitemapData = unstable_cache(
   async () => {
@@ -34,7 +36,8 @@ const getCachedSitemapData = unstable_cache(
   },
   ['sitemap-index-syndication-matrix'],
   {
-    tags: ['stream-home'],
+    revalidate: 3600, // Sync cache lifespan with route settings
+    tags: ['stream-home', 'sitemap'],
   }
 );
 
@@ -78,7 +81,7 @@ export async function GET() {
   </url>`;
     }
 
-    // Articles
+    // Articles - Safely listing all 60+ live URLs dynamically
     for (const article of articles) {
       const lastMod = new Date(article.updatedAt)
         .toISOString()
@@ -100,7 +103,7 @@ export async function GET() {
       headers: {
         'Content-Type': 'application/xml; charset=utf-8',
         'Cache-Control':
-          'public, max-age=0, s-maxage=31536000, stale-while-revalidate=60',
+          'public, max-age=0, s-maxage=3600, stale-while-revalidate=60', // Adjusted down from 1 year to 1 hour
       },
     });
   } catch (error) {

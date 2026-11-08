@@ -13,7 +13,7 @@ const getCachedFeedArticles = unstable_cache(
     return await prisma.article.findMany({
       where: { isPublished: true },
       orderBy: { createdAt: 'desc' },
-      take: 30,
+      take: 100,
       include: { author: true },
     });
   },
