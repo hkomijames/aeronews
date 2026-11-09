@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleAnalytics } from '@next/third-parties/google'; 
+import Script from "next/script"; // Import the Next.js optimized script component
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,8 +21,6 @@ export const metadata: Metadata = {
     icon: "/favicon.png",       
     apple: "/apple-touch-icon.png", 
   },
-  
-  // Automatically generates the proper openGraph tags, including your logo
   openGraph: {
     siteName: "Aero Saga",
     title: "Aero Saga",
@@ -43,7 +42,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Safe, structured JSON-LD schema for search engine branding
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
@@ -57,16 +55,42 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-  
+        {/* 
+          1. OPTIMIZED TERMLY SCRIPT LOADING
+          Using 'beforeInteractive' forces the Auto-Blocker engine to execute 
+          at the absolute top of the DOM tree, safely halting tracking scripts until user opt-in.
+        */}
+        <Script 
+          id="termly-cmp"
+          src="https://app.termly.io/resource-blocker/72d9ffd7-4627-41c6-a33f-771040a4d242?autoBlock=on"
+          strategy="beforeInteractive"
+        />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col">{children}</body>
-      {process.env.NEXT_PUBLIC_GA_ID && (
-        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
-      )}
+      <body className="min-h-full flex flex-col">
+        {children}
+
+        {/* 
+          2. MOVE PREFERENCES ANCHOR INSIDE BODY
+          Placing this at the bottom of the body keeps your HTML structure 
+          clean and completely standard for AdSense bots. You can style this using Tailwind.
+        */}
+        <div className="fixed bottom-4 left-4 z-40 bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800 text-xs text-slate-400 hover:text-white transition-colors duration-200">
+          <a href="#" className="termly-display-preferences">Consent Preferences</a>
+        </div>
+
+        {/* 
+          3. GA4 TRACKING INITIALIZATION
+          Now perfectly sandboxed within the body wrapper.
+        */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
+      </body>
     </html>
   );
 }
